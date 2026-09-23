@@ -1,55 +1,48 @@
-[
+﻿[
   {
     "id": "jp-stop",
     "countryCode": "JP",
     "label": "Stop (止まれ)",
-    "shortAlert": "Full stop before the white line. Check both directions before moving.",
-    "explanation": "Under Article 43 of Japan's Road Traffic Act, vehicles must come to a complete dead stop immediately before the stop line (or intersection boundary if no line exists). In Japan, the stop sign is an inverted red triangle with '止まれ' (Tomare) and 'STOP'. Unlike Western or Philippine yield triangles, this sign strictly mandates a 0 km/h dead stop, not rolling through.",
+    "shortAlert": "Stop before the stop line, or before the intersection if there is no line.",
+    "explanation": "At a Japanese stop sign, stop before the stop line. If there is no stop line, stop just before the intersection. Check for pedestrians and cross traffic before proceeding.",
     "conditions": [
-      "Must come to a complete stop (0 km/h)",
-      "Must stop before the designated stop line",
-      "Yield right of way to cross traffic and pedestrians"
+      "Stop before the stop line when one is present.",
+      "If there is no stop line, stop just before the intersection.",
+      "Check that proceeding is safe."
     ],
-    "exceptions": [
-      "Follow traffic police officer hand signals if conflicting with the sign"
-    ],
-    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "exceptions": [],
+    "sourceUrl": "https://english.jaf.or.jp/safe-driving/quiz/motorvehicles",
     "reviewedOn": "2026-09-24",
     "status": "candidate"
   },
   {
     "id": "jp-railway",
     "countryCode": "JP",
-    "label": "Railway Crossing Ahead (踏切あり)",
-    "shortAlert": "Mandatory full stop before train tracks, even if gates are open.",
-    "explanation": "Under Article 33 of Japan's Road Traffic Act, vehicles must come to a complete dead stop immediately before the stop line at any railway level crossing, regardless of whether crossing gates are raised or lowered. Drivers must visually look both left and right and listen for approaching trains before proceeding across the tracks.",
+    "label": "Railway crossing ahead (踏切あり)",
+    "shortAlert": "Railway crossing ahead. Check the crossing and follow its signals.",
+    "explanation": "This is an advance warning of a level crossing, not a statement that the vehicle is already at the tracks. Before crossing, stop before the crossing or its stop line and check both directions with eyes and ears. If the crossing has traffic lights, proceed in accordance with those lights.",
     "conditions": [
-      "Mandatory complete stop before tracks at all times",
-      "Check both directions visually and listen",
-      "Ensure exit space is clear on the other side before crossing"
+      "The sign warns of a level crossing ahead.",
+      "At a crossing without traffic lights, stop before crossing and check that it is safe."
     ],
     "exceptions": [
-      "When traffic signals at the crossing explicitly show a green light allowing transit"
+      "At a crossing equipped with traffic lights, follow the lights."
     ],
-    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "sourceUrl": "https://english.jaf.or.jp/safe-driving/quiz/motorvehicles",
     "reviewedOn": "2026-09-24",
     "status": "candidate"
   },
   {
     "id": "ph-no-right-turn",
     "countryCode": "PH",
-    "label": "No Right Turn on Red",
-    "shortAlert": "No right turn on red signal. Wait for the green light.",
-    "explanation": "Under Philippine traffic regulations (Republic Act No. 4136 and MMDA Regulation No. 96-005), right turns on a red signal are prohibited when a 'No Right Turn on Red' sign is posted. Vehicles must stop at the stop line and wait until the traffic signal displays a green light or green arrow before turning.",
+    "label": "No right turn",
+    "shortAlert": "No right turn at this sign.",
+    "explanation": "The Philippine LTO driver manual identifies this prohibition sign as NO RIGHT TURN. Vehicles must not turn right where it applies. This is a general turn prohibition; a separate NO RIGHT TURN ON RED SIGNAL sign applies specifically during a red signal.",
     "conditions": [
-      "Must remain stationary during red traffic signal",
-      "Applies to rightmost turning lanes when sign is posted"
+      "Applies where the No Right Turn sign is posted."
     ],
-    "exceptions": [
-      "When a traffic enforcer manually directs vehicles to turn",
-      "When a dedicated green turn arrow is illuminated"
-    ],
-    "sourceUrl": "https://lto.gov.ph",
+    "exceptions": [],
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf",
     "reviewedOn": "2026-09-24",
     "status": "candidate"
   }
