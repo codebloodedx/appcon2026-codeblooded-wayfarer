@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { fileToJpegDataUrl, grabJpegDataUrl } from './frameCapture';
 import { useCameraStream } from './useCameraStream';
@@ -11,6 +11,7 @@ const SAMPLE_MAX_WIDTH = 640;
 const CAPTURE_MAX_WIDTH = 1280;
 const CAPTURE_QUALITY = 0.9;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_ENCODED_IMAGE_CHARS = 2_000_000;
 const FACING_MODE = 'environment' as const;
 
 export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanelProps) {
@@ -21,6 +22,10 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
 
   const isLive = status === 'live';
   const cameraUnavailable = status === 'denied' || status === 'no-camera' || status === 'error';
+
+  useEffect(() => {
+    if (!active) stop();
+  }, [active, stop]);
 
   useFrameSampler({
     enabled: isLive && active && !parked,
@@ -39,8 +44,13 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
       setNotice('The camera is not ready yet. Try again in a moment.');
       return;
     }
+    if (frame.length > MAX_ENCODED_IMAGE_CHARS) {
+      setNotice('This photo is too large for sign recognition. Move closer and try again.');
+      return;
+    }
     try {
       onCapture(frame);
+      setNotice('Parked camera photo captured.');
     } catch (err) {
       console.warn('[camera] onCapture failed', err);
       setNotice('The photo could not be processed. Try again.');
@@ -54,7 +64,7 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
       input.value = '';
       if (!file || !parked || busy) return;
 
-      if (!file.type.startsWith('image/')) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
         setNotice('Choose an image file (JPEG, PNG, or WebP).');
         return;
       }
@@ -67,7 +77,12 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
       setNotice(null);
       try {
         const dataUrl = await fileToJpegDataUrl(file, CAPTURE_MAX_WIDTH, CAPTURE_QUALITY);
+        if (dataUrl.length > MAX_ENCODED_IMAGE_CHARS) {
+          setNotice('This photo is too large for sign recognition. Choose a smaller photo.');
+          return;
+        }
         onCapture(dataUrl);
+        setNotice('Parked uploaded photo selected — not a live detection.');
       } catch (err) {
         console.warn('[camera] upload failed', err);
         setNotice('That image could not be read. Try a JPEG or PNG.');
@@ -116,7 +131,7 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
 
       <div className="rr-camera__controls">
         {(status === 'idle' || cameraUnavailable) && (
-          <button type="button" className="rr-camera__btn rr-camera__btn--primary" onClick={start}>
+          <button type="button" className="rr-camera__btn rr-camera__btn--primary" onClick={start} disabled={!active}>
             {status === 'idle' ? 'Start camera' : 'Try camera again'}
           </button>
         )}
@@ -157,7 +172,7 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="rr-camera__file"
               onChange={handleFile}
               tabIndex={-1}
