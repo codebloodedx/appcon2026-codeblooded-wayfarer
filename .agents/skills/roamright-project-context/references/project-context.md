@@ -8,4 +8,4 @@
 - Assignments and exact editable areas: [`docs/team-roles.md`](../../../../docs/team-roles.md). Skills and hours are unverified in [`docs/skills.md`](../../../../docs/skills.md).
 - Current phase: MVP foundation and parallel work; see [`docs/status.md`](../../../../docs/status.md).
 
-Last bounded audit: baseline `03c0c3c`, setup branch work not yet merged. Do not infer feature completion from the proposal or issue text.
+Last bounded audit: foundation PR #6 merged at `cd86247`; navigation-scope changes are on a separate review branch. Do not infer feature completion from the proposal or issue text.

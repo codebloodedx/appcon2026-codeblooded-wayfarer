@@ -18,3 +18,8 @@ After the foundation is merged, record the merged commit and inspect material di
 - Changed guidance: country detection/fallback; route line/next turn/ETA target; a clearly simulated PH restricted-zone alternative; simulated proximity preview; parked rider check and high-contrast two-wheeler preview.
 - Accuracy boundary: current Makati restriction details and universal footwear illegality are not verified. No live route compliance, fixed-distance alert, or physical HUD claim is approved by this context update.
 - Actual implementation and integrated test evidence: not verified.
+
+## Merged foundation correction
+
+- During this sync, GitHub showed PR #6 had merged at `cd86247` while the scope commit was pushed to its former branch. The contract update was moved onto a new branch from current `main` so it can be reviewed separately.
+- Foundation CI and the local navigation-branch type check/build passed. Navigation changes and feature behavior remain unmerged/unverified.
