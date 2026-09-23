@@ -13,3 +13,16 @@
 !.env*.example
 !.env.template
 !.env*.template
+
+# Dependencies and builds
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
