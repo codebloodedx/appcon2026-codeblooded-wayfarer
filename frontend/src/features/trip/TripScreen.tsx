@@ -78,7 +78,7 @@ export function TripScreen({ trip, onPark }: TripScreenProps) {
           <div>
             <div className="guidance-title"><p className="panel-kicker">Current guidance</p><StatusBadge>Unknown sign</StatusBadge></div>
             <h2>No verified sign recognized</h2>
-            <p>Continue to follow posted signs and local authorities. RoamRight will not invent advice for an unknown or unsupported sign.</p>
+            <p>Continue to follow posted signs and local authorities. WayFarer will not invent advice for an unknown or unsupported sign.</p>
           </div>
           <div className="audio-status" aria-label="Audio status"><span aria-hidden="true">◖))</span><span><small>Audio</small><strong>Not played</strong></span></div>
         </article>

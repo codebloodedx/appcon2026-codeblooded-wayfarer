@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { BrandLogo, wayfarerLogoUrl } from '../../components/BrandLogo';
 import type { CountryCode, TripPlan } from './types';
 
 type TripSetupProps = {
@@ -29,19 +30,24 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
     <main className="setup-page">
       <section className="setup-intro" aria-labelledby="setup-title">
         <a className="brand setup-brand" href="#setup-title">
-          <span className="brand-mark" aria-hidden="true">R</span>
-          <span><strong>RoamRight</strong><small>Know the road. Respect the place.</small></span>
+          <BrandLogo />
+          <span><strong>WayFarer</strong><small>Know the road. Respect the place.</small></span>
         </a>
         <div className="setup-copy">
-          <p className="eyebrow">Cross-border driving companion</p>
-          <h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1>
-          <p>Set your journey and keep local signs, road manners, and sourced guidance within easy reach.</p>
+          <div className="setup-title-row">
+            <div>
+              <p className="eyebrow">Cross-border driving companion</p>
+              <h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1>
+              <p>Set your journey and keep local signs, road manners, and sourced guidance within easy reach.</p>
+            </div>
+            <img className="setup-logo-art" src={wayfarerLogoUrl} alt="WayFarer mountain road logo" />
+          </div>
           <div className="journey-visual" aria-label="Journey from the Philippines to Japan">
             <div><span>🇵🇭</span><strong>Home</strong><small>Philippines</small></div>
             <div className="journey-line"><span aria-hidden="true">✦</span></div>
             <div><span>🇯🇵</span><strong>Destination</strong><small>Japan</small></div>
           </div>
-          <p className="setup-note">RoamRight supports a stationary MVP demonstration. It is not a replacement for official road signs or local authorities.</p>
+          <p className="setup-note">WayFarer supports a stationary MVP demonstration. It is not a replacement for official road signs or local authorities.</p>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { DevicePreviews } from './features/trip/DevicePreviews';
 import { ParkedView } from './features/trip/ParkedView';
@@ -17,6 +17,10 @@ const DEFAULT_TRIP: TripPlan = {
 export default function App() {
   const [trip, setTrip] = useState<TripPlan | null>(null);
   const [view, setView] = useState<AppView>('trip');
+
+  useEffect(() => {
+    document.title = 'WayFarer';
+  }, []);
 
   if (!trip) {
     return <TripSetup initialTrip={DEFAULT_TRIP} onStart={setTrip} />;

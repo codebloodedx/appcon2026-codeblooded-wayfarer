@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
+import { BrandLogo } from './BrandLogo';
 
 type AppShellProps = {
   activeView: AppView;
@@ -20,10 +21,10 @@ export function AppShell({ activeView, destination, children, onChangeView, onEd
   return (
     <div className="app-shell">
       <header className="topbar">
-        <button className="brand" type="button" onClick={() => onChangeView('trip')} aria-label="RoamRight trip home">
-          <span className="brand-mark" aria-hidden="true">R</span>
+        <button className="brand" type="button" onClick={() => onChangeView('trip')} aria-label="WayFarer trip home">
+          <BrandLogo />
           <span>
-            <strong>RoamRight</strong>
+            <strong>WayFarer</strong>
             <small>Philippines → Japan</small>
           </span>
         </button>

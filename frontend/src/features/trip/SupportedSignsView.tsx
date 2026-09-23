@@ -24,7 +24,7 @@ export function SupportedSignsView() {
 
       <article className="unknown-policy">
         <div className="unknown-icon" aria-hidden="true">?</div>
-        <div><p className="panel-kicker">Unknown is a safe result</p><h2>Unsupported signs never produce driving advice</h2><p>If the camera sees a sign outside the tested set—or cannot identify it confidently—RoamRight returns <code>unknown</code>, stays silent, and directs the traveler to posted signs and local authorities.</p></div>
+        <div><p className="panel-kicker">Unknown is a safe result</p><h2>Unsupported signs never produce driving advice</h2><p>If the camera sees a sign outside the tested set—or cannot identify it confidently—WayFarer returns <code>unknown</code>, stays silent, and directs the traveler to posted signs and local authorities.</p></div>
       </article>
     </section>
   );
