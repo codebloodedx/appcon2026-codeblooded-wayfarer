@@ -1,0 +1,15 @@
+# Environment files & secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+.env.*
+*.env
+
+# Allow example / template environment files
+!.env.example
+!.env*.example
+!.env.template
+!.env*.template
