@@ -1,9 +1,100 @@
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
+import { GeminiGuidanceModel, type GuidanceModel } from './gemini.js';
+import { parseImageDataUrl } from './image.js';
+import { RuleRepository } from './rules.js';
+import { isCountryCode } from './types.js';
 
-export const app = express();
-app.disable('x-powered-by');
-app.use(express.json({ limit: '2mb' }));
+type AppDependencies = { rules?: RuleRepository; model?: GuidanceModel };
 
-app.get('/api/health', (_request, response) => {
-  response.json({ status: 'ok', service: 'roamright-api' });
-});
+export function createApp(dependencies: AppDependencies = {}) {
+  const app = express();
+  const rules = dependencies.rules || new RuleRepository();
+  const model = dependencies.model || new GeminiGuidanceModel();
+
+  app.disable('x-powered-by');
+  app.use(express.json({ limit: '2mb' }));
+
+  app.get('/api/health', (_request, response) => {
+    response.json({ status: 'ok', service: 'roamright-api' });
+  });
+
+  app.get('/api/rules', async (request, response, next) => {
+    try {
+      const countryCode = request.query.countryCode;
+      if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
+      return response.json(await rules.byCountry(countryCode));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/recognize', async (request, response, next) => {
+    try {
+      const { countryCode, imageDataUrl } = request.body as Record<string, unknown>;
+      if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
+      const image = parseImageDataUrl(imageDataUrl);
+      if (!image) return response.status(400).json({ error: 'A JPEG, PNG, or WebP image up to 1.5 MB is required' });
+      const allowedRules = await rules.testedByCountry(countryCode);
+      const signId = await model.recognize(image, countryCode, allowedRules);
+      const rule = signId ? allowedRules.find((item) => item.id === signId) : undefined;
+      if (!rule) return response.json({ status: 'unknown', signId: null, rule: null });
+      return response.json({ status: 'recognized', signId: rule.id, rule });
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/explain', async (request, response, next) => {
+    try {
+      const { countryCode, signId, question } = request.body as Record<string, unknown>;
+      if (!isCountryCode(countryCode) || typeof signId !== 'string' || typeof question !== 'string') {
+        return response.status(400).json({ error: 'countryCode, signId, and question are required' });
+      }
+      if (question.trim().length < 1 || question.length > 300) {
+        return response.status(400).json({ error: 'question must contain 1 to 300 characters' });
+      }
+      const rule = await rules.findTested(countryCode, signId);
+      if (!rule) return response.status(404).json({ error: 'No tested reviewed rule matches this country and sign' });
+      const answer = await model.explain(rule, question.trim());
+      return response.json({ answer, sourceUrl: rule.sourceUrl });
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/speak', async (request, response, next) => {
+    try {
+      const { countryCode, signId } = request.body as Record<string, unknown>;
+      if (!isCountryCode(countryCode) || typeof signId !== 'string') {
+        return response.status(400).json({ error: 'countryCode and signId are required' });
+      }
+      const rule = await rules.findTested(countryCode, signId);
+      if (!rule) return response.status(404).json({ error: 'No tested reviewed rule matches this country and sign' });
+      const audio = await model.speak(rule.shortAlert);
+      response.setHeader('Content-Type', 'audio/wav');
+      response.setHeader('Cache-Control', 'private, max-age=3600');
+      return response.send(audio);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.use((error: Error, _request: Request, response: Response, _next: NextFunction) => {
+    const requestError = error as Error & { status?: number; type?: string };
+    if (requestError.type === 'entity.too.large' || requestError.status === 413) {
+      return response.status(413).json({ error: 'Request body must be 2 MB or smaller' });
+    }
+    if (requestError instanceof SyntaxError && requestError.status === 400) {
+      return response.status(400).json({ error: 'Request body must be valid JSON' });
+    }
+    if (error.message === 'GEMINI_NOT_CONFIGURED') {
+      return response.status(503).json({ error: 'Gemini is not configured' });
+    }
+    console.error('RoamRight API error:', error.message);
+    return response.status(502).json({ error: 'The guidance service is temporarily unavailable' });
+  });
+
+  return app;
+}
+
+export const app = createApp();
