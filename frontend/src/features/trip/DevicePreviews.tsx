@@ -24,7 +24,7 @@ export function DevicePreviews({ trip }: DevicePreviewsProps) {
       <div className="device-grid">
         <article className="device-card">
           <div className="device-card-heading"><div><span className="device-number">01</span><h2>Phone</h2></div><StatusBadge>Interface preview</StatusBadge></div>
-          <div className="phone-frame"><div className="phone-island" /><div className="device-top"><span>WayFarer</span><small>🇯🇵 Japan</small></div><PreviewContent /><div className="phone-action">Parked details</div></div>
+          <div className="phone-frame"><div className="phone-island" /><div className="device-top"><span>WayFarer</span><small>{trip.destinationCountry === 'JP' ? '🇯🇵 Japan' : '🇵🇭 Philippines'}</small></div><PreviewContent /><div className="phone-action">Parked details</div></div>
           <p>Primary handheld layout with large targets and a stacked map/camera summary.</p>
         </article>
 
@@ -42,7 +42,7 @@ export function DevicePreviews({ trip }: DevicePreviewsProps) {
 
         <article className="device-card">
           <div className="device-card-heading"><div><span className="device-number">04</span><h2>EV display</h2></div><StatusBadge>Interface preview</StatusBadge></div>
-          <div className="ev-frame"><div className="ev-side"><BrandLogo className="device-brand-mark" /><span>Trip</span><span>Signs</span></div><div className="ev-main"><div className="device-top"><span>{trip.destination}</span><small>Simulated location</small></div><PreviewContent compact /><div className="ev-footer"><span>Audio: off</span><span>ETA: —</span></div></div></div>
+          <div className="ev-frame"><div className="ev-side"><BrandLogo className="device-brand-mark" /><span>Trip</span><span>Signs</span></div><div className="ev-main"><div className="device-top"><span>{trip.destination}</span><small>{trip.useSimulatedOrigin ? 'Simulated location' : 'Location not resolved'}</small></div><PreviewContent compact /><div className="ev-footer"><span>Audio: off</span><span>ETA: —</span></div></div></div>
           <p>Wide-format dashboard concept. It does not imply a vehicle connection or production navigation.</p>
         </article>
       </div>

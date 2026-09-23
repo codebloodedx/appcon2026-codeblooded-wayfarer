@@ -20,7 +20,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!trip.destination.trim()) {
-      setError('Enter a city, landmark, or address in Japan.');
+      setError(`Enter a city, landmark, or address in ${destinationCountryName}.`);
       return;
     }
     onStart({ ...trip, destination: trip.destination.trim() });
@@ -68,7 +68,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
           <label className="field-label" htmlFor="destination-country">Destination country</label>
           <div className="select-wrap">
             <span aria-hidden="true">{countries.find((country) => country.code === trip.destinationCountry)?.flag}</span>
-            <select id="destination-country" value={trip.destinationCountry} onChange={(event) => setTrip({ ...trip, destinationCountry: event.target.value as CountryCode })}>
+              <select id="destination-country" value={trip.destinationCountry} onChange={(event) => { setTrip({ ...trip, destinationCountry: event.target.value as CountryCode, destination: '' }); setError(''); }}>
               {countries.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}
             </select>
           </div>
@@ -82,7 +82,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
 
           <label className="toggle-row">
             <input type="checkbox" checked={trip.useSimulatedOrigin} onChange={(event) => setTrip({ ...trip, useSimulatedOrigin: event.target.checked })} />
-            <span><strong>Use Japan judging origin</strong><small>Simulated location · Tokyo Station</small></span>
+            <span><strong>Use {destinationCountryName} judging origin</strong><small>Simulated location · {trip.destinationCountry === 'JP' ? 'Tokyo Station' : 'Makati City'}</small></span>
           </label>
 
           <button className="button button-primary full" type="submit">Open trip view <span aria-hidden="true">→</span></button>

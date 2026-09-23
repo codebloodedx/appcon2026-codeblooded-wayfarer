@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
+import type { TripPlan } from '../features/trip/types';
 import { BrandLogo } from './BrandLogo';
 
 type AppShellProps = {
   activeView: AppView;
-  destination: string;
+  trip: TripPlan;
   children: ReactNode;
   onChangeView: (view: AppView) => void;
   onEditTrip: () => void;
@@ -17,7 +18,7 @@ const navItems: Array<{ id: AppView; label: string; parked?: boolean }> = [
   { id: 'devices', label: 'Device previews', parked: true },
 ];
 
-export function AppShell({ activeView, destination, children, onChangeView, onEditTrip }: AppShellProps) {
+export function AppShell({ activeView, trip, children, onChangeView, onEditTrip }: AppShellProps) {
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -25,13 +26,13 @@ export function AppShell({ activeView, destination, children, onChangeView, onEd
           <BrandLogo />
           <span>
             <strong>WayFarer</strong>
-            <small>Philippines → Japan</small>
+            <small>{trip.homeCountry === 'PH' ? 'Philippines' : 'Japan'} → {trip.destinationCountry === 'PH' ? 'Philippines' : 'Japan'}</small>
           </span>
         </button>
 
         <div className="topbar-trip">
           <span className="location-dot" aria-hidden="true" />
-          <span><small>Destination</small><strong>{destination}</strong></span>
+          <span><small>Destination</small><strong>{trip.destination}</strong></span>
         </div>
 
         <button className="button button-secondary compact" type="button" onClick={onEditTrip}>Edit trip</button>
