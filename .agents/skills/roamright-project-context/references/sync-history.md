@@ -10,3 +10,11 @@
 - Still unverified: merged setup, actual build/CI, enforced branch rules, keys, and working MVP features.
 
 After the foundation is merged, record the merged commit and inspect material diffs before promoting any status claim. Do not update context automatically on every code edit.
+
+## Proposal navigation sync
+
+- Trigger: Ranee explicitly asked to integrate Ash's suggestions in the linked proposal.
+- Baseline: foundation PR #6 at `687d04c`, still unmerged when this edit began.
+- Changed guidance: country detection/fallback; route line/next turn/ETA target; a clearly simulated PH restricted-zone alternative; simulated proximity preview; parked rider check and high-contrast two-wheeler preview.
+- Accuracy boundary: current Makati restriction details and universal footwear illegality are not verified. No live route compliance, fixed-distance alert, or physical HUD claim is approved by this context update.
+- Actual implementation and integrated test evidence: not verified.

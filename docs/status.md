@@ -9,6 +9,7 @@
 - The local scaffold installed 177 npm packages with 0 reported audit vulnerabilities. `npm run check` and `npm run build` passed. Direct API and frontend-proxied `/api/health` returned `status: ok`; the app root returned HTTP 200. These are **local foundation checks**, not live-feature or merged-branch evidence.
 - GitHub ruleset `23887092` is active on `main`: only Ranee can update it through a PR bypass; it requires a PR, one approval and code owner review, dismisses stale approvals, resolves threads, requires the `build` check, and blocks deletion/force pushes. The effective branch rules were queried after setup. Organization/repository admins can still edit the ruleset; John, Gio and Bryan currently have repository admin access, and John is also an organization admin.
 - The [proposal document](https://docs.google.com/document/d/1jxH9OjBbI5yua4vMU1G2QFRlfLCkVng8gfCu-GXFwlk) was read. It describes the live camera/map concept but predates the later exact Gemini and sign choices.
+- Ranee requested integration of Ash's navigation, restricted-zone, proximity and rider-display suggestions. The proposal and interface contract now describe scoped route guidance and clearly labeled simulations. The features themselves remain **not verified**. Current official Makati hours/boundaries and the claimed universal footwear prohibition have not been established.
 
 ## In progress
 
@@ -17,7 +18,7 @@
 ## Not verified or not started
 
 - Member implementation/PRs and available hours: **Not verified**.
-- Gemini sign recognition, source-checked sign records, Gemini speech, Google Maps route, live camera, device previews, real end-to-end demo: **Not verified**.
+- Gemini sign recognition, source-checked sign/restriction records, Gemini speech, Google Maps route/next-turn/ETA, country detection, restricted-zone route preview, proximity simulation, live camera, device previews, real end-to-end demo: **Not verified**.
 - Deployed URL and final submission: **Not verified**.
 
 ## Blockers and decisions
