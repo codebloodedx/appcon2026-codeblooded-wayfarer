@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { wayfarerLogoUrl } from './components/BrandLogo';
 import { DevicePreviews } from './features/trip/DevicePreviews';
@@ -16,7 +16,7 @@ const DEFAULT_TRIP: TripPlan = {
   useSimulatedOrigin: true,
 };
 
-export default function App() {
+export function App() {
   const [trip, setTrip] = useState<TripPlan | null>(null);
   const [view, setView] = useState<AppView>('trip');
   const [currentCountry, setCurrentCountry] = useState<CountryCode | null>(null);
@@ -50,11 +50,57 @@ export default function App() {
   if (!trip) return <TripSetup initialTrip={DEFAULT_TRIP} onStart={startTrip} />;
 
   return (
-    <AppShell activeView={view} trip={trip} onChangeView={setView} onEditTrip={() => setTrip(null)}>
-      {view === 'trip' && <TripScreen trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} guidanceError={guidanceError} audioStatus={audioStatus} onCountryResolved={onCountryResolved} onPark={() => setView('parked')} />}
-      {view === 'parked' && <ParkedView trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} />}
-      {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
-      {view === 'devices' && <DevicePreviews trip={trip} />}
+    <AppShell
+      activeView={view}
+      trip={trip}
+      onChangeView={setView}
+      onEditTrip={() => setTrip(null)}
+      onUpdateTrip={(updated) => setTrip(updated)}
+      onRequestLocation={() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            () => setLocationSource('gps'),
+            () => setLocationSource('selected')
+          );
+        }
+      }}
+    >
+      {/* 1. Main Map Viewport stays active in background (No reloads or unmounting) */}
+      <TripScreen
+        trip={trip}
+        currentCountry={currentCountry}
+        locationSource={locationSource}
+        latestRule={latestRule}
+        guidanceError={guidanceError}
+        audioStatus={audioStatus}
+        onCountryResolved={onCountryResolved}
+        onPark={() => setView('parked')}
+      />
+
+      {/* 2. Bottom-Sheet Drawers for Secondary Details (Overlay over Map) */}
+      {view === 'parked' && (
+        <ParkedView
+          trip={trip}
+          currentCountry={currentCountry}
+          locationSource={locationSource}
+          latestRule={latestRule}
+          onClose={() => setView('trip')}
+        />
+      )}
+      {view === 'signs' && (
+        <SupportedSignsView
+          countryCode={trip.destinationCountry}
+          onClose={() => setView('trip')}
+        />
+      )}
+      {view === 'devices' && (
+        <DevicePreviews
+          trip={trip}
+          onClose={() => setView('trip')}
+        />
+      )}
     </AppShell>
   );
 }
+
+export default App;
