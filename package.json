@@ -1,0 +1,14 @@
+{
+  "name": "roamright",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["frontend", "backend"],
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "check": "npm run check -w backend && npm run check -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
