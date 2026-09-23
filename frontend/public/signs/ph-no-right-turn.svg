@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <!-- Philippine Regulatory Sign R2-4: No Right Turn -->
+  <!-- Outer circle and border -->
+  <circle cx="250" cy="250" r="235" fill="#FFFFFF" stroke="#D32F2F" stroke-width="44"/>
+
+  <!-- Right Turn Arrow (Black) -->
+  <g fill="#212121">
+    <!-- Vertical stem bending right -->
+    <path d="M 200,350 L 200,240 C 200,200 220,180 260,180 L 310,180 L 310,140 L 390,205 L 310,270 L 310,230 L 260,230 C 245,230 240,235 240,250 L 240,350 Z" />
+  </g>
+
+  <!-- Red Diagonal Prohibition Slash (Top-Left to Bottom-Right) -->
+  <line x1="100" y1="100" x2="400" y2="400" stroke="#D32F2F" stroke-width="40" stroke-linecap="round"/>
+</svg>

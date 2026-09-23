@@ -1,0 +1,56 @@
+[
+  {
+    "id": "jp-stop",
+    "countryCode": "JP",
+    "label": "Stop (止まれ)",
+    "shortAlert": "Full stop before the white line. Check both directions before moving.",
+    "explanation": "Under Article 43 of Japan's Road Traffic Act, vehicles must come to a complete dead stop immediately before the stop line (or intersection boundary if no line exists). In Japan, the stop sign is an inverted red triangle with '止まれ' (Tomare) and 'STOP'. Unlike Western or Philippine yield triangles, this sign strictly mandates a 0 km/h dead stop, not rolling through.",
+    "conditions": [
+      "Must come to a complete stop (0 km/h)",
+      "Must stop before the designated stop line",
+      "Yield right of way to cross traffic and pedestrians"
+    ],
+    "exceptions": [
+      "Follow traffic police officer hand signals if conflicting with the sign"
+    ],
+    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  },
+  {
+    "id": "jp-railway",
+    "countryCode": "JP",
+    "label": "Railway Crossing Ahead (踏切あり)",
+    "shortAlert": "Mandatory full stop before train tracks, even if gates are open.",
+    "explanation": "Under Article 33 of Japan's Road Traffic Act, vehicles must come to a complete dead stop immediately before the stop line at any railway level crossing, regardless of whether crossing gates are raised or lowered. Drivers must visually look both left and right and listen for approaching trains before proceeding across the tracks.",
+    "conditions": [
+      "Mandatory complete stop before tracks at all times",
+      "Check both directions visually and listen",
+      "Ensure exit space is clear on the other side before crossing"
+    ],
+    "exceptions": [
+      "When traffic signals at the crossing explicitly show a green light allowing transit"
+    ],
+    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  },
+  {
+    "id": "ph-no-right-turn",
+    "countryCode": "PH",
+    "label": "No Right Turn on Red",
+    "shortAlert": "No right turn on red signal. Wait for the green light.",
+    "explanation": "Under Philippine traffic regulations (Republic Act No. 4136 and MMDA Regulation No. 96-005), right turns on a red signal are prohibited when a 'No Right Turn on Red' sign is posted. Vehicles must stop at the stop line and wait until the traffic signal displays a green light or green arrow before turning.",
+    "conditions": [
+      "Must remain stationary during red traffic signal",
+      "Applies to rightmost turning lanes when sign is posted"
+    ],
+    "exceptions": [
+      "When a traffic enforcer manually directs vehicles to turn",
+      "When a dedicated green turn arrow is illuminated"
+    ],
+    "sourceUrl": "https://lto.gov.ph",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  }
+]
