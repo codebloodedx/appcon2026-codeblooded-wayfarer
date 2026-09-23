@@ -4,7 +4,7 @@
 
 - Node.js 22.12+ and npm 10+.
 - A modern browser. Camera and location permissions work on `localhost` or HTTPS; the app must request permission when a session starts.
-- Gemini and Google Maps keys are optional for the foundation health check. They are required for the later AI and map integration.
+- Gemini and Google Maps keys are optional for the health check. They are required for recognition, explanations, speech, and routes.
 
 ## Fresh clone
 
@@ -22,17 +22,22 @@ Start both services:
 npm run dev
 ```
 
-Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The starter page should say **Backend connected**. The API health response is available at `http://localhost:3001/api/health`.
+Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The API health response is available at `http://localhost:3001/api/health`.
+
+The backend reads reviewed records from `shared/rules/rules.json`. Recognition returns `unknown` until that file contains a matching record marked `tested`. A `candidate` record can appear in the supported-sign list but cannot produce driving guidance.
+
+Enable **Maps JavaScript API** and **Routes API** for the Maps project. Restrict `VITE_GOOGLE_MAPS_API_KEY` to the judging site and localhost origins. The Gemini key stays on the backend. Optional model variables in `.env.example` make preview model changes explicit without editing source code.
 
 ## Checks
 
 ```text
+npm test
 npm run check
 npm run build
 git diff --check
 ```
 
-The build verifies TypeScript and produces ignored `dist/` folders. It does not prove the later camera/map/Gemini journey; each area must attach its own functional evidence. No test runner is configured yet, so do not report unit tests as passing.
+The automated API tests verify input validation, tested-record gating, cross-country isolation, unknown fallback, source return, and speech lookup. They use a fake model and do not prove live Gemini, Maps, camera, or audio behavior. Each area must still attach functional evidence from the integrated demo.
 
 ## Common problems
 
