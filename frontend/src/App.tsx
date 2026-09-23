@@ -1,25 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { AppShell } from './components/AppShell';
+import { DevicePreviews } from './features/trip/DevicePreviews';
+import { ParkedView } from './features/trip/ParkedView';
+import { SupportedSignsView } from './features/trip/SupportedSignsView';
+import { TripScreen } from './features/trip/TripScreen';
+import { TripSetup } from './features/trip/TripSetup';
+import type { AppView, TripPlan } from './features/trip/types';
+
+const DEFAULT_TRIP: TripPlan = {
+  homeCountry: 'PH',
+  destinationCountry: 'JP',
+  destination: 'Shibuya, Tokyo',
+  useSimulatedOrigin: true,
+};
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState('Checking backend…');
+  const [trip, setTrip] = useState<TripPlan | null>(null);
+  const [view, setView] = useState<AppView>('trip');
 
-  useEffect(() => {
-    fetch('/api/health')
-      .then((response) => {
-        if (!response.ok) throw new Error('Backend unavailable');
-        return response.json() as Promise<{ status: string }>;
-      })
-      .then((body) => setApiStatus(body.status === 'ok' ? 'Backend connected' : 'Backend unavailable'))
-      .catch(() => setApiStatus('Backend unavailable'));
-  }, []);
+  if (!trip) {
+    return <TripSetup initialTrip={DEFAULT_TRIP} onStart={setTrip} />;
+  }
 
   return (
-    <main className="starter">
-      <p className="eyebrow">AppCon 2026 · Team 01</p>
-      <h1>RoamRight</h1>
-      <p>Cross-border driving rules and local manners assistant</p>
-      <p className="status">{apiStatus}</p>
-      <p className="note">Project foundation is running. Trip, camera, map, and guidance features are in progress.</p>
-    </main>
+    <AppShell
+      activeView={view}
+      destination={trip.destination}
+      onChangeView={setView}
+      onEditTrip={() => setTrip(null)}
+    >
+      {view === 'trip' && <TripScreen trip={trip} onPark={() => setView('parked')} />}
+      {view === 'parked' && <ParkedView trip={trip} />}
+      {view === 'signs' && <SupportedSignsView />}
+      {view === 'devices' && <DevicePreviews trip={trip} />}
+    </AppShell>
   );
 }
