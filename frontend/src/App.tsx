@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
+import { wayfarerLogoUrl } from './components/BrandLogo';
 import { DevicePreviews } from './features/trip/DevicePreviews';
 import { ParkedView } from './features/trip/ParkedView';
 import { SupportedSignsView } from './features/trip/SupportedSignsView';
@@ -20,6 +21,16 @@ export default function App() {
 
   useEffect(() => {
     document.title = 'WayFarer';
+
+    const existingIcon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    const favicon = existingIcon ?? document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/png';
+    favicon.href = wayfarerLogoUrl;
+
+    if (!existingIcon) {
+      document.head.appendChild(favicon);
+    }
   }, []);
 
   if (!trip) {
