@@ -175,7 +175,7 @@ export default function App() {
     return (
       <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
         {reviewingPendingGuidance
-          ? <ParkedView trip={pendingTrip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} onBack={() => setReviewingPendingGuidance(false)} onCapture={(frame) => void handleRecognition(frame, false, pendingTrip.destinationCountry)} />
+          ? <ParkedView trip={pendingTrip} onBack={() => setReviewingPendingGuidance(false)} />
           : <PreTripBriefing trip={pendingTrip} briefing={briefing} loading={briefingLoading} error={briefingError} onBack={() => { setPendingTrip(null); setBriefing(null); setBriefingError(null); }} onBrowseGuidance={() => setReviewingPendingGuidance(true)} onContinue={confirmTrip} />}
       </SimulationFrame>
     );
@@ -195,7 +195,7 @@ export default function App() {
           <TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} spokenGuidance={spokenGuidance} simulationMode={simulationMode} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />
         </div>
         {view === 'trip' && <TripOverview trip={trip} onOpenNavigation={() => navigateView('navigation')} onEditTrip={editTrip} />}
-        {view === 'reviewed-guidance' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}
+        {view === 'reviewed-guidance' && <ParkedView trip={trip} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} />}
         {view === 'sign-recognition' && <SupportedSignsView countryCode={trip.destinationCountry} />}
         {view === 'settings' && <SettingsView spokenGuidance={spokenGuidance} onSpokenGuidanceChange={setSpokenGuidance} />}
       </AppShell>

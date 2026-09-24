@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
-import { CameraPanel } from '../camera';
 import { listDrivingGuidance, listRules } from '../guidance';
 import type { CountryCode, DrivingGuidanceRule, GuidanceEvent, RuleRecord } from '../guidance/types';
 import type { TripPlan } from './types';
 
 type Props = {
   trip: TripPlan;
-  latestRule: RuleRecord | null;
-  candidateRule: RuleRecord | null;
-  guidanceError: string | null;
   navigationActive?: boolean;
   onBack?: () => void;
-  onCapture: (imageDataUrl: string) => void;
 };
 
 type GuidanceCard = {
@@ -57,7 +52,7 @@ function signCard(rule: RuleRecord): GuidanceCard {
   };
 }
 
-export function ParkedView({ trip, latestRule, candidateRule, guidanceError, navigationActive = false, onBack, onCapture }: Props) {
+export function ParkedView({ trip, navigationActive = false, onBack }: Props) {
   const [country, setCountry] = useState<CountryCode>(trip.destinationCountry);
   const [category, setCategory] = useState('All');
   const [locality, setLocality] = useState('All');
@@ -66,7 +61,6 @@ export function ParkedView({ trip, latestRule, candidateRule, guidanceError, nav
   const [signs, setSigns] = useState<RuleRecord[]>([]);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryError, setLibraryError] = useState<string | null>(null);
-  const detectedRule = latestRule ?? candidateRule;
   const tripLocality = trip.destination.split(',').at(-1)?.trim();
 
   useEffect(() => {
@@ -136,11 +130,6 @@ export function ParkedView({ trip, latestRule, candidateRule, guidanceError, nav
         </article>)}
         {filteredCards.length === 0 && <p className="guidance-library-state">No reviewed guidance matches these filters.</p>}
       </div>}
-
-      <div className="parked-grid reviewed-tools">
-        <article className="detail-card etiquette-card"><p className="panel-kicker">Previously shown guidance</p><h2>{detectedRule?.label ?? 'No recognized sign yet'}</h2><p>{latestRule?.explanation ?? candidateRule?.explanation ?? 'Recognized sign guidance will appear here for later review.'}</p>{latestRule?.etiquette && <p>{latestRule.etiquette}</p>}{detectedRule && <a href={detectedRule.sourceUrl} target="_blank" rel="noreferrer">Open reviewed source</a>}{guidanceError && <p className="field-error" role="alert">{guidanceError}</p>}</article>
-        <article className="detail-card photo-card"><p className="panel-kicker">Manual photo exploration</p><h2>Inspect a sign while parked</h2><CameraPanel active parked onSample={async () => undefined} onCapture={onCapture} /><p className="muted">Upload a JPEG, PNG, or WebP, or capture a photo while stationary.</p></article>
-      </div>
     </section>
   );
 }
