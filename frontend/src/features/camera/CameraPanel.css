@@ -9,10 +9,10 @@
   position: relative;
   aspect-ratio: 16 / 9;
   background: #0c1014;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  border: 1px solid #bcd7fa;
+  box-shadow: 0 10px 24px rgba(0, 57, 166, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .rr-camera__video {
@@ -80,7 +80,7 @@
   border-radius: 7px;
   background: rgba(0, 0, 0, 0.72);
   color: #dce7f5;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -142,37 +142,38 @@
 .rr-camera__controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.7rem;
 }
 
 .rr-camera__btn {
-  min-height: 44px;
+  min-height: 46px;
   padding: 0 1.1rem;
-  border-radius: 10px;
-  border: 1px solid #4a5661;
-  background: rgba(255, 255, 255, 0.02);
-  color: inherit;
+  border-radius: 12px;
+  border: 1px solid #9bbde9;
+  background: #ffffff;
+  color: #071a3d;
   font: inherit;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 .rr-camera__btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: #6b7883;
+  background: #edf5ff;
+  border-color: #0868ff;
 }
 .rr-camera__btn:active:not(:disabled) {
   transform: scale(0.98);
 }
 
 .rr-camera__btn--primary {
-  background: #1f6f5c;
-  border-color: #1f6f5c;
+  background: #0868ff;
+  border-color: #0868ff;
   color: #fff;
+  box-shadow: 0 4px 0 #0039a6;
 }
 .rr-camera__btn--primary:hover:not(:disabled) {
-  background: #257a65;
-  border-color: #257a65;
+  background: #005ce3;
+  border-color: #005ce3;
 }
 
 .rr-camera__btn:disabled {
@@ -191,11 +192,11 @@
 .rr-camera__notice {
   margin: 0;
   padding: 0.6rem 0.85rem;
-  border-radius: 8px;
-  background: rgba(242, 183, 5, 0.08);
-  border: 1px solid rgba(242, 183, 5, 0.25);
-  color: #e8c766;
-  font-size: 0.88rem;
+  border-radius: 12px;
+  background: #fff8e6;
+  border: 1px solid #f0cf84;
+  color: #725018;
+  font-size: 0.9rem;
   line-height: 1.4;
 }
 

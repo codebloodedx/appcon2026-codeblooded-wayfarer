@@ -164,7 +164,7 @@ export default function App() {
 
   function selectSimulationMode(mode: SimulationMode) {
     setSimulationMode(mode);
-    if (!trip) navigateView('trip', true);
+    navigateView(trip ? view : 'trip', true);
   }
 
   if (!simulationMode) return <LandingPage onSelect={selectSimulationMode} />;
