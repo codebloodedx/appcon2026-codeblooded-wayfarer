@@ -144,11 +144,6 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
       </div>
 
       <aside className="desktop-driving-sidebar" aria-label="Driving assistant">
-        <div className="desktop-cockpit-heading">
-          <span className="desktop-cockpit-mark" aria-hidden="true">W</span>
-          <span><strong>WayFarer</strong><small>Driving in {names[currentCountry ?? trip.destinationCountry]}</small></span>
-        </div>
-
         <header className="navigation-search-bar gmaps-search-bar">
           <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
           <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>

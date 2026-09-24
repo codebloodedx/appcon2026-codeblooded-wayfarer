@@ -2420,7 +2420,7 @@ p { line-height: 1.58; }
 
 /* Desktop driving cockpit: presentation-only split over the shared navigation state. */
 .desktop-driving-sidebar { display: contents; }
-.desktop-cockpit-heading, .desktop-section-heading { display: none; }
+.desktop-section-heading { display: none; }
 .navigation-sign-alert p { grid-column: 1 / -1; margin: .25rem 0 0; color: #e8f2ff; font-size: .62rem; line-height: 1.35; }
 .navigation-directions { display: none; }
 
@@ -2475,32 +2475,6 @@ p { line-height: 1.58; }
     color: #071a3d;
     scrollbar-color: rgba(0, 114, 232, .28) transparent;
   }
-
-  .simulation-desktop .desktop-cockpit-heading {
-    display: flex;
-    align-items: center;
-    gap: .7rem;
-    padding: 1rem 1.15rem .85rem;
-    border-bottom: 1px solid #d7e6fb;
-    background: #0072e8;
-    color: white;
-  }
-
-  .simulation-desktop .desktop-cockpit-mark {
-    display: grid;
-    width: 2.25rem;
-    height: 2.25rem;
-    flex: 0 0 auto;
-    place-items: center;
-    border: 2px solid white;
-    border-radius: .65rem;
-    font: 900 1.1rem/1 'Nunito', sans-serif;
-    box-shadow: 0 4px 0 #0039a6;
-  }
-
-  .simulation-desktop .desktop-cockpit-heading > span:last-child { display: grid; }
-  .simulation-desktop .desktop-cockpit-heading strong { font-size: .92rem; }
-  .simulation-desktop .desktop-cockpit-heading small { color: #dcecff; font-size: .64rem; }
 
   .simulation-desktop .navigation-search-bar {
     position: relative;
