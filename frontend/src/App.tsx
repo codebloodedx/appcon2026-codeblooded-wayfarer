@@ -139,6 +139,8 @@ export default function App() {
       setCandidateRule(null);
     } catch (error) {
       setRecognitionDebug(null);
+      setLatestRule(null);
+      setCandidateRule(null);
       setGuidanceError(error instanceof Error ? error.message : 'Sign recognition is unavailable.');
       if (speak) throw error;
     }

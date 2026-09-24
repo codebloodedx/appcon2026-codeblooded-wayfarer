@@ -88,7 +88,7 @@ export class GeminiGuidanceModel implements GuidanceModel {
       visualDescription: rule.visualDescription,
     }));
     const response = await client().models.generateContent({
-      model: process.env.GEMINI_VISION_MODEL?.trim() || 'gemini-2.5-flash',
+      model: process.env.GEMINI_VISION_MODEL?.trim() || 'gemini-3.6-flash',
       contents: [{
         role: 'user',
         parts: [
@@ -156,7 +156,7 @@ export class GeminiGuidanceModel implements GuidanceModel {
       etiquette: rule.etiquette,
     };
     const response = await client().models.generateContent({
-      model: process.env.GEMINI_TEXT_MODEL?.trim() || 'gemini-2.5-flash-lite',
+      model: process.env.GEMINI_TEXT_MODEL?.trim() || 'gemini-3.6-flash',
       contents: `Reviewed record: ${JSON.stringify(reviewedContext)}\nTraveler question: ${question}`,
       config: {
         systemInstruction: `Answer briefly using only the reviewed record. Do not add rules, penalties, distances, times, or exceptions. If the record does not answer the question, reply exactly: ${unknownAnswer}`,
