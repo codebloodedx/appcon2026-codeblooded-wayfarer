@@ -765,6 +765,10 @@ p { line-height: 1.58; }
 .route-editor-popover > div:first-child { display: flex; align-items: center; justify-content: space-between; }
 .route-editor-popover > div:first-child button { border: 0; background: none; color: #9cb0d7; cursor: pointer; font-size: 1.2rem; }
 .route-editor-popover p { margin: .35rem 0 .6rem; color: #9cb0d7; font-size: .65rem; }
+.route-editor-origin { display: grid; gap: .12rem; margin-bottom: .65rem; padding: .65rem .75rem; border: 1px solid rgba(255,255,255,.12); border-radius: .65rem; background: rgba(255,255,255,.07); }
+.route-editor-origin small { color: #7ee5f4; font-size: .55rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.route-editor-origin strong { color: white; font-size: .78rem; }
+.route-editor-origin span { color: #9cb0d7; font-size: .58rem; }
 .route-editor-popover .field-label { color: #9cb0d7; }
 .route-editor-popover .input-wrap { background: white; }
 .route-editor-popover .button { margin-top: .75rem; }
@@ -2612,7 +2616,25 @@ p { line-height: 1.58; }
   .simulation-desktop .navigation-route-summary i { color: #0072e8; font-style: normal; line-height: .8; }
   .simulation-desktop .navigation-route-summary small { color: #64708a; }
   .simulation-desktop .navigation-route-summary strong { color: #071a3d; font-size: .78rem; }
-  .simulation-desktop .route-editor-popover { top: calc(100% - .35rem); right: 1rem; left: 1rem; width: auto; color: white; }
+  .simulation-desktop .route-editor-popover {
+    position: static;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: .75rem;
+    padding: .85rem;
+    border: 1px solid #c9ddfa;
+    border-radius: .85rem;
+    background: #f4f8ff;
+    color: #071a3d;
+    box-shadow: none;
+  }
+  .simulation-desktop .route-editor-popover > div:first-child button { color: #526688; }
+  .simulation-desktop .route-editor-popover p { color: #60708e; }
+  .simulation-desktop .route-editor-origin { border-color: #d7e6fb; background: white; }
+  .simulation-desktop .route-editor-origin small { color: #0072e8; }
+  .simulation-desktop .route-editor-origin strong { color: #071a3d; }
+  .simulation-desktop .route-editor-origin span { color: #60708e; }
+  .simulation-desktop .route-editor-popover .field-label { color: #526688; }
 
   .simulation-desktop .desktop-guidance-section {
     padding: .9rem 1.15rem 1rem;

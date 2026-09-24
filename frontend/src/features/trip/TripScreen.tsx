@@ -147,16 +147,17 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
       <aside className="desktop-driving-sidebar" aria-label="Driving assistant">
         <header className="navigation-search-bar gmaps-search-bar">
           <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
-          <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
+          <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)} aria-expanded={routeEditorOpen} aria-controls="active-route-editor">
             <span><small>From</small><strong>{trip.origin}</strong></span>
             <i aria-hidden="true">→</i>
             <span><small>To</small><strong>{trip.destination}</strong></span>
           </button>
-          <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>
+          <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination" aria-expanded={routeEditorOpen} aria-controls="active-route-editor">✎</button>
           {routeEditorOpen && (
-            <form className="route-editor-popover" onSubmit={updateDestination}>
-              <div><strong>Change destination</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
+            <form id="active-route-editor" className="route-editor-popover" onSubmit={updateDestination}>
+              <div><strong>Edit route</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
               <p>WayFarer will pause and calculate from the simulated vehicle’s current position.</p>
+              <div className="route-editor-origin"><small>From</small><strong>{trip.origin}</strong><span>{trip.originSource === 'simulated' ? 'Simulated origin' : trip.originSource === 'gps' ? 'GPS location' : 'Selected location'}</span></div>
               <PlaceSearchInput id="active-destination" label="To" value={destinationInput} countryCode={trip.destinationCountry} placeholder="Enter a new destination" onChange={(value) => { setDestinationInput(value); setDestinationCoordinate(undefined); }} onSelect={(place) => { setDestinationInput(place.label); setDestinationCoordinate(place.coordinate); }} />
               <button className="button button-primary full" type="submit">Update Route <span>→</span></button>
               <button className="route-new-trip" type="button" onClick={onEditTrip}>Change origin or driving country</button>
