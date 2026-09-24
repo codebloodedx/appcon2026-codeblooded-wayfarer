@@ -2,7 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import type { AppView, CountryCode, TripPlan } from '../features/trip/types';
 import { BottomSheetDrawer } from './BottomSheetDrawer';
 import { BrandLogo } from './BrandLogo';
-import { DevicesIcon, MapIcon, ParkedIcon, SearchIcon, SignsIcon } from './Icons';
+import { ArrowRightIcon, DevicesIcon, MapIcon, ParkedIcon, SearchIcon, SignsIcon } from './Icons';
 
 type AppShellProps = {
   activeView: AppView;
@@ -124,6 +124,18 @@ export function AppShell({
               </button>
               <button type="button" onClick={() => handleQuickSwitch('PH')}>
                 Makati (PH)
+              </button>
+              <button
+                type="button"
+                className="edit-full-route-btn"
+                onClick={() => {
+                  setEditingDestination(false);
+                  onEditTrip();
+                }}
+                title="Edit license country, destination country, address and demo mode"
+              >
+                <ArrowRightIcon size={12} />
+                <span>Edit Full Route Setup</span>
               </button>
               <button type="button" className="text-btn" onClick={() => setEditingDestination(false)}>
                 Cancel

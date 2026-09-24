@@ -23,7 +23,69 @@
   --shadow: 0 20px 55px rgba(6, 27, 70, .1);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 27, 70, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 27, 70, 0.2);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 27, 70, 0.4);
+}
+
+.drawer-content,
+.gmaps-search-bar,
+.hud-sign-card,
+.parked-container,
+.supported-signs-container,
+.devices-container {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.drawer-content::-webkit-scrollbar-thumb,
+.hud-sign-card::-webkit-scrollbar-thumb,
+.floating-camera-pip::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.drawer-content::-webkit-scrollbar-thumb:hover,
+.hud-sign-card::-webkit-scrollbar-thumb:hover,
+.floating-camera-pip::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Conceal scrollbars on horizontal swipeable rows */
+.quick-presets,
+.pip-fixtures-scroll,
+.supported-nav-tabs,
+.parked-tabs-nav,
+.devices-segmented-nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.quick-presets::-webkit-scrollbar,
+.pip-fixtures-scroll::-webkit-scrollbar,
+.supported-nav-tabs::-webkit-scrollbar,
+.parked-tabs-nav::-webkit-scrollbar,
+.devices-segmented-nav::-webkit-scrollbar {
+  display: none;
+}
+
 html { min-width: 320px; scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: #f3f6fb; }
 button, input, select { font: inherit; }
@@ -1925,6 +1987,65 @@ p { line-height: 1.58; }
 
 .simulation-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.18);
+}
+
+.detect-location-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.65rem;
+  background: var(--blue-soft);
+  color: var(--blue);
+  border: 1px solid rgba(8, 104, 255, 0.25);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.detect-location-btn:hover:not(:disabled) {
+  background: #d8e7ff;
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.detect-location-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.location-status-pill {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.location-status-pill.success {
+  color: #0d8a43;
+}
+
+.edit-full-route-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: rgba(8, 104, 255, 0.1);
+  color: #0868ff;
+  border: 1px solid rgba(8, 104, 255, 0.25);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.edit-full-route-btn:hover {
+  background: rgba(8, 104, 255, 0.2);
+  color: #0448c7;
 }
 
 /* 10. Mobile Responsiveness (< 768px & Standalone PWA) */

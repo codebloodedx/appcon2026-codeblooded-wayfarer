@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { BrandLogo, wayfarerLogoUrl } from '../../components/BrandLogo';
 import { ArrowRightIcon, ShieldCheckIcon, SparklesIcon, TargetIcon } from '../../components/Icons';
 import { StatusBadge } from '../../components/StatusBadge';
@@ -17,8 +17,48 @@ const countries: Array<{ code: CountryCode; name: string; label: string }> = [
 export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
   const [trip, setTrip] = useState(initialTrip);
   const [error, setError] = useState('');
+  const [locating, setLocating] = useState(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTrip(initialTrip);
+  }, [initialTrip]);
 
   const destinationCountryName = countries.find((country) => country.code === trip.destinationCountry)?.name ?? 'destination country';
+
+  function handleDetectLocation() {
+    if (!('geolocation' in navigator)) {
+      setLocationNotice('Geolocation is not supported by your browser.');
+      return;
+    }
+    setLocating(true);
+    setLocationNotice(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const isJapan = latitude > 24 && longitude > 122;
+        const isPhilippines = latitude >= 4 && latitude <= 22 && longitude >= 116 && longitude <= 128;
+        const detected: CountryCode = isJapan ? 'JP' : isPhilippines ? 'PH' : 'JP';
+        setTrip((prev) => ({
+          ...prev,
+          destinationCountry: detected,
+          destination: detected === 'JP' ? 'Shibuya, Tokyo' : 'Makati City',
+          useSimulatedOrigin: false,
+        }));
+        setLocationNotice(`Auto-detected: ${detected === 'JP' ? 'Japan (JP)' : 'Philippines (PH)'}`);
+        setLocating(false);
+      },
+      (err) => {
+        setLocationNotice(
+          err.code === 1
+            ? 'Location permission was denied. Please select manually.'
+            : 'Unable to retrieve location. Please select manually.'
+        );
+        setLocating(false);
+      },
+      { timeout: 8000 }
+    );
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -101,7 +141,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
 
           <div className="form-grid">
             <div className="field-group">
-              <label className="field-label" htmlFor="home-country">Origin country</label>
+              <label className="field-label" htmlFor="home-country">Origin country (Driver's license)</label>
               <div className="select-wrap">
                 <span className="select-badge">{trip.homeCountry}</span>
                 <select
@@ -119,7 +159,19 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
             </div>
 
             <div className="field-group">
-              <label className="field-label" htmlFor="destination-country">Destination country</label>
+              <div className="field-label-row">
+                <label className="field-label" htmlFor="destination-country">Current / Destination country to drive</label>
+                <button
+                  type="button"
+                  className="detect-location-btn"
+                  onClick={handleDetectLocation}
+                  disabled={locating}
+                  title="Detect country using device GPS"
+                >
+                  <TargetIcon size={12} />
+                  <span>{locating ? 'Detecting…' : 'Detect My Location'}</span>
+                </button>
+              </div>
               <div className="select-wrap">
                 <span className="select-badge highlight">{trip.destinationCountry}</span>
                 <select
@@ -142,6 +194,11 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
                   ))}
                 </select>
               </div>
+              {locationNotice && (
+                <p className={`location-status-pill ${locationNotice.startsWith('Auto-detected') ? 'success' : 'muted'}`} role="status">
+                  {locationNotice}
+                </p>
+              )}
             </div>
           </div>
 
@@ -238,7 +295,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
           <div className="guide-card">
             <span className="guide-num">03</span>
             <div className="guide-body">
-              <strong>In-Car HUD Cockpit</strong>
+              <strong>Live Driving Guidance (HUD)</strong>
               <p>Zero-hallucination sign alerts, Google Maps route lines, and Groq vision camera feed.</p>
             </div>
           </div>
@@ -255,7 +312,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
           </div>
           <div className="transparency-badge">
             <TargetIcon size={16} />
-            <span>100dvh Automotive Cockpit</span>
+            <span>100dvh Automotive Guidance</span>
           </div>
         </div>
       </section>

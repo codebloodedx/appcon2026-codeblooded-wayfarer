@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { wayfarerLogoUrl } from './components/BrandLogo';
 import { SimulationFrame } from './components/SimulationFrame';
-import { getTripBriefing, playRuleAlert, recognizeSign, speakBrowserText } from './features/guidance';
-import type { CountryCode, RecognitionDebug, RuleRecord, TripBriefing } from './features/guidance/types';
+import { getTripBriefing, speakBrowserText, useTripGuidance } from './features/guidance';
+import type { CountryCode, TripBriefing } from './features/guidance/types';
 import { DevicePreviews } from './features/trip/DevicePreviews';
 import { ParkedView } from './features/trip/ParkedView';
 import { PreTripBriefing } from './features/trip/PreTripBriefing';
@@ -20,7 +20,8 @@ const DEFAULT_TRIP: TripPlan = {
 };
 
 export default function App() {
-  const [simulationMode, setSimulationMode] = useState<SimulationMode>('phone');
+  const [simulationMode, setSimulationMode] = useState<SimulationMode>('desktop');
+  const [activeTripPlan, setActiveTripPlan] = useState<TripPlan>(DEFAULT_TRIP);
   const [trip, setTrip] = useState<TripPlan | null>(null);
   const [pendingTrip, setPendingTrip] = useState<TripPlan | null>(null);
   const [briefing, setBriefing] = useState<TripBriefing | null>(null);
@@ -29,12 +30,17 @@ export default function App() {
   const [view, setView] = useState<AppView>('trip');
   const [currentCountry, setCurrentCountry] = useState<CountryCode | null>(null);
   const [locationSource, setLocationSource] = useState<'gps' | 'selected' | 'simulated'>('selected');
-  const [latestRule, setLatestRule] = useState<RuleRecord | null>(null);
-  const [candidateRule, setCandidateRule] = useState<RuleRecord | null>(null);
-  const [recognitionDebug, setRecognitionDebug] = useState<RecognitionDebug | null>(null);
-  const [guidanceError, setGuidanceError] = useState<string | null>(null);
-  const [audioStatus, setAudioStatus] = useState('Not played');
-  const lastSpokenSign = useRef<string | null>(null);
+
+  const guidanceCountry = currentCountry ?? trip?.destinationCountry ?? null;
+  const {
+    latestRule,
+    candidateRule,
+    recognitionDebug,
+    guidanceError,
+    audioStatus,
+    handleRecognition,
+    resetGuidance,
+  } = useTripGuidance(guidanceCountry);
 
   useEffect(() => {
     document.title = 'WayFarer';
@@ -52,6 +58,7 @@ export default function App() {
   }, []);
 
   async function startTrip(plan: TripPlan) {
+    setActiveTripPlan(plan);
     setPendingTrip(plan);
     setBriefing(null);
     setBriefingError(null);
@@ -83,57 +90,10 @@ export default function App() {
     setView('trip');
   }
 
-  const handleRecognition = useCallback(async (imageDataUrl: string, speak: boolean) => {
-    const countryCode = currentCountry ?? trip?.destinationCountry;
-    if (!countryCode) return;
-    setGuidanceError(null);
-    try {
-      const result = await recognizeSign(countryCode, imageDataUrl);
-      setRecognitionDebug(result.debug);
-      if (result.status === 'recognized') {
-        setLatestRule(result.rule);
-        setCandidateRule(null);
-        if (speak && lastSpokenSign.current !== result.signId) {
-          lastSpokenSign.current = result.signId;
-          setAudioStatus('Speaking reviewed alert');
-          try {
-            await playRuleAlert(countryCode, result.signId);
-            setAudioStatus('Reviewed alert played');
-          } catch (error) {
-            setAudioStatus('Audio unavailable');
-            setGuidanceError(error instanceof Error ? error.message : 'The alert could not be played.');
-          }
-        }
-        return;
-      }
-      if (result.status === 'candidate') {
-        setLatestRule(null);
-        setCandidateRule(result.rule);
-        setAudioStatus('Candidate detected · silent');
-        lastSpokenSign.current = null;
-        return;
-      }
-      setLatestRule(null);
-      setCandidateRule(null);
-      setAudioStatus('Unknown · silent');
-      lastSpokenSign.current = null;
-    } catch (error) {
-      setRecognitionDebug(null);
-      setGuidanceError(error instanceof Error ? error.message : 'Sign recognition is unavailable.');
-      setAudioStatus('Recognition error');
-    }
-  }, [currentCountry, trip]);
-
-  function editTrip() {
-    window.speechSynthesis?.cancel();
+  function handleEditTrip() {
+    resetGuidance();
     setTrip(null);
     setPendingTrip(null);
-    setLatestRule(null);
-    setCandidateRule(null);
-    setRecognitionDebug(null);
-    setGuidanceError(null);
-    setAudioStatus('Not played');
-    lastSpokenSign.current = null;
   }
 
   function toggleSimulationMode() {
@@ -141,6 +101,7 @@ export default function App() {
   }
 
   function handleUpdateTrip(updatedTrip: TripPlan) {
+    setActiveTripPlan(updatedTrip);
     setTrip(updatedTrip);
     setCurrentCountry(updatedTrip.destinationCountry);
     setLocationSource(updatedTrip.useSimulatedOrigin ? 'simulated' : 'selected');
@@ -170,7 +131,7 @@ export default function App() {
   if (!trip) {
     return (
       <SimulationFrame mode={simulationMode} onToggleMode={toggleSimulationMode}>
-        <TripSetup initialTrip={DEFAULT_TRIP} onStart={(plan) => void startTrip(plan)} />
+        <TripSetup initialTrip={activeTripPlan} onStart={(plan) => void startTrip(plan)} />
       </SimulationFrame>
     );
   }
@@ -182,7 +143,7 @@ export default function App() {
         activeView={view}
         trip={trip}
         onChangeView={setView}
-        onEditTrip={editTrip}
+        onEditTrip={handleEditTrip}
         onUpdateTrip={handleUpdateTrip}
         cockpit={
           <TripScreen
