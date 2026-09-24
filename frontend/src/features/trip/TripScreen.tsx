@@ -148,7 +148,7 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
           <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
           <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
             <span><small>From</small><strong>{trip.origin}</strong></span>
-            <i aria-hidden="true">↓</i>
+            <i aria-hidden="true">→</i>
             <span><small>To</small><strong>{trip.destination}</strong></span>
           </button>
           <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>

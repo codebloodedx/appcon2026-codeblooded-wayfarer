@@ -2501,8 +2501,8 @@ p { line-height: 1.58; }
   .simulation-desktop .navigation-search-bar > button { color: #071a3d; }
   .simulation-desktop .navigation-back { display: none; }
   .simulation-desktop .navigation-edit { width: 2.15rem; height: 2.15rem; border-radius: 50%; background: #e6f1ff; color: #0072e8; }
-  .simulation-desktop .navigation-route-summary { grid-template-columns: minmax(0, 1fr); gap: .25rem; text-align: left; }
-  .simulation-desktop .navigation-route-summary span:last-child { text-align: left; }
+  .simulation-desktop .navigation-route-summary { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .65rem; text-align: left; }
+  .simulation-desktop .navigation-route-summary span:last-child { text-align: right; }
   .simulation-desktop .navigation-route-summary i { color: #0072e8; font-style: normal; line-height: .8; }
   .simulation-desktop .navigation-route-summary small { color: #64708a; }
   .simulation-desktop .navigation-route-summary strong { color: #071a3d; font-size: .78rem; }
