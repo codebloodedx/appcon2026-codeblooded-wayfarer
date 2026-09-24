@@ -190,7 +190,7 @@ export default function App() {
     <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
       <AppShell activeView={view} onChangeView={navigateView}>
         <div className={`routed-view route-navigation ${view === 'navigation' ? 'active' : ''}`} aria-hidden={view !== 'navigation'}>
-          <TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} spokenGuidance={spokenGuidance} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />
+          <TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} spokenGuidance={spokenGuidance} simulationMode={simulationMode} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />
         </div>
         {view === 'trip' && <TripOverview trip={trip} onOpenNavigation={() => navigateView('navigation')} onEditTrip={editTrip} />}
         {view === 'reviewed-guidance' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}
