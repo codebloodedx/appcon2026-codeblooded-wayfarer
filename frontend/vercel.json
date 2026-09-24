@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://appcon2026-codeblooded-wayfarer-bac.vercel.app/api/:path*"
+    }
+  ]
+}
