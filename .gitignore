@@ -27,3 +27,12 @@ Thumbs.db
 .idea/
 *.log
 *-provider-test.png
+
+# Local CV datasets, training runs, and model weights
+ml/dataset/
+ml/runs/
+ml/*.pt
+ml/*.onnx
+.venv-yolo/
+__pycache__/
+*.py[cod]

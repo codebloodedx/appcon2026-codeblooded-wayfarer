@@ -1,0 +1,15 @@
+path: dataset
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: JP_STOP
+  1: JP_MAX_SPEED_30
+  2: JP_PEDESTRIAN_CROSSING
+  3: JP_NO_PARKING
+  4: JP_NO_U_TURN
+  5: PH_STOP
+  6: PH_MAX_SPEED_50
+  7: PH_PEDESTRIAN_CROSSING
+  8: PH_NO_PARKING
+  9: PH_NO_U_TURN

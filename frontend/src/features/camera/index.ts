@@ -1,2 +1,2 @@
 export { CameraPanel } from './CameraPanel';
-export type { CameraPanelProps } from './types';
+export type { CameraDetection, CameraPanelProps, RecognitionStatus } from './types';

@@ -1,59 +1,62 @@
 import type { ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
-import type { TripPlan } from '../features/trip/types';
-import { BrandLogo } from './BrandLogo';
+import { BottomSheetDrawer } from './BottomSheetDrawer';
+import { DevicesIcon, MapIcon, ParkedIcon, SignsIcon } from './Icons';
 
 type AppShellProps = {
   activeView: AppView;
-  trip: TripPlan;
-  children: ReactNode;
+  cockpit: ReactNode;
+  children?: ReactNode;
   onChangeView: (view: AppView) => void;
-  onEditTrip: () => void;
 };
 
-const navItems: Array<{ id: AppView; label: string; parked?: boolean }> = [
-  { id: 'trip', label: 'Trip' },
-  { id: 'parked', label: 'Parked details', parked: true },
-  { id: 'signs', label: 'Supported signs', parked: true },
-  { id: 'devices', label: 'Device previews', parked: true },
+const navItems: Array<{
+  id: AppView;
+  label: string;
+  icon: (size?: number) => ReactNode;
+  parked?: boolean;
+}> = [
+  { id: 'trip', label: 'Map', icon: (size = 18) => <MapIcon size={size} /> },
+  { id: 'parked', label: 'Guidance', icon: (size = 18) => <ParkedIcon size={size} />, parked: true },
+  { id: 'signs', label: 'Signs', icon: (size = 18) => <SignsIcon size={size} />, parked: true },
+  { id: 'devices', label: 'Devices', icon: (size = 18) => <DevicesIcon size={size} />, parked: true },
 ];
 
-export function AppShell({ activeView, trip, children, onChangeView, onEditTrip }: AppShellProps) {
+export function AppShell({ activeView, cockpit, children, onChangeView }: AppShellProps) {
+  const activeNavItem = navItems.find((item) => item.id === activeView);
+
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <button className="brand" type="button" onClick={() => onChangeView('trip')} aria-label="WayFarer trip home">
-          <BrandLogo />
-          <span>
-            <strong>WayFarer</strong>
-            <small>{trip.homeCountry === 'PH' ? 'Philippines' : 'Japan'} → {trip.destinationCountry === 'PH' ? 'Philippines' : 'Japan'}</small>
-          </span>
-        </button>
+    <div className="app-shell google-maps-layout">
+      <main className="gmaps-main-viewport navigation-content">{cockpit}</main>
 
-        <div className="topbar-trip">
-          <span className="location-dot" aria-hidden="true" />
-          <span><small>Destination</small><strong>{trip.destination}</strong></span>
-        </div>
+      <BottomSheetDrawer
+        isOpen={activeView !== 'trip'}
+        onClose={() => onChangeView('trip')}
+        title={activeNavItem?.label ?? ''}
+        icon={activeNavItem?.icon(20)}
+      >
+        {activeView !== 'trip' && children}
+      </BottomSheetDrawer>
 
-        <button className="button button-secondary compact" type="button" onClick={onEditTrip}>Edit trip</button>
-      </header>
-
-      <nav className="view-tabs" aria-label="Trip views">
-        {navItems.map((item) => (
-          <button
-            className={activeView === item.id ? 'view-tab active' : 'view-tab'}
-            type="button"
-            key={item.id}
-            onClick={() => onChangeView(item.id)}
-            aria-current={activeView === item.id ? 'page' : undefined}
-          >
-            {item.label}
-            {item.parked && <span className="parked-dot" title="Use while parked" aria-label="Use while parked" />}
-          </button>
-        ))}
+      <nav className="gmaps-bottom-nav" aria-label="Main navigation">
+        {navItems.map((item) => {
+          const isActive = activeView === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`gmaps-nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => onChangeView(item.id)}
+              aria-current={isActive ? 'page' : undefined}
+              title={item.id === 'parked' ? 'Reviewed Guidance' : item.label}
+            >
+              <span className="gmaps-nav-icon">{item.icon(20)}</span>
+              <span className="gmaps-nav-label">{item.label}</span>
+              {item.parked && <span className="parked-pill-dot" title="Use while parked" />}
+            </button>
+          );
+        })}
       </nav>
-
-      <main className="app-content">{children}</main>
     </div>
   );
 }

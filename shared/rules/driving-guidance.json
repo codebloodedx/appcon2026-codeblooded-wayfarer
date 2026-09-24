@@ -1,0 +1,62 @@
+[
+  {
+    "id": "jp-trip-start", "countryCode": "JP", "event": "TRIP_START", "priority": "CRITICAL", "title": "Keep left", "message": "Keep left while driving in Japan.",
+    "sourceUrl": "https://www.npa.go.jp/english/bureau/traffic/document/r8_followtherules_en02.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 30, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "DRIVING_SIDE", "title": "Keep left", "message": "Drive on the left side of the road.", "icon": "🚘", "reviewedOn": "2026-09-24", "whyItMatters": "Wrong-side errors are especially likely after turns.", "comparisonMessages": { "PH": "Switch from Philippine right-side traffic: drive on the left in Japan." } }
+  },
+  {
+    "id": "jp-intersection", "countryCode": "JP", "event": "INTERSECTION", "priority": "HIGH", "title": "Intersection", "message": "Intersection ahead. Yield to pedestrians and check crossing traffic.",
+    "sourceUrl": "https://www.npa.go.jp/english/bureau/traffic/document/r8_followtherules_en02.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 12, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "INTERSECTION", "title": "Intersections", "message": "Check pedestrians and crossing traffic before turning.", "icon": "↗️", "reviewedOn": "2026-09-24", "whyItMatters": "Japan's left-side traffic changes turn positioning.", "comparisonMessages": { "PH": "Keep-left positioning changes how you enter and leave intersections." } }
+  },
+  {
+    "id": "jp-red-light", "countryCode": "JP", "event": "TRAFFIC_LIGHT", "priority": "CRITICAL", "title": "Traffic light", "message": "Red light ahead. Do not turn unless a green arrow permits it.",
+    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "TRAFFIC_LIGHT", "title": "Red-light turns", "message": "Do not turn on red unless a green arrow permits it.", "icon": "🚦", "reviewedOn": "2026-09-24", "whyItMatters": "Turn permissions may differ from familiar practice.", "exceptions": "A green arrow permits movement only in its indicated direction.", "comparisonMessages": { "PH": "Do not carry over turn-on-red assumptions; wait unless a green arrow permits movement." } }
+  },
+  {
+    "id": "jp-railroad-crossing", "countryCode": "JP", "event": "RAILROAD_CROSSING", "priority": "CRITICAL", "title": "Railroad crossing", "message": "Railroad crossing ahead. Stop and check both directions.",
+    "sourceUrl": "https://www.npa.go.jp/english/bureau/traffic/document/r8_followtherules_en02.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 20, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "RAILROAD_CROSSING", "title": "Railroad crossings", "message": "Come to a complete stop and check for trains before crossing.", "icon": "🚆", "reviewedOn": "2026-09-24", "whyItMatters": "A clear track or silent alarm does not remove the stop requirement.", "comparisonMessages": { "PH": "Japan requires a full stop and train check even when the warning alarm is silent." } }
+  },
+  {
+    "id": "jp-pedestrian-crossing", "countryCode": "JP", "event": "PEDESTRIAN_CROSSING", "priority": "HIGH", "title": "Pedestrian crossing", "message": "Pedestrian crossing ahead. Stop and give way when needed.",
+    "sourceUrl": "https://www.npa.go.jp/english/bureau/traffic/document/r8_followtherules_en02.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "PEDESTRIAN_RIGHT_OF_WAY", "title": "Pedestrian priority", "message": "Stop and yield when someone is crossing or about to cross.", "icon": "🚶", "reviewedOn": "2026-09-24", "whyItMatters": "Pedestrians have priority at crossings and intersections." }
+  },
+  {
+    "id": "jp-stop-sign", "countryCode": "JP", "event": "STOP_SIGN", "priority": "CRITICAL", "title": "Stop sign", "message": "Stop sign ahead. Come to a complete stop.",
+    "sourceUrl": "https://www.npa.go.jp/english/bureau/traffic/document/r8_followtherules_en02.pdf", "verified": true, "triggerMode": "cv", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Japan" },
+    "briefing": { "category": "STOP_SIGN", "title": "Stop signs", "message": "Come to a complete stop and check left and right.", "icon": "✋", "reviewedOn": "2026-09-24", "whyItMatters": "A rolling stop does not satisfy the sign." }
+  },
+  {
+    "id": "ph-trip-start", "countryCode": "PH", "event": "TRIP_START", "priority": "CRITICAL", "title": "Keep right", "message": "Keep to the right side of the road.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 30, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "DRIVING_SIDE", "title": "Keep right", "message": "Drive on the right side of the road.", "icon": "🚘", "reviewedOn": "2026-09-24", "whyItMatters": "Lane-side habits can carry over after turns.", "comparisonMessages": { "JP": "Switch from Japan's left-side traffic: drive on the right in the Philippines." } }
+  },
+  {
+    "id": "ph-intersection", "countryCode": "PH", "event": "INTERSECTION", "priority": "HIGH", "title": "Intersection", "message": "Intersection ahead. Slow down and check crossing traffic.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 12, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "INTERSECTION", "title": "Intersections", "message": "Slow down and check vehicles and pedestrians before proceeding.", "icon": "↗️", "reviewedOn": "2026-09-24", "whyItMatters": "Crossing traffic may not be visible early.", "comparisonMessages": { "JP": "Right-side positioning changes how you approach and leave intersections." } }
+  },
+  {
+    "id": "ph-traffic-light", "countryCode": "PH", "event": "TRAFFIC_LIGHT", "priority": "HIGH", "title": "Traffic light", "message": "Traffic light ahead. Follow the signal before turning.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "TRAFFIC_LIGHT", "title": "Traffic signals", "message": "Follow signals, signs, and lane markings before turning.", "icon": "🚦", "reviewedOn": "2026-09-24", "whyItMatters": "Turn permissions depend on the controls at that intersection." }
+  },
+  {
+    "id": "ph-railroad-crossing", "countryCode": "PH", "event": "RAILROAD_CROSSING", "priority": "CRITICAL", "title": "Railroad crossing", "message": "Railroad crossing ahead. Stop and check for trains.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 20, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "RAILROAD_CROSSING", "title": "Railroad crossings", "message": "Slow down, obey crossing controls, and check for trains.", "icon": "🚆", "reviewedOn": "2026-09-24", "whyItMatters": "A crossing requires an active safety check." }
+  },
+  {
+    "id": "ph-pedestrian-crossing", "countryCode": "PH", "event": "PEDESTRIAN_CROSSING", "priority": "HIGH", "title": "Pedestrian crossing", "message": "Pedestrian crossing ahead. Slow down and yield.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "simulation", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "PEDESTRIAN_RIGHT_OF_WAY", "title": "Pedestrian crossings", "message": "Slow down and yield to pedestrians using the crossing.", "icon": "🚶", "reviewedOn": "2026-09-24", "whyItMatters": "Busy roadside areas can put pedestrians near traffic." }
+  },
+  {
+    "id": "ph-stop-sign", "countryCode": "PH", "event": "STOP_SIGN", "priority": "CRITICAL", "title": "Stop sign", "message": "Stop sign ahead. Stop at the marked line.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf", "verified": true, "triggerMode": "cv", "cooldownSeconds": 15, "jurisdiction": { "type": "country", "value": "Philippines" },
+    "briefing": { "category": "STOP_SIGN", "title": "Stop signs", "message": "Stop fully at the marked line before proceeding.", "icon": "✋", "reviewedOn": "2026-09-24", "whyItMatters": "Rolling through a stop can cause a collision." }
+  }
+]

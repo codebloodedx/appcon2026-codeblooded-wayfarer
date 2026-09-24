@@ -11,7 +11,7 @@ This checklist separates implemented modules from evidence captured in the final
 - [x] The Philippines restriction option is visibly labeled **Simulation** and makes no compliance claim.
 - [x] Frontend guidance functions expose rule listing, recognition, explanation, and browser speech playback.
 - [x] The briefing adapter returns and speaks only tested country/locality-matched records, with an unavailable fallback.
-- [x] Three source-reviewed Japan reminders are present in `shared/rules/briefings.json` and load through the briefing API.
+- [x] Six source-reviewed essentials per country are derived from `shared/rules/driving-guidance.json`, adapt to the home/destination pair, and load through the briefing API.
 - [x] John's reviewed candidate `shared/rules/rules.json`, sources, test matrix, and sign assets are combined locally.
 - [x] Bryan's `CameraPanel` is combined locally and wired to live sampling and parked capture/upload.
 - [x] Gio's traveler UI is combined locally and imports the camera, map, briefing, and guidance modules.

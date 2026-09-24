@@ -1,17 +1,20 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { BriefingRepository } from './briefings.js';
-import { exactVisualThreshold, GroqGuidanceModel, semanticMatchThreshold, type GuidanceModel } from './groq.js';
+import { DrivingGuidanceRepository } from './drivingGuidance.js';
+import { GeminiGuidanceModel } from './gemini.js';
+import { exactVisualThreshold, semanticMatchThreshold, type GuidanceModel } from './guidanceModel.js';
 import { parseImageDataUrl } from './image.js';
 import { RuleRepository } from './rules.js';
 import { isCountryCode, type MatchType, type ModelRecognition, type RuleRecord } from './types.js';
 
-type AppDependencies = { rules?: RuleRepository; briefings?: BriefingRepository; model?: GuidanceModel };
+type AppDependencies = { rules?: RuleRepository; briefings?: BriefingRepository; drivingGuidance?: DrivingGuidanceRepository; model?: GuidanceModel };
 
 export function createApp(dependencies: AppDependencies = {}) {
   const app = express();
   const rules = dependencies.rules || new RuleRepository();
   const briefings = dependencies.briefings || new BriefingRepository();
-  const model = dependencies.model || new GroqGuidanceModel();
+  const drivingGuidance = dependencies.drivingGuidance || new DrivingGuidanceRepository();
+  const model = dependencies.model || new GeminiGuidanceModel();
 
   app.disable('x-powered-by');
   app.use(express.json({ limit: '2mb' }));
@@ -34,17 +37,36 @@ export function createApp(dependencies: AppDependencies = {}) {
     try {
       const countryCode = request.query.countryCode;
       const locality = request.query.locality;
+      const homeCountry = request.query.homeCountry;
+      if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
+      if (homeCountry !== undefined && !isCountryCode(homeCountry)) return response.status(400).json({ error: 'homeCountry must be JP or PH' });
+      if (locality !== undefined && (typeof locality !== 'string' || locality.trim().length > 100)) {
+        return response.status(400).json({ error: 'locality must be 100 characters or fewer' });
+      }
+      const items = await briefings.testedForTrip(countryCode, locality?.trim(), homeCountry);
+      if (items.length === 0) {
+        return response.json({ status: 'unavailable', countryCode, homeCountry: homeCountry || null, locality: locality?.trim() || null, items: [], speechText: null });
+      }
+      const destinationName = countryCode === 'JP' ? 'Japan' : 'the Philippines';
+      const speechText = `Before you drive in ${destinationName}, here are ${items.length} important reminders. ${items.map((item) => item.spokenText).join(' ')}`;
+      response.setHeader('Cache-Control', 'private, max-age=3600');
+      return response.json({ status: 'ready', countryCode, homeCountry: homeCountry || null, locality: locality?.trim() || null, items, speechText });
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.get('/api/driving-guidance', async (request, response, next) => {
+    try {
+      const countryCode = request.query.countryCode;
+      const locality = request.query.locality;
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
       if (locality !== undefined && (typeof locality !== 'string' || locality.trim().length > 100)) {
         return response.status(400).json({ error: 'locality must be 100 characters or fewer' });
       }
-      const items = await briefings.testedForTrip(countryCode, locality?.trim());
-      if (items.length === 0) {
-        return response.json({ status: 'unavailable', countryCode, locality: locality?.trim() || null, items: [], speechText: null });
-      }
-      const speechText = `Before you drive in ${locality?.trim() || countryCode}, here are ${items.length} important reminders. ${items.map((item) => item.spokenText).join(' ')}`;
+      const rules = await drivingGuidance.available(countryCode, locality?.trim());
       response.setHeader('Cache-Control', 'private, max-age=3600');
-      return response.json({ status: 'ready', countryCode, locality: locality?.trim() || null, items, speechText });
+      return response.json({ countryCode, locality: locality?.trim() || null, rules });
     } catch (error) {
       return next(error);
     }
@@ -73,10 +95,10 @@ export function createApp(dependencies: AppDependencies = {}) {
       if (question.trim().length < 1 || question.length > 300) {
         return response.status(400).json({ error: 'question must contain 1 to 300 characters' });
       }
-      const rule = await rules.findTested(countryCode, signId);
-      if (!rule) return response.status(404).json({ error: 'No tested reviewed rule matches this country and sign' });
+      const rule = await rules.findByCountry(countryCode, signId);
+      if (!rule) return response.status(404).json({ error: 'No reviewed rule matches this country and sign' });
       const answer = await model.explain(rule, question.trim());
-      return response.json({ answer, sourceUrl: rule.sourceUrl });
+      return response.json({ answer, sourceUrl: rule.sourceUrl, status: rule.status });
     } catch (error) {
       return next(error);
     }
@@ -105,12 +127,18 @@ export function createApp(dependencies: AppDependencies = {}) {
     if (requestError instanceof SyntaxError && requestError.status === 400) {
       return response.status(400).json({ error: 'Request body must be valid JSON' });
     }
-    if (error.message === 'GROQ_NOT_CONFIGURED') {
-      return response.status(503).json({ error: 'Groq is not configured' });
+    if (error.message === 'VERTEX_NOT_CONFIGURED') {
+      return response.status(503).json({ error: 'Gemini on Vertex AI is not configured' });
     }
     const providerError = error as Error & { status?: number };
     if (providerError.status === 429) {
-      return response.status(503).json({ error: 'AI recognition is temporarily rate limited. Use the tested-sign demo fallback.' });
+      const retryAfterSeconds = providerRetryAfter(error) ?? 60;
+      response.setHeader('Retry-After', String(retryAfterSeconds));
+      return response.status(503).json({
+        error: `Live recognition is rate limited. Retrying in ${retryAfterSeconds} seconds.`,
+        code: 'RATE_LIMITED',
+        retryAfterSeconds,
+      });
     }
     console.error('WayFarer API error:', error.message);
     return response.status(502).json({ error: 'The guidance service is temporarily unavailable' });
@@ -119,22 +147,30 @@ export function createApp(dependencies: AppDependencies = {}) {
   return app;
 }
 
+function providerRetryAfter(error: Error): number | null {
+  const headers = (error as Error & { headers?: { get?: (name: string) => string | null } }).headers;
+  const raw = headers?.get?.('retry-after');
+  const seconds = raw ? Number(raw) : Number.NaN;
+  return Number.isFinite(seconds) && seconds > 0 ? Math.min(3600, Math.ceil(seconds)) : null;
+}
+
 export const app = createApp();
 
 function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], prediction: ModelRecognition) {
   const closest = prediction.closestReferenceId ? catalog.find((item) => item.id === prediction.closestReferenceId) : undefined;
-  const localRule = prediction.normalizedCategory
-    ? catalog.find((item) => item.countryCode === countryCode && item.normalizedCategory === prediction.normalizedCategory)
+  const predictedRule = prediction.modelClass ? catalog.find((item) => item.modelClass === prediction.modelClass) : undefined;
+  const localRule = predictedRule?.semanticEquivalent
+    ? catalog.find((item) => item.countryCode === countryCode && item.modelClass === predictedRule.semanticEquivalent)
     : undefined;
-  const rule = localRule || (closest?.countryCode === countryCode ? closest : undefined);
-  const equivalent = rule ? catalog.find((item) => item.countryCode !== rule.countryCode && item.normalizedCategory === rule.normalizedCategory) || null : null;
-  const matchType: MatchType = !prediction.normalizedCategory
+  const rule = predictedRule?.countryCode === countryCode ? predictedRule : localRule;
+  const equivalent = rule?.semanticEquivalent ? catalog.find((item) => item.modelClass === rule.semanticEquivalent) || null : null;
+  const matchType: MatchType = !prediction.normalizedCategory || !prediction.modelClass
     ? 'NO_MATCH'
-    : closest && closest.id === rule?.id && prediction.visualSimilarity >= exactVisualThreshold
+    : predictedRule?.id === rule?.id && closest?.id === rule?.id && prediction.visualSimilarity >= exactVisualThreshold
       ? 'EXACT_MATCH'
-      : prediction.semanticSimilarity >= semanticMatchThreshold
+      : rule && prediction.semanticSimilarity >= semanticMatchThreshold
         ? 'SEMANTIC_MATCH'
-        : 'RELATED';
+        : predictedRule ? 'RELATED' : 'NO_MATCH';
   const debug = { ...prediction, closestReference: closest || null, matchType, equivalentSign: equivalent };
   if (!rule || matchType === 'RELATED') return { status: 'unknown', signId: null, rule: null, debug };
   if (rule.status !== 'tested') return { status: 'candidate', signId: rule.id, rule, debug };

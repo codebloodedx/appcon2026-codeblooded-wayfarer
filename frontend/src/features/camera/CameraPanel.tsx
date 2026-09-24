@@ -1,33 +1,39 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { ChangeEvent } from 'react';
 import { fileToJpegDataUrl, grabJpegDataUrl } from './frameCapture';
 import { useCameraStream } from './useCameraStream';
 import { useFrameSampler } from './useFrameSampler';
 import type { CameraPanelProps } from './types';
+import { fitNormalizedBoxToCover } from './detectionOverlay';
+import { useDetectionTracker } from './useDetectionTracker';
 import './CameraPanel.css';
 
 const SAMPLE_INTERVAL_MS = 2500;
-const SAMPLE_MAX_WIDTH = 640;
+const SAMPLE_MAX_WIDTH = 960;
 const CAPTURE_MAX_WIDTH = 1280;
 const CAPTURE_QUALITY = 0.9;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MAX_ENCODED_IMAGE_CHARS = 2_000_000;
 const FACING_MODE = 'environment' as const;
 
-export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanelProps) {
+export function CameraPanel({ active, parked, onSample, onCapture, detection = null, recognitionStatus = 'waiting' }: CameraPanelProps) {
   const { videoRef, status, message, start, stop } = useCameraStream(FACING_MODE);
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [boxStyle, setBoxStyle] = useState<CSSProperties | null>(null);
 
   const isLive = status === 'live';
   const cameraUnavailable = status === 'denied' || status === 'no-camera' || status === 'error';
+  const trackedBox = useDetectionTracker(videoRef, detection?.bbox ?? null, isLive && !parked && Boolean(detection));
 
   useEffect(() => {
     if (!active) stop();
   }, [active, stop]);
 
-  useFrameSampler({
+  const samplingStatus = useFrameSampler({
     enabled: isLive && active && !parked,
     intervalMs: SAMPLE_INTERVAL_MS,
     maxWidth: SAMPLE_MAX_WIDTH,
@@ -35,7 +41,44 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
     onSample,
   });
 
-  const handleCapture = useCallback(() => {
+  useEffect(() => {
+    const stage = stageRef.current;
+    const video = videoRef.current;
+    if (!isLive || !detection || !stage || !video) {
+      setBoxStyle(null);
+      return;
+    }
+    const updateBox = () => {
+      const stageWidth = stage.clientWidth;
+      const stageHeight = stage.clientHeight;
+      const sourceWidth = video.videoWidth;
+      const sourceHeight = video.videoHeight;
+      if (!stageWidth || !stageHeight || !sourceWidth || !sourceHeight) return setBoxStyle(null);
+      setBoxStyle(fitNormalizedBoxToCover(trackedBox ?? detection.bbox, sourceWidth, sourceHeight, stageWidth, stageHeight));
+    };
+    updateBox();
+    const observer = new ResizeObserver(updateBox);
+    observer.observe(stage);
+    video.addEventListener('loadedmetadata', updateBox);
+    return () => {
+      observer.disconnect();
+      video.removeEventListener('loadedmetadata', updateBox);
+    };
+  }, [detection, isLive, trackedBox, videoRef]);
+
+  const scanLabel = samplingStatus === 'analyzing'
+    ? 'Analyzing frame…'
+    : recognitionStatus === 'recognized'
+      ? 'Supported sign detected'
+      : recognitionStatus === 'candidate'
+        ? 'Candidate sign detected'
+        : recognitionStatus === 'unknown'
+          ? 'No supported sign in latest frame'
+          : recognitionStatus === 'error' || samplingStatus === 'error'
+            ? 'Recognition request failed'
+            : 'Waiting for next sample';
+
+  const handleCapture = useCallback(async () => {
     const video = videoRef.current;
     if (!isLive || !parked || !video) return;
     setNotice(null);
@@ -49,11 +92,15 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
       return;
     }
     try {
-      onCapture(frame);
-      setNotice('Parked camera photo captured.');
+      setBusy(true);
+      await onCapture(frame);
+      setPreviewUrl(frame);
+      setNotice('Photo analyzed. Review the recognized meaning and source below.');
     } catch (err) {
       console.warn('[camera] onCapture failed', err);
       setNotice('The photo could not be processed. Try again.');
+    } finally {
+      setBusy(false);
     }
   }, [isLive, onCapture, parked, videoRef]);
 
@@ -81,8 +128,9 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
           setNotice('This photo is too large for sign recognition. Choose a smaller photo.');
           return;
         }
-        onCapture(dataUrl);
-        setNotice('Parked uploaded photo selected — not a live detection.');
+        setPreviewUrl(dataUrl);
+        await onCapture(dataUrl);
+        setNotice('Uploaded photo analyzed. This is parked analysis, not live detection.');
       } catch (err) {
         console.warn('[camera] upload failed', err);
         setNotice('That image could not be read. Try a JPEG or PNG.');
@@ -95,7 +143,7 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
 
   return (
     <section className="rr-camera" aria-label="Camera">
-      <div className="rr-camera__stage">
+      <div ref={stageRef} className="rr-camera__stage">
         {/* Always mounted so the stream can attach; hidden until live. */}
         <video
           ref={videoRef}
@@ -105,6 +153,14 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
           playsInline
         />
 
+        {!isLive && previewUrl && <img className="rr-camera__photo-preview" src={previewUrl} alt="Uploaded traffic sign for parked analysis" />}
+
+        {isLive && detection && boxStyle && (
+          <div className={`rr-camera__detection rr-camera__detection--${detection.status}`} style={boxStyle} aria-label={`${detection.label}, ${Math.round(detection.confidence * 100)} percent confidence`}>
+            <span>{detection.label} · {Math.round(detection.confidence * 100)}%</span>
+          </div>
+        )}
+
         {isLive && (
           <span className="rr-camera__badge" role="status">
             <span className="rr-camera__dot" aria-hidden="true" />
@@ -113,9 +169,11 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
           </span>
         )}
 
-        {!isLive && (
+        {isLive && !parked && <span className={`rr-camera__scan-status rr-camera__scan-status--${recognitionStatus}`} role="status">{scanLabel}</span>}
+
+        {!isLive && !previewUrl && (
           <div className="rr-camera__placeholder">
-            {status === 'idle' && <p>Camera is off. Live sign detection starts when you turn it on.</p>}
+            {status === 'idle' && <p>Start the camera to show the live tracking square and hear concise sign guidance while driving.</p>}
             {status === 'loading' && <p role="status">Waiting for camera access…</p>}
             {cameraUnavailable && (
               <p role="alert">
@@ -149,8 +207,9 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
                 type="button"
                 className="rr-camera__btn rr-camera__btn--primary"
                 onClick={handleCapture}
+                disabled={busy}
               >
-                Capture sign photo
+                {busy ? 'Analyzing photo…' : 'Capture sign photo'}
               </button>
             )}
             <button type="button" className="rr-camera__btn" onClick={stop}>
@@ -159,11 +218,11 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
           </>
         )}
 
-        {cameraUnavailable && parked && (
+        {parked && (
           <>
             <button
               type="button"
-              className="rr-camera__btn"
+              className="rr-camera__btn rr-camera__btn--primary"
               onClick={() => fileInputRef.current?.click()}
               disabled={busy}
             >
@@ -178,6 +237,7 @@ export function CameraPanel({ active, parked, onSample, onCapture }: CameraPanel
               tabIndex={-1}
               aria-hidden="true"
             />
+            {previewUrl && <button type="button" className="rr-camera__btn" onClick={() => { setPreviewUrl(null); setNotice(null); }}>Clear photo</button>}
           </>
         )}
       </div>

@@ -20,7 +20,7 @@ export function SupportedSignsView({ countryCode }: { countryCode: CountryCode }
   const country = countryCode === 'JP' ? 'Japan' : 'Philippines';
   return (
     <section className="signs-view" aria-labelledby="signs-title">
-      <div className="page-heading"><div><p className="eyebrow">Transparent prototype scope</p><h1 id="signs-title">Signs included in this prototype</h1><p>Candidate signs can be recognized for testing but remain silent. Only signs that pass the live acceptance gate may provide spoken driving guidance.</p></div><StatusBadge tone={tested.length ? 'success' : 'warning'}>{tested.length} tested · {rules.length - tested.length} candidates</StatusBadge></div>
+      <div className="page-heading"><div><p className="eyebrow">Transparent prototype scope</p><h1 id="signs-title">Signs included in this prototype</h1><p>While driving, a detected prototype sign speaks its brief source-reviewed meaning. Candidate status remains visible until the physical acceptance test passes.</p></div><StatusBadge tone={tested.length ? 'success' : 'warning'}>{tested.length} tested · {rules.length - tested.length} candidates</StatusBadge></div>
       {loading && <p role="status">Loading sign records…</p>}
       {error && <div className="scope-callout" role="alert"><strong>Sign records unavailable:</strong> {error}</div>}
       {!loading && !error && rules.length === 0 && <div className="signs-empty"><div className="empty-sign" aria-hidden="true"><span>?</span></div><h2>No sign records for {country}</h2><p>Add source-reviewed records before testing recognition.</p></div>}
