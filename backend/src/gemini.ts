@@ -27,11 +27,14 @@ const unknownAnswer = 'The reviewed source does not answer that question.';
 
 function requireProject(): string {
   const project = process.env.GOOGLE_CLOUD_PROJECT?.trim();
-  if (!project) throw new Error('VERTEX_NOT_CONFIGURED');
+  if (!project) throw new Error('GEMINI_NOT_CONFIGURED');
   return project;
 }
 
 function client(): GoogleGenAI {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (apiKey) return new GoogleGenAI({ apiKey });
+
   return new GoogleGenAI({
     vertexai: true,
     project: requireProject(),

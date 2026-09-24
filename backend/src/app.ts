@@ -127,8 +127,8 @@ export function createApp(dependencies: AppDependencies = {}) {
     if (requestError instanceof SyntaxError && requestError.status === 400) {
       return response.status(400).json({ error: 'Request body must be valid JSON' });
     }
-    if (error.message === 'VERTEX_NOT_CONFIGURED') {
-      return response.status(503).json({ error: 'Gemini on Vertex AI is not configured' });
+    if (error.message === 'GEMINI_NOT_CONFIGURED') {
+      return response.status(503).json({ error: 'Gemini is not configured' });
     }
     const providerError = error as Error & { status?: number };
     if (providerError.status === 429) {
