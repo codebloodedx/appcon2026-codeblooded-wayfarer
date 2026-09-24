@@ -2,7 +2,7 @@
 
 RoamRight is a hackathon MVP for the **Cross-Border Driving Rules & Local Manners Assistant** theme. The planned experience pairs a route map with a live camera, recognizes a small reviewed set of road signs, and gives brief location-specific spoken guidance. The focused demo is a traveler accustomed to driving in the Philippines navigating a route within Japan. A separate Philippines restricted-zone route preview and rider interface preview are scoped as visibly labeled demonstrations.
 
-**Current state:** the runnable foundation, Ranee-owned Gemini guidance APIs, Maps route component, and frontend guidance adapter are implemented on the active integration branch. The complete user journey still depends on teammate camera, trip UI, and reviewed-rule packages. See [current status](docs/status.md).
+**Current state:** the runnable foundation, Ranee-owned Groq/Qwen guidance APIs, browser speech adapter, Maps route component, and frontend guidance adapter are implemented on the active integration branch. The complete user journey still depends on teammate camera, trip UI, and reviewed-rule packages. See [current status](docs/status.md).
 
 ## Get started
 

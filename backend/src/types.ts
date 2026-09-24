@@ -17,6 +17,22 @@ export type RuleRecord = {
   status: RuleStatus;
 };
 
+export type BriefingCategory = 'law' | 'etiquette';
+
+export type BriefingRecord = {
+  id: string;
+  countryCode: CountryCode;
+  locality?: string;
+  category: BriefingCategory;
+  priority: number;
+  title: string;
+  spokenText: string;
+  details: string;
+  sourceUrl: string;
+  reviewedOn: string;
+  status: RuleStatus;
+};
+
 export function isCountryCode(value: unknown): value is CountryCode {
   return typeof value === 'string' && countryCodes.includes(value as CountryCode);
 }

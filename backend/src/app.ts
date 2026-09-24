@@ -1,15 +1,17 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
-import { GeminiGuidanceModel, type GuidanceModel } from './gemini.js';
+import { BriefingRepository } from './briefings.js';
+import { GroqGuidanceModel, type GuidanceModel } from './groq.js';
 import { parseImageDataUrl } from './image.js';
 import { RuleRepository } from './rules.js';
 import { isCountryCode } from './types.js';
 
-type AppDependencies = { rules?: RuleRepository; model?: GuidanceModel };
+type AppDependencies = { rules?: RuleRepository; briefings?: BriefingRepository; model?: GuidanceModel };
 
 export function createApp(dependencies: AppDependencies = {}) {
   const app = express();
   const rules = dependencies.rules || new RuleRepository();
-  const model = dependencies.model || new GeminiGuidanceModel();
+  const briefings = dependencies.briefings || new BriefingRepository();
+  const model = dependencies.model || new GroqGuidanceModel();
 
   app.disable('x-powered-by');
   app.use(express.json({ limit: '2mb' }));
@@ -23,6 +25,26 @@ export function createApp(dependencies: AppDependencies = {}) {
       const countryCode = request.query.countryCode;
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
       return response.json(await rules.byCountry(countryCode));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.get('/api/briefing', async (request, response, next) => {
+    try {
+      const countryCode = request.query.countryCode;
+      const locality = request.query.locality;
+      if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
+      if (locality !== undefined && (typeof locality !== 'string' || locality.trim().length > 100)) {
+        return response.status(400).json({ error: 'locality must be 100 characters or fewer' });
+      }
+      const items = await briefings.testedForTrip(countryCode, locality?.trim());
+      if (items.length === 0) {
+        return response.json({ status: 'unavailable', countryCode, locality: locality?.trim() || null, items: [], speechText: null });
+      }
+      const speechText = `Before you drive in ${locality?.trim() || countryCode}, here are ${items.length} important reminders. ${items.map((item) => item.spokenText).join(' ')}`;
+      response.setHeader('Cache-Control', 'private, max-age=3600');
+      return response.json({ status: 'ready', countryCode, locality: locality?.trim() || null, items, speechText });
     } catch (error) {
       return next(error);
     }
@@ -70,10 +92,8 @@ export function createApp(dependencies: AppDependencies = {}) {
       }
       const rule = await rules.findTested(countryCode, signId);
       if (!rule) return response.status(404).json({ error: 'No tested reviewed rule matches this country and sign' });
-      const audio = await model.speak(rule.shortAlert);
-      response.setHeader('Content-Type', 'audio/wav');
       response.setHeader('Cache-Control', 'private, max-age=3600');
-      return response.send(audio);
+      return response.json({ text: rule.shortAlert, engine: 'browser-speech-synthesis' });
     } catch (error) {
       return next(error);
     }
@@ -87,8 +107,12 @@ export function createApp(dependencies: AppDependencies = {}) {
     if (requestError instanceof SyntaxError && requestError.status === 400) {
       return response.status(400).json({ error: 'Request body must be valid JSON' });
     }
-    if (error.message === 'GEMINI_NOT_CONFIGURED') {
-      return response.status(503).json({ error: 'Gemini is not configured' });
+    if (error.message === 'GROQ_NOT_CONFIGURED') {
+      return response.status(503).json({ error: 'Groq is not configured' });
+    }
+    const providerError = error as Error & { status?: number };
+    if (providerError.status === 429) {
+      return response.status(503).json({ error: 'AI recognition is temporarily rate limited. Use the tested-sign demo fallback.' });
     }
     console.error('RoamRight API error:', error.message);
     return response.status(502).json({ error: 'The guidance service is temporarily unavailable' });

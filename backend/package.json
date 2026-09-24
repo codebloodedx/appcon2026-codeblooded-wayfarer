@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "test": "tsx --test test/**/*.test.ts",
+    "test:live": "tsx scripts/live-provider-smoke.ts",
     "check": "tsc --noEmit",
     "build": "tsc"
   },
   "dependencies": {
-    "@google/genai": "^2.24.0",
     "dotenv": "^16.6.1",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "groq-sdk": "^1.6.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

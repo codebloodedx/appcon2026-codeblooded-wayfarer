@@ -1,4 +1,4 @@
-# MVP interface contract — version 2
+# MVP interface contract — version 4
 
 **Contract owner:** Ranee. This is the proposed integration baseline for the four independent work areas. A change requires a decision recorded in the issue and a matching update to this file before dependent code changes.
 
@@ -26,6 +26,12 @@
 ## Local restriction evidence (John)
 
 `shared/rules/restrictions.json` may hold a reviewed Philippines restricted-zone example. Each record must identify its country/locality, affected vehicle/plate conditions, days and hours, exceptions, current official source URL, review date, and the source of any zone boundary. Mark it `candidate` until every field is checked. A mock boundary or route belongs to Ranee's map demo data and is separately marked `simulation`; it must never be presented as an official restriction boundary. If the current rule or boundary cannot be verified, the toggle remains a **simulated route preview**.
+
+## Pre-trip briefing evidence (John)
+
+`shared/rules/briefings.json` is a JSON array of the most important reviewed rules and etiquette reminders to present before driving. A record has `id`, `countryCode`, optional exact `locality`, `category` (`law` or `etiquette`), integer `priority`, `title`, `spokenText`, `details`, `sourceUrl`, `reviewedOn`, and `status` (`candidate` or `tested`). Only `tested` records may be returned or spoken. The API returns at most three reminders, ordered by priority.
+
+Local restrictions such as vehicle number-coding rules must include the exact locality and must not be treated as a nationwide Philippines rule. John must verify the applicable vehicle or plate conditions, schedule, exceptions, current official source, and review date before changing the record to `tested`. If no matching tested record exists, the app says the briefing is unavailable and does not improvise one.
 
 ## Camera component (Bryan)
 
@@ -64,12 +70,15 @@ In the Philippines preview, `avoidRestrictedZones` may display an alternate rout
 
 - `GET /api/health` → `{ "status": "ok", "service": "roamright-api" }` (implemented foundation).
 - `GET /api/rules?countryCode=JP` → array of source-reviewed sign records for the country, including candidate/tested status.
+- `GET /api/briefing?countryCode=JP&locality=Tokyo` → a `ready` response with at most three tested, priority-ordered records and the exact approved `speechText`, or `{ "status": "unavailable", ... "items": [], "speechText": null }`. A locality-specific record is returned only for an exact case-insensitive locality match. Candidate records are never returned.
 - `POST /api/recognize` with `{ "countryCode": "JP", "imageDataUrl": "data:image/jpeg;base64,..." }` → `{ "status": "recognized", "signId": "jp-stop", "rule": { ...reviewedRecord } }` or `{ "status": "unknown", "signId": null, "rule": null }`. Send the resolved current country (or visibly labeled selected-country fallback), not an unrelated destination. Only known IDs from that country may be returned. No rule text is invented by the model.
 - `POST /api/explain` with `{ "countryCode": "JP", "signId": "jp-stop", "question": "..." }` → `{ "answer": "...", "sourceUrl": "..." }`. The answer is constrained to the reviewed record; unsupported questions return an uncertainty response.
-- `POST /api/speak` with `{ "countryCode": "JP", "signId": "jp-stop" }` → audio from Gemini TTS for that record's approved `shortAlert`, with an appropriate audio content type. If unavailable, return an error that UI can disclose rather than silently claiming another voice is Gemini.
+- `POST /api/speak` with `{ "countryCode": "JP", "signId": "jp-stop" }` → `{ "text": "approved short alert", "engine": "browser-speech-synthesis" }`. The backend returns text only for a tested record in the selected country. The frontend passes that exact text to the browser `speechSynthesis` API and reports an unavailable state when the browser does not support it.
 
-Backend checks required: country enum, known sign ID, image MIME/size, request limits, and safe errors without exposing keys. Browser calls go through the Vite `/api` proxy in development. Maps and Gemini API keys are separate.
+Backend checks required: country enum, known sign ID, image MIME/size, request limits, strict allowlist validation, and safe errors without exposing keys. Browser calls go through the Vite `/api` proxy in development. Maps and Groq API keys are separate. Groq/Qwen output never supplies the legal guidance itself.
 
 ## Trip UI (Gio)
 
 Own the entire traveler flow in `frontend/src/features/trip/`, using the camera, map, and guidance interfaces above. Show home country, destination country, detected/fallback country status, destination, active/parked mode, latest recognized rule, source, audio status, unknown/loading/errors, route summary, and the supported-sign list. Show the restricted-zone toggle only with a clear live/simulated route state. Device modes are labeled **interface previews**; the two-wheeler preview may include a non-flashing high-contrast layout and a parked pre-ride checklist. A simulated proximity reminder must be labeled as such and must not claim a fixed distance. Do not hard-code a second sign rule or an unverified footwear prohibition in the UI.
+
+Starting a trip is a two-step safety flow. The first user action calls `playTripBriefing(countryCode, locality)`, displays the returned titles/details/sources, and reads the exact approved speech text. Keep the map and camera inactive at this stage. A separate **I understand — begin trip** action starts the active map/camera session. If the briefing is unavailable or speech is unsupported, show that state visibly and still allow the user to read any available content; never synthesize missing rules in the UI.

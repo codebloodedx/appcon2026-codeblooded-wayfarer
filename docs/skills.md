@@ -4,7 +4,7 @@ This record intentionally separates assignment from demonstrated proficiency. Ra
 
 | Member | Assigned complete area | Demonstrated skills | Learning/support need | Availability | Capacity risk |
 | --- | --- | --- | --- | --- | --- |
-| Ranee Mikaella Gutierrez | Setup, Gemini recognition/NLP/voice, map, final integration/review | Not verified | Gemini TTS availability, Maps keys and route setup, GitHub ruleset | Not verified | High: several critical-path integrations and final review |
+| Ranee Mikaella Gutierrez | Setup, Groq/Qwen recognition and NLP, browser voice, map, final integration/review | Not verified | Groq limits/live-key validation, Maps route setup, GitHub ruleset | Not verified | High: several critical-path integrations and final review |
 | Gio Joshua Gonzales | Full traveler-facing UI | Not verified | Responsive UI, accessibility and integration with documented props | Not verified | Not verified |
 | John Asher Manit | Rule knowledge, signs, sources and validation evidence | Not verified | Verify exceptions and asset provenance; record actual live tests | Not verified | Not verified |
 | Bryan Navarro Lomerio | Full browser camera/capture subsystem | Not verified | Permissions, stream cleanup and sampled-frame performance | Not verified | Not verified |

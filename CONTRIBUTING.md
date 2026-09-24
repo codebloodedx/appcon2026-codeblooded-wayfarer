@@ -13,4 +13,4 @@ Ranee is the Project Manager and final decision-maker. Use [team areas](docs/tea
 
 ## MVP proof before submission
 
-The stationary demo must show live camera plus map, one tested sign yielding the correct country-specific sourced rule and Gemini speech, an unsupported/unknown input, and clear simulation labels. If a feature cannot be verified, remove or mark it as a limitation in the pitch.
+The stationary demo must show live camera plus map, one tested sign yielding the correct country-specific sourced rule and browser-spoken guidance, an unsupported/unknown input, and clear simulation labels. If a feature cannot be verified, remove or mark it as a limitation in the pitch.

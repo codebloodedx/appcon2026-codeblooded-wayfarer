@@ -4,19 +4,22 @@ This checklist separates implemented modules from evidence captured in the final
 
 ## Before combining member work
 
-- [x] `/api/rules`, `/api/recognize`, `/api/explain`, and `/api/speak` match interface contract version 2.
+- [x] `/api/rules`, `/api/briefing`, `/api/recognize`, `/api/explain`, and `/api/speak` match interface contract version 4.
 - [x] Recognition accepts only `JP` or `PH`, approved image formats, and tested rule IDs from the resolved country.
 - [x] Candidate, invented, unsupported-country, and unclear results produce no rule-backed alert.
 - [x] `MapPanel` exposes the locked props, labels simulated or fallback location, and shows route errors.
 - [x] The Philippines restriction option is visibly labeled **Simulation** and makes no compliance claim.
-- [x] Frontend guidance functions expose rule listing, recognition, explanation, and Gemini audio playback.
+- [x] Frontend guidance functions expose rule listing, recognition, explanation, and browser speech playback.
+- [x] The briefing adapter returns and speaks only tested country/locality-matched records, with an unavailable fallback.
+- [ ] John's reviewed `shared/rules/briefings.json` is merged with one to three destination reminders and exact sources.
 - [ ] John's reviewed `shared/rules/rules.json` and source document are merged.
 - [ ] Bryan's `CameraPanel` is merged and supplies valid JPEG samples.
 - [ ] Gio's trip UI is merged and imports the camera, map, and guidance modules.
 
 ## Stationary demo evidence
 
-- [ ] Start the session from a user action and grant camera, location, and audio permissions.
+- [ ] Start the session from a user action and grant camera and location permissions; trigger browser speech from that user-started session.
+- [ ] Confirm the start action shows and speaks the reviewed pre-trip briefing before a separate acknowledgment activates map and camera.
 - [ ] Keep the live camera and destination map visible together.
 - [ ] Confirm a visibly labeled simulated Japan origin, route line, ETA, and next-turn card.
 - [ ] Present one tested physical sign and confirm the returned country, rule, source, and one spoken alert.
