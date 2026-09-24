@@ -1,0 +1,28 @@
+import type { ReactNode } from 'react';
+import type { SimulationMode } from '../features/trip/types';
+
+type SimulationFrameProps = {
+  mode: SimulationMode;
+  children: ReactNode;
+  onChangeMode: () => void;
+};
+
+export function SimulationFrame({ mode, children, onChangeMode }: SimulationFrameProps) {
+  const label = mode === 'phone' ? 'Phone simulation' : 'PC simulation';
+
+  return (
+    <div className={`simulation-stage simulation-${mode}`}>
+      <div className="simulation-toolbar">
+        <div>
+          <span className="simulation-live-dot" aria-hidden="true" />
+          <span><small>Interface simulation</small><strong>{label}</strong></span>
+        </div>
+        <button type="button" onClick={onChangeMode}>Change view</button>
+      </div>
+      <div className="simulation-device">
+        {mode === 'phone' && <div className="simulation-phone-speaker" aria-hidden="true" />}
+        <div className="simulation-viewport">{children}</div>
+      </div>
+    </div>
+  );
+}

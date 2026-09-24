@@ -1,5 +1,6 @@
 export type CountryCode = 'PH' | 'JP';
 export type AppView = 'trip' | 'parked' | 'signs' | 'devices';
+export type SimulationMode = 'phone' | 'desktop';
 
 export type TripPlan = {
   homeCountry: CountryCode;

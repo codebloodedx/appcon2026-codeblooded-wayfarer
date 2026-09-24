@@ -2,7 +2,7 @@
 
 WayFarer is a hackathon MVP for the **Cross-Border Driving Rules & Local Manners Assistant** theme. The planned experience pairs a route map with a live camera, recognizes a small reviewed set of road signs, and gives brief location-specific spoken guidance. The focused demo is a traveler accustomed to driving in the Philippines navigating a route within Japan. A separate Philippines restricted-zone route preview and rider interface preview are scoped as visibly labeled demonstrations.
 
-**Current state:** the local `integration/wayfarer-mvp` branch combines the traveler UI, live camera/capture package, reviewed candidate rules/assets, Groq/Qwen recognition and grounded NLP, browser speech, pre-trip briefing, and Maps route component. Automated checks and the browser journey pass locally. Physical live-camera acceptance, a configured Maps key, and final merge/deployment evidence remain open. See [current status](docs/status.md).
+**Current state:** the local `integration/wayfarer-mvp` branch combines the traveler UI, phone/PC simulation entry, live camera/capture package, reviewed candidate rules/assets, Groq/Qwen recognition and grounded NLP, browser speech, pre-trip briefing, and Google Maps route experience. Automated checks and the browser journey pass locally. Physical live-camera acceptance and final merge/deployment evidence remain open. See [current status](docs/status.md).
 
 ## Get started
 

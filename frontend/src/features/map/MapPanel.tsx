@@ -14,7 +14,17 @@ type Origin = { lat: number; lng: number };
 type RouteSummary = { eta: string; distance: string; nextTurn: string };
 
 const countryNames: Record<CountryCode, string> = { JP: 'Japan', PH: 'Philippines' };
+const countryBounds: Record<CountryCode, { north: number; south: number; east: number; west: number }> = {
+  JP: { north: 46.5, south: 20, east: 154, west: 122 },
+  PH: { north: 22.5, south: 4, east: 127, west: 116 },
+};
 let mapsConfigured = false;
+
+function countryForPoint(point: Origin): CountryCode | null {
+  const entry = (Object.entries(countryBounds) as Array<[CountryCode, typeof countryBounds[CountryCode]]>)
+    .find(([, bounds]) => point.lat >= bounds.south && point.lat <= bounds.north && point.lng >= bounds.west && point.lng <= bounds.east);
+  return entry?.[0] ?? null;
+}
 
 function configureMaps() {
   if (mapsConfigured) return true;
@@ -61,30 +71,27 @@ export function MapPanel({ countryCode, destination, demoOrigin, avoidRestricted
       setStatus('Calculating route…');
       setSummary(null);
       try {
-        const [{ Map }, { Route }, { AdvancedMarkerElement }, { Geocoder }] = await Promise.all([
+        const [{ Map }, { Route }, { AdvancedMarkerElement }] = await Promise.all([
           importLibrary('maps'),
           importLibrary('routes'),
           importLibrary('marker'),
-          importLibrary('geocoding'),
         ]);
         if (cancelled || !mapElement.current) return;
         const map = new Map(mapElement.current, { center: origin, zoom: 13, mapId: 'DEMO_MAP_ID' });
-        const geocoded = await new Geocoder().geocode({ address: `${destination}, ${countryNames[countryCode]}` });
-        const destinationResult = geocoded.results[0];
-        const destinationCountry = destinationResult?.address_components
-          .find((component) => component.types.includes('country'))?.short_name;
-        if (!destinationResult || destinationCountry !== countryCode) {
-          throw new Error(`Choose a destination within ${countryNames[countryCode]}.`);
-        }
         const { routes } = await Route.computeRoutes({
           origin,
-          destination: destinationResult.geometry.location,
+          destination: `${destination}, ${countryNames[countryCode]}`,
           travelMode: 'DRIVING',
           routingPreference: 'TRAFFIC_AWARE',
-          fields: ['path', 'viewport', 'durationMillis', 'distanceMeters', 'legs', 'legs.steps'],
+          region: countryCode.toLowerCase(),
+          fields: ['path', 'viewport', 'durationMillis', 'distanceMeters', 'legs'],
         });
         const route = routes?.[0];
         if (!route) throw new Error('No route was returned for this destination.');
+        const endLocation = route.legs?.at(-1)?.endLocation;
+        if (!endLocation || countryForPoint({ lat: endLocation.lat, lng: endLocation.lng }) !== countryCode) {
+          throw new Error(`Choose a destination within ${countryNames[countryCode]}.`);
+        }
         polylines = route.createPolylines({ polylineOptions: { strokeColor: '#6d4aff', strokeWeight: 6 } });
         polylines.forEach((line) => line.setMap(map));
         markers = await route.createWaypointAdvancedMarkers({ map });
@@ -120,12 +127,7 @@ export function MapPanel({ countryCode, destination, demoOrigin, avoidRestricted
       const position = await locate();
       const point = { lat: position.coords.latitude, lng: position.coords.longitude };
       setOrigin(point);
-      if (!configureMaps()) throw new Error('Map key missing');
-      const { Geocoder } = await importLibrary('geocoding');
-      const result = await new Geocoder().geocode({ location: point });
-      const code = result.results.flatMap((item) => item.address_components)
-        .find((component) => component.types.includes('country'))?.short_name;
-      const resolved = code === 'JP' || code === 'PH' ? code : null;
+      const resolved = countryForPoint(point);
       setLocationLabel(resolved ? `Detected location · ${countryNames[resolved]}` : 'Detected location · Unsupported country');
       onCountryResolved?.(resolved, 'gps');
     } catch {
