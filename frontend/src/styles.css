@@ -1281,6 +1281,27 @@ p { line-height: 1.58; }
 .simulation-phone .navigation-progress-card, .simulation-phone .route-preview-card { bottom: 8.2rem; }
 .simulation-phone .navigation-simulation-note { display: none; }
 .simulation-phone .camera-pip.expanded { max-height: 48%; }
+.simulation-phone .app-shell.google-maps-layout {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  border-radius: 2rem;
+}
+.simulation-phone .drawer-overlay {
+  border-radius: 2rem;
+}
+.simulation-phone .bottom-sheet-drawer {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: 85% !important;
+  border-radius: 1.5rem 1.5rem 2rem 2rem;
+}
+.simulation-desktop .app-shell.google-maps-layout {
+  height: calc(100vh - 58px) !important;
+  min-height: calc(100vh - 58px) !important;
+  max-height: calc(100vh - 58px) !important;
+}
 
 @container (max-width: 520px) {
   .navigation-search-bar { right: .65rem; left: .65rem; }
@@ -1333,8 +1354,6 @@ p { line-height: 1.58; }
   position: relative;
   width: 100%;
   height: 100%;
-  height: 100dvh;
-  min-height: 100dvh;
   overflow: hidden;
   background: #03102b;
 }
@@ -2035,7 +2054,7 @@ p { line-height: 1.58; }
 
 /* 5. Reusable Bottom-Sheet Drawer Overlay */
 .drawer-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 200;
   background: rgba(3, 16, 43, 0.62);
@@ -2045,11 +2064,12 @@ p { line-height: 1.58; }
   align-items: flex-end;
   justify-content: center;
   animation: fadeIn 0.2s ease;
+  overflow: hidden;
 }
 
 .bottom-sheet-drawer {
   width: min(640px, 100%);
-  max-height: 86dvh;
+  max-height: min(88%, 760px);
   background: #ffffff;
   color: #071a3d;
   border-radius: 1.5rem 1.5rem 0 0;
@@ -2950,15 +2970,25 @@ p { line-height: 1.58; }
     box-sizing: border-box !important;
   }
 
+  .app-shell.google-maps-layout {
+    height: 100% !important;
+    min-height: 100dvh !important;
+    border-radius: 0 !important;
+  }
+
   .drawer-overlay {
+    position: fixed !important;
+    inset: 0 !important;
     width: 100vw !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
+    border-radius: 0 !important;
   }
 
   .bottom-sheet-drawer {
     width: 100% !important;
     max-width: 100vw !important;
+    max-height: 88dvh !important;
     border-radius: 1.25rem 1.25rem 0 0 !important;
     box-sizing: border-box !important;
   }
