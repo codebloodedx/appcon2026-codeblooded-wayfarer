@@ -1,4 +1,4 @@
-import type { ComparisonResult, CountryCode, RecognitionResult, RecognitionTestCase, RuleRecord, TripBriefing } from './types';
+import type { CountryCode, RecognitionResult, RuleRecord, TripBriefing } from './types';
 
 async function parseError(response: Response): Promise<Error> {
   const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -66,21 +66,4 @@ export async function playRuleAlert(countryCode: CountryCode, signId: string): P
   if (!response.ok) throw await parseError(response);
   const body = await response.json() as { text: string; engine: 'browser-speech-synthesis' };
   return speakBrowserText(body.text);
-}
-
-export async function listRecognitionTests(): Promise<RecognitionTestCase[]> {
-  const response = await fetch('/api/recognition-tests');
-  if (!response.ok) throw await parseError(response);
-  return response.json() as Promise<RecognitionTestCase[]>;
-}
-
-export async function compareSigns(first: { countryCode: CountryCode; imageDataUrl: string }, second: { countryCode: CountryCode; imageDataUrl: string }): Promise<ComparisonResult> {
-  const response = await fetch('/api/compare', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ first, second }),
-    signal: AbortSignal.timeout(60_000),
-  });
-  if (!response.ok) throw await parseError(response);
-  return response.json() as Promise<ComparisonResult>;
 }

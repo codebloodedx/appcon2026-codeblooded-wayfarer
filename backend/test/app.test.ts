@@ -8,7 +8,6 @@ import { createApp } from '../src/app.js';
 import { BriefingRepository } from '../src/briefings.js';
 import type { GuidanceModel } from '../src/groq.js';
 import { RuleRepository } from '../src/rules.js';
-import { comparePredictions } from '../src/app.js';
 import { emptyRecognition } from '../src/groq.js';
 import type { BriefingRecord, ModelRecognition, RuleRecord, SignCategory } from '../src/types.js';
 
@@ -143,14 +142,20 @@ describe('WayFarer guidance API', () => {
       .expect(404);
   });
 
-  it('resolves a valid semantic category even when no exact reference ID is supplied', async () => {
-    const response = await request(createApp({ rules, model: modelReturning({ ...prediction('STOP', null), closestReferenceId: 'invented-sign' }) }))
+  it('resolves a cross-country visual variant by semantic category', async () => {
+    const crossCountryPrediction = {
+      ...prediction('STOP', 'ph-stop', 'PH'),
+      visualSimilarity: 0.55,
+    };
+    const response = await request(createApp({ rules, model: modelReturning(crossCountryPrediction) }))
       .post('/api/recognize')
       .send({ countryCode: 'JP', imageDataUrl: image })
       .expect(200);
     assert.equal(response.body.status, 'recognized');
     assert.equal(response.body.rule.id, 'jp-stop');
     assert.equal(response.body.debug.closestReference, null);
+    assert.equal(response.body.debug.detectedCountry, 'PH');
+    assert.equal(response.body.debug.matchType, 'SEMANTIC_MATCH');
   });
 
   it('does not use a rule from another country', async () => {
@@ -172,13 +177,4 @@ describe('WayFarer guidance API', () => {
     await request(app).post('/api/speak').send({ countryCode: 'JP', signId: 'jp-crossing' }).expect(404);
   });
 
-  it('distinguishes exact, semantic, related, and no-match comparisons', () => {
-    assert.equal(comparePredictions(prediction('STOP', 'jp-stop'), prediction('STOP', 'jp-stop')), 'EXACT_MATCH');
-    assert.equal(comparePredictions(
-      { ...prediction('STOP', 'jp-stop'), visualSimilarity: 0.55 },
-      { ...prediction('STOP', 'ph-stop', 'PH'), visualSimilarity: 0.48 },
-    ), 'SEMANTIC_MATCH');
-    assert.equal(comparePredictions(prediction('NO_ENTRY', 'jp-entry'), prediction('NO_PARKING', 'ph-parking', 'PH')), 'RELATED');
-    assert.equal(comparePredictions(prediction('STOP', 'jp-stop'), prediction('MAX_SPEED', 'ph-speed', 'PH')), 'NO_MATCH');
-  });
 });

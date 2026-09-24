@@ -3,8 +3,7 @@ import { BriefingRepository } from './briefings.js';
 import { exactVisualThreshold, GroqGuidanceModel, semanticMatchThreshold, type GuidanceModel } from './groq.js';
 import { parseImageDataUrl } from './image.js';
 import { RuleRepository } from './rules.js';
-import { readRecognitionTests } from './recognitionTests.js';
-import { isCountryCode, type MatchType, type ModelRecognition, type RuleRecord, type SignCategory } from './types.js';
+import { isCountryCode, type MatchType, type ModelRecognition, type RuleRecord } from './types.js';
 
 type AppDependencies = { rules?: RuleRepository; briefings?: BriefingRepository; model?: GuidanceModel };
 
@@ -60,38 +59,6 @@ export function createApp(dependencies: AppDependencies = {}) {
       const catalog = await rules.all();
       const prediction = await model.recognize(image, countryCode, catalog);
       return response.json(resolveRecognition(countryCode, catalog, prediction));
-    } catch (error) {
-      return next(error);
-    }
-  });
-
-  app.get('/api/recognition-tests', async (_request, response, next) => {
-    try {
-      return response.json(await readRecognitionTests());
-    } catch (error) {
-      return next(error);
-    }
-  });
-
-  app.post('/api/compare', async (request, response, next) => {
-    try {
-      const { first, second } = request.body as Record<string, unknown>;
-      const left = parseComparisonInput(first);
-      const right = parseComparisonInput(second);
-      if (!left || !right) return response.status(400).json({ error: 'first and second require countryCode and a JPEG, PNG, or WebP image up to 1.5 MB' });
-      const catalog = await rules.all();
-      // Free-tier multimodal endpoints commonly allow one active generation.
-      const firstPrediction = await model.recognize(left.image, left.countryCode, catalog);
-      const secondPrediction = await model.recognize(right.image, right.countryCode, catalog);
-      const firstResult = resolveRecognition(left.countryCode, catalog, firstPrediction);
-      const secondResult = resolveRecognition(right.countryCode, catalog, secondPrediction);
-      const matchType = comparePredictions(firstPrediction, secondPrediction);
-      return response.json({
-        first: firstResult,
-        second: secondResult,
-        matchType,
-        semanticMatch: matchType === 'EXACT_MATCH' || matchType === 'SEMANTIC_MATCH',
-      });
     } catch (error) {
       return next(error);
     }
@@ -153,32 +120,6 @@ export function createApp(dependencies: AppDependencies = {}) {
 }
 
 export const app = createApp();
-
-function parseComparisonInput(value: unknown) {
-  if (!value || typeof value !== 'object') return null;
-  const record = value as Record<string, unknown>;
-  if (!isCountryCode(record.countryCode)) return null;
-  const image = parseImageDataUrl(record.imageDataUrl);
-  return image ? { countryCode: record.countryCode, image } : null;
-}
-
-function relatedCategory(first: SignCategory, second: SignCategory): boolean {
-  const groups: SignCategory[][] = [
-    ['NO_ENTRY', 'NO_U_TURN', 'NO_PARKING'],
-    ['STOP', 'SLOW', 'PRIORITY_ROAD_AHEAD'],
-    ['NO_JEEPNEYS', 'NO_TRICYCLES', 'NO_PUSHCARTS', 'NO_ANIMAL_DRAWN_VEHICLES'],
-  ];
-  return groups.some((group) => group.includes(first) && group.includes(second));
-}
-
-export function comparePredictions(first: ModelRecognition, second: ModelRecognition): MatchType {
-  if (!first.normalizedCategory || !second.normalizedCategory) return 'NO_MATCH';
-  if (first.closestReferenceId && first.closestReferenceId === second.closestReferenceId
-    && first.visualSimilarity >= exactVisualThreshold && second.visualSimilarity >= exactVisualThreshold) return 'EXACT_MATCH';
-  if (first.normalizedCategory === second.normalizedCategory
-    && first.semanticSimilarity >= semanticMatchThreshold && second.semanticSimilarity >= semanticMatchThreshold) return 'SEMANTIC_MATCH';
-  return relatedCategory(first.normalizedCategory, second.normalizedCategory) ? 'RELATED' : 'NO_MATCH';
-}
 
 function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], prediction: ModelRecognition) {
   const closest = prediction.closestReferenceId ? catalog.find((item) => item.id === prediction.closestReferenceId) : undefined;

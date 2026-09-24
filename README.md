@@ -2,7 +2,7 @@
 
 WayFarer is a hackathon MVP for the **Cross-Border Driving Rules & Local Manners Assistant** theme. The planned experience pairs a route map with a live camera, recognizes a small reviewed set of road signs, and gives brief location-specific spoken guidance. The focused demo is a traveler accustomed to driving in the Philippines navigating a route within Japan. A separate Philippines restricted-zone route preview and rider interface preview are scoped as visibly labeled demonstrations.
 
-**Current state:** the local `integration/wayfarer-mvp` branch combines the traveler UI, phone/PC simulation entry, live camera/capture package, reviewed candidate rules/assets, Groq/Qwen recognition and grounded NLP, browser speech, pre-trip briefing, and Google Maps route experience. Automated checks and the browser journey pass locally. Physical live-camera acceptance and final merge/deployment evidence remain open. See [current status](docs/status.md).
+**Current state:** the integrated MVP combines the traveler UI, phone/PC simulation entry, live camera/capture package, reviewed candidate rules/assets, Groq/Qwen recognition and grounded NLP, browser speech, pre-trip briefing, and Google Maps route experience. Automated checks and the browser journey pass locally. Physical live-camera acceptance and deployment evidence remain open. See [current status](docs/status.md).
 
 ## Get started
 
@@ -22,7 +22,7 @@ On macOS/Linux, use `cp .env.example .env`. Open the local frontend URL printed 
 2. Use the **Live camera test set** below the map/camera. Open a fixture on a second screen or print it, then hold it in front of the live camera while stationary.
 3. The live camera card updates with detected sign, normalized category, country, confidence, semantic similarity, match type, equivalent sign, and the strongest visual/OCR evidence. Frames are sampled every 2.5 seconds.
 4. Edit the trip destination to switch between the Japan and Philippines live test sets. The camera country context and reviewed records change together.
-5. Use the separate **Recognition lab** for controlled image variations and pair comparison. It can alter angle, lighting, color, crop, obstruction, size, and background without sending the fixture filename or expected label to the model.
+5. Use **Parked details** to capture or upload an unfamiliar sign, inspect its reviewed details and source, and ask a grounded question. Test visual variation in the live camera by changing the sign angle, lighting, distance, crop, obstruction, and background while stationary.
 
 See [recognition architecture](docs/recognition-architecture.md) for the audit, thresholds, and safety boundary, and [test matrix](docs/test-matrix.md) for the 5 + 5 country-specific cases and 6 equivalent pairs.
 

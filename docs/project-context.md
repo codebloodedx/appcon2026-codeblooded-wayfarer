@@ -24,7 +24,7 @@ The product goal is to reduce unintentional violations and misunderstandings wit
 8. A Philippines route example may show an **Avoid restricted zones** toggle and alternate Makati route. Until current official restrictions, exceptions, boundaries, and route behavior are verified, the zone and alternate route must be visibly labeled **simulation**, with no compliance claim.
 9. Phone, dashcam, action-camera/two-wheeler, and EV layouts may be shown as **interface previews**. A dark, high-contrast two-wheeler preview and parked pre-ride checklist can illustrate the rider experience. Their physical connections and sunlight performance are future work.
 
-The original candidate demo signs are Japan Stop (止まれ), Japan Railway crossing ahead, and Philippines No right turn. The parked semantic-recognition lab adds a broader candidate test catalog: five country-specific categories per country and six cross-country equivalent pairs. These records become **supported** only after source acceptance and live-camera recognition evidence. The defensible driving demo minimum remains one complete tested sign and an `unknown` case.
+The original candidate demo signs are Japan Stop (止まれ), Japan Railway crossing ahead, and Philippines No right turn. The internal test catalog adds five country-specific categories per country and six cross-country equivalent pairs to the **Live camera test set**. **Parked details** handles manual photo capture or upload. These records become **supported** only after source acceptance and live-camera recognition evidence. The defensible driving demo minimum remains one complete tested sign and an `unknown` case.
 
 ## Outside the MVP
 
@@ -41,4 +41,4 @@ Physical dashcam/action-camera/vehicle connections, live construction detection 
 
 React/TypeScript/Vite frontend; Node/TypeScript/Express backend; Groq-hosted Qwen image understanding and language assistance; browser speech synthesis; Google Maps for map and routes; browser camera and location permission. A small JSON rule library is sufficient for the MVP. No model training or database is required. The Groq key stays server-side. An HTTPS URL or localhost is needed for camera/location use.
 
-The frontend/backend scaffold and health endpoint are present; the AI, map, camera, rule, voice, country detection, and route additions are not yet verified. See [status](status.md).
+The integrated frontend and backend contain the AI, map, camera, rule, voice, country-detection, and route additions. Automated and browser checks are recorded in [status](status.md); physical live-camera acceptance remains open.

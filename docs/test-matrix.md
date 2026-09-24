@@ -3,7 +3,7 @@
 **Owner:** John Asher Manit (`@99lash`) for rule/source evidence; Ranee for recognition integration
 **Updated:** 24 September 2026
 
-All records are `candidate`. A PASS in the Recognition Lab means the model returned the expected normalized category. It does not promote the sign to tested driving guidance. Record browser, model name, commit, variation, scores, response, audio state, and screenshot under `docs/evidence/` for a live acceptance run.
+All records are `candidate`. A PASS in the **Live camera test set** means the model returned the expected normalized category from a sampled camera frame. It does not promote the sign to tested driving guidance. Record browser, model name, commit, variation, scores, response, audio state, and screenshot under `docs/evidence/` for a live acceptance run.
 
 ## Country-specific set
 
@@ -33,7 +33,7 @@ These categories are documented by the named country's source and are not normal
 | Blue/red No Parking | Text/symbol No Parking | `NO_PARKING` | `SEMANTIC_MATCH` |
 | Japan No U-turn | Philippine No U-turn | `NO_U_TURN` | `SEMANTIC_MATCH` |
 
-Each individual result must return its expected category. The pair comparison must return `semanticMatch: true`. The images are intentionally different designs; identical images are not required.
+Present each image to the live camera separately. Both country designs must return the same expected normalized category even when their visual similarity differs. The images are intentionally different designs; identical images are not required.
 
 ## Visual variation suite
 
@@ -48,7 +48,7 @@ Run every country-specific input and both images from every equivalent pair unde
 7. Resized/small sign
 8. Different busy background
 
-The lab applies these transformations to a rasterized image before upload. The model does not receive the filename or expected label. A category mismatch is FAIL. An honest unknown under severe obstruction is recorded as FAIL for that test row but must remain silent; a confident wrong driving category is a blocker.
+Apply these variations physically to the printed sign or second-screen presentation while the camera is open. The model receives only a sampled frame, without the fixture filename or expected label. A category mismatch is FAIL. An honest unknown under severe obstruction is recorded as FAIL for that test row but must remain silent; a confident wrong driving category is a blocker.
 
 ## Negative and safety checks
 
@@ -59,4 +59,4 @@ The lab applies these transformations to a rasterized image before upload. The m
 | Related but different restriction | `RELATED`, no successful semantic match, no audio |
 | Candidate result | Visible candidate data, `/api/speak` and `/api/explain` reject it |
 
-The executable catalog is `shared/rules/recognition-tests.json`. The active Trip view exposes the current country's fixtures under **Live camera test set** and shows semantic debug output after every sampled live frame. The parked **Recognition lab** remains available for controlled variation and pair tests and renders the requested columns: Input, Expected Category, Predicted Category, Country, Confidence, Semantic Match, and Result.
+The internal catalog is `shared/rules/recognition-tests.json`. The active Trip view exposes the current country's fixtures under **Live camera test set** and shows normalized category, country, confidence, visual/semantic scores, match type, equivalent sign, and evidence after each sampled live frame. Record PASS/FAIL outcomes in this matrix or `docs/evidence/`. Use **Parked details** for manual capture/upload and source review.

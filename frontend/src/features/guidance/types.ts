@@ -42,24 +42,6 @@ export type RecognitionResult =
   | { status: 'candidate'; signId: string; rule: RuleRecord; debug: RecognitionDebug }
   | { status: 'unknown'; signId: null; rule: null; debug: RecognitionDebug };
 
-export type RecognitionTestCase = {
-  id: string;
-  testType: 'country-specific' | 'equivalent';
-  input: string;
-  countryCode: CountryCode;
-  expectedCategory: SignCategory;
-  assetPath: string;
-  pairId?: string;
-  expectedResult: string;
-};
-
-export type ComparisonResult = {
-  first: RecognitionResult;
-  second: RecognitionResult;
-  matchType: MatchType;
-  semanticMatch: boolean;
-};
-
 export type BriefingRecord = {
   id: string;
   countryCode: CountryCode;
