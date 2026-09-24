@@ -55,7 +55,7 @@ WayFarer is created and developed by **Team CodeBlooded (AppCon 2026 Team 01)**.
 ### 2. Third-Party Dependencies & Open-Source Libraries
 WayFarer attributes and complies with all respective open-source licenses for its dependencies:
 * **Frontend:** [React](https://react.dev/) (MIT), [Vite](https://vitejs.dev/) (MIT), [@googlemaps/js-api-loader](https://github.com/googlemaps/js-api-loader) (Apache 2.0).
-* **Backend:** [Node.js](https://nodejs.org/) (OpenJS Foundation), [Express](https://expressjs.com/) (MIT), [groq-sdk](https://github.com/groq/groq-typescript) (Apache 2.0), [dotenv](https://github.com/motdotla/dotenv) (BSD-2-Clause).
+* **Backend:** [Node.js](https://nodejs.org/) (OpenJS Foundation), [Express](https://expressjs.com/) (MIT), [Google Gen AI SDK](https://github.com/googleapis/js-genai) (Apache 2.0), [dotenv](https://github.com/motdotla/dotenv) (BSD-2-Clause).
 * **Development & Verification:** [TypeScript](https://www.typescriptlang.org/) (Apache 2.0), [TSX](https://github.com/privatenumber/tsx) (MIT), [Supertest](https://github.com/ladjs/supertest) (MIT).
 * **Datasets & Training Imagery:** [Ritsumeikan Japanese Road Signs](https://universe.roboflow.com/ritsumeikan/japanese-road-signs) and [NOS Philippine Traffic Sign Dataset](https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn) (both CC BY 4.0).
 * **Official Signage Standards:** Japanese regulatory traffic signs are official standards under the Road Traffic Act and public domain under Article 13 of the Copyright Act of Japan. Philippine road signage standards are public domain under Section 176 of RA 8293. Vector SVG reproductions were created by John Asher Manit for this project.
@@ -66,9 +66,9 @@ In compliance with hackathon guidelines regarding proprietary APIs and third-par
   * *Purpose:* Calculates and renders driving routes, turn-by-turn road geometry, ETA, and distance.
   * *Access & Substitution Instructions:* Evaluators can configure their own key by adding `VITE_GOOGLE_MAPS_API_KEY` to the root `.env` file (enabling Maps JavaScript API and Routes API in Google Cloud).
   * *Public Accessibility & Graceful Fallback:* The core functionality—including safety briefings, camera sampling, sign recognition, parked rule inspector, and NLP Q&A—remains fully accessible to the public even when Maps credentials are not present.
-* **Groq Cloud Inference API / Google Vertex AI:**
+* **Google Gemini API:**
   * *Purpose:* Performs rapid visual classification of road signs and rule-grounded natural language explanation.
-  * *Access & Substitution Instructions:* Evaluators can obtain a free API key instantly at [console.groq.com](https://console.groq.com) (no credit card or billing account required) and set `GROQ_API_KEY` in `.env`.
+  * *Access & Substitution Instructions:* Evaluators can create a Gemini API key for an eligible Google AI Studio project and set `GEMINI_API_KEY` in the backend environment. Keep this server-side variable out of frontend code and source control.
   * *Public Accessibility & Graceful Fallback:* Candidate protection and fallback algorithms ensure the system operates safely without hallucinating advice when provider access is limited.
 
 ### 4. Sponsor & Organizer Recognition

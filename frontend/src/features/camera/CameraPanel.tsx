@@ -15,6 +15,9 @@ const CAPTURE_QUALITY = 0.9;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MAX_ENCODED_IMAGE_CHARS = 2_000_000;
 const FACING_MODE = 'environment' as const;
+const DEMO_IMAGE_WIDTH = 800;
+const DEMO_IMAGE_HEIGHT = 533;
+const DEMO_SIGN_BOX: [number, number, number, number] = [0.38, 0.22, 0.80, 0.75];
 
 export function CameraPanel({ active, parked, onSample, onCapture, detection = null, recognitionStatus = 'waiting' }: CameraPanelProps) {
   const { videoRef, status, message, start, stop } = useCameraStream(FACING_MODE);
@@ -24,9 +27,11 @@ export function CameraPanel({ active, parked, onSample, onCapture, detection = n
   const [notice, setNotice] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [boxStyle, setBoxStyle] = useState<CSSProperties | null>(null);
+  const [demoBoxStyle, setDemoBoxStyle] = useState<CSSProperties | null>(null);
 
   const isLive = status === 'live';
   const cameraUnavailable = status === 'denied' || status === 'no-camera' || status === 'error';
+  const showDemoPreview = !parked && status === 'idle' && !previewUrl;
   const trackedBox = useDetectionTracker(videoRef, detection?.bbox ?? null, isLive && !parked && Boolean(detection));
 
   useEffect(() => {
@@ -65,6 +70,19 @@ export function CameraPanel({ active, parked, onSample, onCapture, detection = n
       video.removeEventListener('loadedmetadata', updateBox);
     };
   }, [detection, isLive, trackedBox, videoRef]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!showDemoPreview || !stage) {
+      setDemoBoxStyle(null);
+      return;
+    }
+    const updateBox = () => setDemoBoxStyle(fitNormalizedBoxToCover(DEMO_SIGN_BOX, DEMO_IMAGE_WIDTH, DEMO_IMAGE_HEIGHT, stage.clientWidth, stage.clientHeight));
+    updateBox();
+    const observer = new ResizeObserver(updateBox);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [showDemoPreview]);
 
   const scanLabel = samplingStatus === 'analyzing'
     ? 'Analyzing frame…'
@@ -155,6 +173,14 @@ export function CameraPanel({ active, parked, onSample, onCapture, detection = n
 
         {!isLive && previewUrl && <img className="rr-camera__photo-preview" src={previewUrl} alt="Uploaded traffic sign for parked analysis" />}
 
+        {showDemoPreview && (
+          <div className="rr-camera__demo">
+            <img src="/camera-preview/japan-stop-example.png" alt="Example photo of a Japanese stop sign beneath an overpass" />
+            {demoBoxStyle && <div className="rr-camera__detection rr-camera__detection--candidate rr-camera__detection--demo" style={demoBoxStyle} aria-hidden="true"><span>Example box · Stop sign</span></div>}
+            <span className="rr-camera__demo-badge">Sample preview · not live</span>
+          </div>
+        )}
+
         {isLive && detection && boxStyle && (
           <div className={`rr-camera__detection rr-camera__detection--${detection.status}`} style={boxStyle} aria-label={`${detection.label}, ${Math.round(detection.confidence * 100)} percent confidence`}>
             <span>{detection.label} · {Math.round(detection.confidence * 100)}%</span>
@@ -171,7 +197,7 @@ export function CameraPanel({ active, parked, onSample, onCapture, detection = n
 
         {isLive && !parked && <span className={`rr-camera__scan-status rr-camera__scan-status--${recognitionStatus}`} role="status">{scanLabel}</span>}
 
-        {!isLive && !previewUrl && (
+        {!isLive && !previewUrl && !showDemoPreview && (
           <div className="rr-camera__placeholder">
             {status === 'idle' && <p>Start the camera to show the live tracking square and hear concise sign guidance while driving.</p>}
             {status === 'loading' && <p role="status">Waiting for camera access…</p>}

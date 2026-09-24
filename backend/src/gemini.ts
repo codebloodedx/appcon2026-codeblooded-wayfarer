@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import type { ParsedImage } from './image.js';
 import {
   emptyRecognition,
@@ -88,7 +88,7 @@ export class GeminiGuidanceModel implements GuidanceModel {
       visualDescription: rule.visualDescription,
     }));
     const response = await client().models.generateContent({
-      model: process.env.GEMINI_VISION_MODEL?.trim() || 'gemini-2.5-flash',
+      model: process.env.GEMINI_VISION_MODEL?.trim() || 'gemini-3.6-flash',
       contents: [{
         role: 'user',
         parts: [
@@ -111,9 +111,8 @@ export class GeminiGuidanceModel implements GuidanceModel {
           'Return one flat JSON object only. Do not nest fields inside detectedSign.',
           'The flat keys are detectedCountry (JP, PH, or null), detectedSign (a short string or null), modelClass, normalizedCategory, confidence, closestReferenceId, visualSimilarity, semanticSimilarity, bbox, and evidence {shape,symbol,text,color}. Scores are 0 to 1.',
         ].join(' '),
-        temperature: 0,
         maxOutputTokens: 800,
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
         responseMimeType: 'application/json',
       },
     });
@@ -156,7 +155,7 @@ export class GeminiGuidanceModel implements GuidanceModel {
       etiquette: rule.etiquette,
     };
     const response = await client().models.generateContent({
-      model: process.env.GEMINI_TEXT_MODEL?.trim() || 'gemini-2.5-flash-lite',
+      model: process.env.GEMINI_TEXT_MODEL?.trim() || 'gemini-3.6-flash',
       contents: `Reviewed record: ${JSON.stringify(reviewedContext)}\nTraveler question: ${question}`,
       config: {
         systemInstruction: `Answer briefly using only the reviewed record. Do not add rules, penalties, distances, times, or exceptions. If the record does not answer the question, reply exactly: ${unknownAnswer}`,

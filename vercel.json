@@ -1,9 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build -w frontend",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://appcon2026-codeblooded-wayfarer.onrender.com/api/:path*"
+      "destination": "/api/handler?wayfarerPath=:path*"
     },
     {
       "source": "/:path*",

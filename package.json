@@ -2,6 +2,7 @@
   "name": "roamright",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "workspaces": ["frontend", "backend"],
   "scripts": {
     "dev": "concurrently -k \"npm run dev -w backend\" \"npm run dev -w frontend\"",

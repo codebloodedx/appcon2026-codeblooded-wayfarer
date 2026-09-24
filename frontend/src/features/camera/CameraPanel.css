@@ -35,6 +35,40 @@
   background: #070d18;
 }
 
+.rr-camera__demo {
+  position: absolute;
+  inset: 0;
+}
+
+.rr-camera__demo > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rr-camera__detection--demo {
+  transition: none;
+}
+
+.rr-camera__detection--demo > span {
+  max-width: none;
+  font-size: 0.6rem;
+}
+
+.rr-camera__demo-badge {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  z-index: 5;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.4rem;
+  background: rgba(3, 16, 43, 0.88);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
 .rr-camera__detection {
   position: absolute;
   z-index: 4;

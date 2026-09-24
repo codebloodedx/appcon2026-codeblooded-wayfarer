@@ -36,11 +36,13 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.get('/api/briefing', async (request, response, next) => {
     try {
       const countryCode = request.query.countryCode;
-      const locality = request.query.locality;
-      const homeCountry = request.query.homeCountry;
+      const rawLocality = request.query.locality;
+      const locality = typeof rawLocality === 'string' ? rawLocality : undefined;
+      const rawHomeCountry = request.query.homeCountry;
+      const homeCountry = isCountryCode(rawHomeCountry) ? rawHomeCountry : undefined;
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
-      if (homeCountry !== undefined && !isCountryCode(homeCountry)) return response.status(400).json({ error: 'homeCountry must be JP or PH' });
-      if (locality !== undefined && (typeof locality !== 'string' || locality.trim().length > 100)) {
+      if (rawHomeCountry !== undefined && !homeCountry) return response.status(400).json({ error: 'homeCountry must be JP or PH' });
+      if (rawLocality !== undefined && (locality === undefined || locality.trim().length > 100)) {
         return response.status(400).json({ error: 'locality must be 100 characters or fewer' });
       }
       const items = await briefings.testedForTrip(countryCode, locality?.trim(), homeCountry);
@@ -59,9 +61,10 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.get('/api/driving-guidance', async (request, response, next) => {
     try {
       const countryCode = request.query.countryCode;
-      const locality = request.query.locality;
+      const rawLocality = request.query.locality;
+      const locality = typeof rawLocality === 'string' ? rawLocality : undefined;
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
-      if (locality !== undefined && (typeof locality !== 'string' || locality.trim().length > 100)) {
+      if (rawLocality !== undefined && (locality === undefined || locality.trim().length > 100)) {
         return response.status(400).json({ error: 'locality must be 100 characters or fewer' });
       }
       const rules = await drivingGuidance.available(countryCode, locality?.trim());
@@ -131,6 +134,12 @@ export function createApp(dependencies: AppDependencies = {}) {
       return response.status(503).json({ error: 'Gemini is not configured' });
     }
     const providerError = error as Error & { status?: number };
+    if (providerError.status === 402) {
+      return response.status(503).json({
+        error: 'Gemini credits are depleted for the configured API key. Update the Gemini billing or key to restore live sign recognition.',
+        code: 'GEMINI_BILLING_REQUIRED',
+      });
+    }
     if (providerError.status === 429) {
       const retryAfterSeconds = providerRetryAfter(error) ?? 60;
       response.setHeader('Retry-After', String(retryAfterSeconds));
@@ -154,16 +163,8 @@ function providerRetryAfter(error: Error): number | null {
   return Number.isFinite(seconds) && seconds > 0 ? Math.min(3600, Math.ceil(seconds)) : null;
 }
 
-// This is what Vercel's serverless runtime looks for — it errored because
-// only `app` was exported by name, with no `export default`.
 const app = createApp();
 export default app;
-
-// Only start a listener when running locally (Vercel calls the export directly).
-if (!process.env.VERCEL) {
-  const port = process.env.PORT || 3001;
-  app.listen(port, () => console.log(`WayFarer API listening on port ${port}`));
-}
 
 function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], prediction: ModelRecognition) {
   const closest = prediction.closestReferenceId ? catalog.find((item) => item.id === prediction.closestReferenceId) : undefined;
@@ -181,7 +182,9 @@ function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], pre
         ? 'SEMANTIC_MATCH'
         : predictedRule ? 'RELATED' : 'NO_MATCH';
   const debug = { ...prediction, closestReference: closest || null, matchType, equivalentSign: equivalent };
-  if (!rule || matchType === 'RELATED') return { status: 'unknown', signId: null, rule: null, debug };
+  if (!rule || (matchType !== 'EXACT_MATCH' && matchType !== 'SEMANTIC_MATCH')) {
+    return { status: 'unknown', signId: null, rule: null, debug };
+  }
   if (rule.status !== 'tested') return { status: 'candidate', signId: rule.id, rule, debug };
   return { status: 'recognized', signId: rule.id, rule, debug };
 }

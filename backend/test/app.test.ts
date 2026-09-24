@@ -185,6 +185,18 @@ describe('WayFarer guidance API', () => {
       .expect(404);
   });
 
+  it('withholds a rule when visual and semantic evidence do not meet either match threshold', async () => {
+    const uncertain = { ...prediction('STOP', 'jp-stop'), visualSimilarity: 0.2, semanticSimilarity: 0.2 };
+    const response = await request(createApp({ rules, model: modelReturning(uncertain) }))
+      .post('/api/recognize')
+      .send({ countryCode: 'JP', imageDataUrl: image })
+      .expect(200);
+    assert.equal(response.body.status, 'unknown');
+    assert.equal(response.body.signId, null);
+    assert.equal(response.body.rule, null);
+    assert.equal(response.body.debug.matchType, 'RELATED');
+  });
+
   it('resolves a cross-country visual variant by semantic category', async () => {
     const crossCountryPrediction = {
       ...prediction('STOP', 'ph-stop', 'PH', 'PH_STOP'),
@@ -227,6 +239,17 @@ describe('WayFarer guidance API', () => {
       code: 'RATE_LIMITED',
       retryAfterSeconds: 45,
     });
+  });
+
+  it('reports depleted Gemini credits without exposing provider details', async () => {
+    const depletedModel: GuidanceModel = {
+      async recognize() { throw Object.assign(new Error('provider billing details'), { status: 402 }); },
+      async explain() { return 'unused'; },
+    };
+    const response = await request(createApp({ rules, model: depletedModel }))
+      .post('/api/recognize').send({ countryCode: 'JP', imageDataUrl: image }).expect(503);
+    assert.equal(response.body.code, 'GEMINI_BILLING_REQUIRED');
+    assert.doesNotMatch(JSON.stringify(response.body), /provider billing details/);
   });
 
   it('does not treat different posted speed values as semantically equivalent', async () => {

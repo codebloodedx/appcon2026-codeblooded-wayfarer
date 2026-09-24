@@ -37,7 +37,7 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
   const detectedRule = latestRule ?? candidateRule;
   const showZonePreview = trip.destinationCountry === 'PH';
   const guidanceActive = navigationStatus === 'driving';
-  const announcerEnabled = spokenGuidance && (guidanceActive || Boolean(detectedRule));
+  const announcerEnabled = spokenGuidance && guidanceActive;
   const { announce, status: announcementStatus } = useGuidanceAnnouncer(announcerEnabled);
   const lastAnnouncedRuleId = useRef<string | null>(null);
 
@@ -64,25 +64,30 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
   }, [announce, guidanceActive, guidanceRules, pendingRouteEvent]);
 
   useEffect(() => {
-    if (!detectedRule) {
+    if (!guidanceActive || !latestRule) {
       lastAnnouncedRuleId.current = null;
       return;
     }
-    if (detectedRule.id === lastAnnouncedRuleId.current) return;
-    lastAnnouncedRuleId.current = detectedRule.id;
+    if (latestRule.id === lastAnnouncedRuleId.current) return;
+    lastAnnouncedRuleId.current = latestRule.id;
     const eventByCategory: Partial<Record<RuleRecord['normalizedCategory'], GuidanceEvent>> = {
       STOP: 'STOP_SIGN', PEDESTRIAN_CROSSING: 'PEDESTRIAN_CROSSING',
     };
-    const event = eventByCategory[detectedRule.normalizedCategory] ?? 'ROAD_SIGN_DETECTION';
+    const event = eventByCategory[latestRule.normalizedCategory] ?? 'ROAD_SIGN_DETECTION';
     const matchingRule = guidanceRules.find((item) => item.event === event && item.triggerMode === 'cv');
     const rule: DrivingGuidanceRule = matchingRule ?? {
-      id: `sign-${detectedRule.id}`, countryCode: detectedRule.countryCode, event, priority: 'HIGH',
-      title: detectedRule.label, message: detectedRule.shortAlert, sourceUrl: detectedRule.sourceUrl,
+      id: `sign-${latestRule.id}`, countryCode: latestRule.countryCode, event, priority: 'HIGH',
+      title: latestRule.label, message: latestRule.shortAlert, sourceUrl: latestRule.sourceUrl,
       verified: true, triggerMode: 'cv', cooldownSeconds: 15,
     };
     setCurrentGuidance(rule);
-    announce(rule, `camera-${detectedRule.id}`);
-  }, [announce, detectedRule, guidanceRules]);
+    announce(rule, `camera-${latestRule.id}`);
+  }, [announce, guidanceActive, latestRule, guidanceRules]);
+  useEffect(() => {
+    if (!guidanceActive || !latestRule) {
+      setCurrentGuidance((current) => current?.triggerMode === 'cv' ? null : current);
+    }
+  }, [guidanceActive, latestRule]);
   const cameraDetection = useMemo(() => {
     if (!detectedRule || !recognitionDebug?.bbox || (!latestRule && !candidateRule)) return null;
     return {
@@ -93,13 +98,13 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
     };
   }, [candidateRule, detectedRule, latestRule, recognitionDebug]);
   const externalDrivingEvent = useMemo(() => {
-    if (!detectedRule || navigationStatus !== 'driving') return null;
-    const event: GuidanceEvent | null = detectedRule.normalizedCategory === 'STOP'
+    if (!latestRule || navigationStatus !== 'driving') return null;
+    const event: GuidanceEvent | null = latestRule.normalizedCategory === 'STOP'
       ? 'STOP_SIGN'
-      : detectedRule.normalizedCategory === 'PEDESTRIAN_CROSSING' ? 'PEDESTRIAN_CROSSING' : null;
+      : latestRule.normalizedCategory === 'PEDESTRIAN_CROSSING' ? 'PEDESTRIAN_CROSSING' : null;
     if (!event) return null;
-    return { id: `camera-motion-${detectedRule.id}`, event };
-  }, [detectedRule, navigationStatus]);
+    return { id: `camera-motion-${latestRule.id}`, event };
+  }, [latestRule, navigationStatus]);
   const recognitionStatus = guidanceError
     ? 'error' as const
     : latestRule
@@ -183,7 +188,13 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
 
         <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
           <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
-            <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
+            <span>
+              <i />
+              <strong>Road Sign Camera</strong>
+              <span className="camera-info-dot" aria-hidden="true">i</span>
+              <span className="camera-info-copy">Camera-off preview: the sample box shows where a supported sign would be marked. Start the camera for live scanning; unclear signs stay silent.</span>
+              <small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small>
+            </span>
             <b>{cameraExpanded ? '▾ Minimize' : '▴ Expand'}</b>
           </button>
           <div className="camera-pip-body">
@@ -196,10 +207,10 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
           <aside className={`navigation-sign-alert ${latestRule ? 'verified' : 'candidate'}`} aria-live="polite">
             <img src={detectedRule.assetPath} alt="" />
             <div>
-              <span>Detected sign · {Math.round((recognitionDebug?.confidence ?? 0) * 100)}%</span>
+              <span>{latestRule ? 'Detected sign' : 'Candidate sign'} · {Math.round((recognitionDebug?.confidence ?? 0) * 100)}%</span>
               <strong>{detectedRule.label}</strong>
               <small>{names[detectedRule.countryCode]}{recognitionDebug?.equivalentSign ? ` · Equivalent ${names[recognitionDebug.equivalentSign.countryCode]}: ${recognitionDebug.equivalentSign.meaning}` : ''}</small>
-              <p>{detectedRule.shortAlert}</p>
+              <p>{latestRule ? detectedRule.shortAlert : 'Candidate detection only. Review this sign while parked; no driving advice is available yet.'}</p>
             </div>
             <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">×</button>
           </aside>

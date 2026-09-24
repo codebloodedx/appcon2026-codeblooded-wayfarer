@@ -36,3 +36,4 @@ ml/*.onnx
 .venv-yolo/
 __pycache__/
 *.py[cod]
+.vercel

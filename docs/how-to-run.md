@@ -34,7 +34,7 @@ gcloud config set project YOUR_PROJECT_ID
 gcloud services enable aiplatform.googleapis.com
 ```
 
-Set `GOOGLE_CLOUD_PROJECT` in `.env`. The default models are `gemini-2.5-flash` for vision and `gemini-2.5-flash-lite` for parked explanations. Enable **Maps JavaScript API** and **Routes API** for the Maps project. Restrict `VITE_GOOGLE_MAPS_API_KEY` to the judging site and localhost origins. Never place ADC files or service-account JSON in the repository.
+Set `GOOGLE_CLOUD_PROJECT` or `GEMINI_API_KEY` in `.env`. The default model is `gemini-3.6-flash` for vision and parked explanations. Enable **Maps JavaScript API** and **Routes API** for the Maps project. Restrict `VITE_GOOGLE_MAPS_API_KEY` to the judging site and localhost origins. Never place ADC files or service-account JSON in the repository.
 
 ## Checks
 
