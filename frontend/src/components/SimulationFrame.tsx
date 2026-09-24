@@ -20,7 +20,20 @@ export function SimulationFrame({ mode, children, onChangeMode }: SimulationFram
         <button type="button" onClick={onChangeMode}>Change view</button>
       </div>
       <div className="simulation-device">
-        {mode === 'phone' && <div className="simulation-phone-speaker" aria-hidden="true" />}
+        {mode === 'phone' && (
+          <div className="simulation-phone-hardware" aria-hidden="true">
+            <span className="phone-button phone-mute" />
+            <span className="phone-button phone-volume-up" />
+            <span className="phone-button phone-volume-down" />
+            <span className="phone-button phone-power" />
+            <span className="phone-island">
+              <i className="phone-speaker" />
+              <i className="phone-camera" />
+              <i className="phone-sensor" />
+            </span>
+            <span className="phone-gesture-bar" />
+          </div>
+        )}
         <div className="simulation-viewport">{children}</div>
       </div>
     </div>

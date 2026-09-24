@@ -91,9 +91,20 @@ p { line-height: 1.58; }
 .simulation-desktop .simulation-device { min-height: calc(100vh - 58px); }
 .simulation-phone { padding-bottom: 2rem; background: radial-gradient(circle at top, #eef3fb, #c9d3e2); }
 .simulation-phone .simulation-toolbar { margin-bottom: 1.6rem; }
-.simulation-phone .simulation-device { width: min(430px, calc(100vw - 1.5rem)); min-height: calc(100vh - 96px); overflow: hidden; border: 9px solid #101724; border-radius: 2.1rem; box-shadow: 0 26px 65px rgba(3,16,43,.25); }
-.simulation-phone-speaker { position: absolute; z-index: 80; top: .45rem; left: 50%; width: 5.2rem; height: 1.15rem; border-radius: 999px; background: #101724; transform: translateX(-50%); }
-.simulation-phone .simulation-viewport { height: calc(100vh - 114px); min-height: 620px; overflow-x: hidden; overflow-y: auto; padding-top: 1rem; background: #f3f6fb; }
+.simulation-phone .simulation-device { width: min(438px, calc(100vw - 3rem)); height: clamp(620px, calc(100vh - 112px), 840px); padding: 7px; border: 1px solid #77808d; border-radius: 3rem; background: linear-gradient(115deg, #4b5360 0%, #e2e6eb 9%, #737c88 18%, #1a2029 52%, #9aa3ad 82%, #e7eaed 92%, #4b535d 100%); box-shadow: 0 32px 75px rgba(3,16,43,.3), 0 7px 18px rgba(3,16,43,.25), inset 0 0 0 1px rgba(255,255,255,.65), inset 0 0 0 3px rgba(0,0,0,.38); }
+.simulation-phone .simulation-device::after { position: absolute; z-index: 75; inset: 8px; border-radius: 2.48rem; background: linear-gradient(118deg, rgba(255,255,255,.14), transparent 20%, transparent 76%, rgba(255,255,255,.06)); content: ''; pointer-events: none; }
+.simulation-phone-hardware { position: absolute; z-index: 90; inset: 0; pointer-events: none; }
+.phone-island { position: absolute; top: 1rem; left: 50%; display: flex; width: 7.1rem; height: 1.8rem; align-items: center; justify-content: center; gap: .48rem; border: 1px solid rgba(255,255,255,.06); border-radius: 999px; background: linear-gradient(#080a0e, #12151b); box-shadow: 0 2px 7px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.05); transform: translateX(-50%); }
+.phone-speaker { width: 2.2rem; height: .27rem; border-radius: 999px; background: repeating-linear-gradient(90deg, #242a32 0 2px, #101318 2px 4px); box-shadow: inset 0 1px 2px #000; }
+.phone-camera { width: .55rem; height: .55rem; border: 1px solid #263550; border-radius: 50%; background: radial-gradient(circle at 35% 32%, #3f6991 0 7%, #101c2d 17% 36%, #02050a 56%); box-shadow: 0 0 0 2px #06080c, inset 0 0 3px #2b74ae; }
+.phone-sensor { width: .26rem; height: .26rem; border-radius: 50%; background: #1d2732; box-shadow: inset 0 0 2px #55718a; }
+.phone-button { position: absolute; display: block; background: linear-gradient(90deg, #303741, #a9b0b7 48%, #303741); box-shadow: 0 2px 4px rgba(3,8,15,.4); }
+.phone-mute { top: 6.5rem; left: -.28rem; width: .3rem; height: 2rem; border-radius: .25rem 0 0 .25rem; }
+.phone-volume-up { top: 9.2rem; left: -.32rem; width: .34rem; height: 3.25rem; border-radius: .25rem 0 0 .25rem; }
+.phone-volume-down { top: 13rem; left: -.32rem; width: .34rem; height: 3.25rem; border-radius: .25rem 0 0 .25rem; }
+.phone-power { top: 9.5rem; right: -.32rem; width: .34rem; height: 4.7rem; border-radius: 0 .25rem .25rem 0; }
+.phone-gesture-bar { position: absolute; bottom: .9rem; left: 50%; width: 8rem; height: .3rem; border-radius: 999px; background: rgba(10,15,24,.78); box-shadow: 0 1px rgba(255,255,255,.22); transform: translateX(-50%); }
+.simulation-phone .simulation-viewport { height: 100%; overflow-x: hidden; overflow-y: auto; padding: 1.45rem 0 1.2rem; border: 2px solid #070a0f; border-radius: 2.48rem; background: #f3f6fb; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), inset 0 0 14px rgba(0,0,0,.18); scrollbar-width: thin; scrollbar-color: rgba(7,26,61,.42) transparent; }
 
 .brand { display: inline-flex; align-items: center; gap: .7rem; border: 0; background: none; color: inherit; text-align: left; text-decoration: none; cursor: pointer; }
 .brand-mark { display: grid; width: 2.7rem; height: 2.7rem; flex: 0 0 auto; place-items: center; }
