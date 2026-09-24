@@ -8,6 +8,7 @@ import { DevicePreviews } from './features/trip/DevicePreviews';
 import { LandingPage } from './features/trip/LandingPage';
 import { ParkedView } from './features/trip/ParkedView';
 import { PreTripBriefing } from './features/trip/PreTripBriefing';
+import { RecognitionLab } from './features/trip/RecognitionLab';
 import { SupportedSignsView } from './features/trip/SupportedSignsView';
 import { TripScreen } from './features/trip/TripScreen';
 import { TripSetup } from './features/trip/TripSetup';
@@ -161,6 +162,7 @@ export default function App() {
         {view === 'trip' && <TripScreen trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} audioStatus={audioStatus} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onPark={() => setView('parked')} />}
         {view === 'parked' && <ParkedView trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} onCapture={(frame) => void handleRecognition(frame, false)} />}
         {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
+        {view === 'lab' && <RecognitionLab />}
         {view === 'devices' && <DevicePreviews trip={trip} />}
       </AppShell>
     </SimulationFrame>

@@ -1,9 +1,10 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { BriefingRepository } from './briefings.js';
-import { GroqGuidanceModel, type GuidanceModel } from './groq.js';
+import { exactVisualThreshold, GroqGuidanceModel, semanticMatchThreshold, type GuidanceModel } from './groq.js';
 import { parseImageDataUrl } from './image.js';
 import { RuleRepository } from './rules.js';
-import { isCountryCode } from './types.js';
+import { readRecognitionTests } from './recognitionTests.js';
+import { isCountryCode, type MatchType, type ModelRecognition, type RuleRecord, type SignCategory } from './types.js';
 
 type AppDependencies = { rules?: RuleRepository; briefings?: BriefingRepository; model?: GuidanceModel };
 
@@ -56,12 +57,41 @@ export function createApp(dependencies: AppDependencies = {}) {
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
       const image = parseImageDataUrl(imageDataUrl);
       if (!image) return response.status(400).json({ error: 'A JPEG, PNG, or WebP image up to 1.5 MB is required' });
-      const allowedRules = await rules.byCountry(countryCode);
-      const signId = await model.recognize(image, countryCode, allowedRules);
-      const rule = signId ? allowedRules.find((item) => item.id === signId) : undefined;
-      if (!rule) return response.json({ status: 'unknown', signId: null, rule: null });
-      if (rule.status !== 'tested') return response.json({ status: 'candidate', signId: rule.id, rule });
-      return response.json({ status: 'recognized', signId: rule.id, rule });
+      const catalog = await rules.all();
+      const prediction = await model.recognize(image, countryCode, catalog);
+      return response.json(resolveRecognition(countryCode, catalog, prediction));
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.get('/api/recognition-tests', async (_request, response, next) => {
+    try {
+      return response.json(await readRecognitionTests());
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/api/compare', async (request, response, next) => {
+    try {
+      const { first, second } = request.body as Record<string, unknown>;
+      const left = parseComparisonInput(first);
+      const right = parseComparisonInput(second);
+      if (!left || !right) return response.status(400).json({ error: 'first and second require countryCode and a JPEG, PNG, or WebP image up to 1.5 MB' });
+      const catalog = await rules.all();
+      // Free-tier multimodal endpoints commonly allow one active generation.
+      const firstPrediction = await model.recognize(left.image, left.countryCode, catalog);
+      const secondPrediction = await model.recognize(right.image, right.countryCode, catalog);
+      const firstResult = resolveRecognition(left.countryCode, catalog, firstPrediction);
+      const secondResult = resolveRecognition(right.countryCode, catalog, secondPrediction);
+      const matchType = comparePredictions(firstPrediction, secondPrediction);
+      return response.json({
+        first: firstResult,
+        second: secondResult,
+        matchType,
+        semanticMatch: matchType === 'EXACT_MATCH' || matchType === 'SEMANTIC_MATCH',
+      });
     } catch (error) {
       return next(error);
     }
@@ -123,3 +153,49 @@ export function createApp(dependencies: AppDependencies = {}) {
 }
 
 export const app = createApp();
+
+function parseComparisonInput(value: unknown) {
+  if (!value || typeof value !== 'object') return null;
+  const record = value as Record<string, unknown>;
+  if (!isCountryCode(record.countryCode)) return null;
+  const image = parseImageDataUrl(record.imageDataUrl);
+  return image ? { countryCode: record.countryCode, image } : null;
+}
+
+function relatedCategory(first: SignCategory, second: SignCategory): boolean {
+  const groups: SignCategory[][] = [
+    ['NO_ENTRY', 'NO_U_TURN', 'NO_PARKING'],
+    ['STOP', 'SLOW', 'PRIORITY_ROAD_AHEAD'],
+    ['NO_JEEPNEYS', 'NO_TRICYCLES', 'NO_PUSHCARTS', 'NO_ANIMAL_DRAWN_VEHICLES'],
+  ];
+  return groups.some((group) => group.includes(first) && group.includes(second));
+}
+
+export function comparePredictions(first: ModelRecognition, second: ModelRecognition): MatchType {
+  if (!first.normalizedCategory || !second.normalizedCategory) return 'NO_MATCH';
+  if (first.closestReferenceId && first.closestReferenceId === second.closestReferenceId
+    && first.visualSimilarity >= exactVisualThreshold && second.visualSimilarity >= exactVisualThreshold) return 'EXACT_MATCH';
+  if (first.normalizedCategory === second.normalizedCategory
+    && first.semanticSimilarity >= semanticMatchThreshold && second.semanticSimilarity >= semanticMatchThreshold) return 'SEMANTIC_MATCH';
+  return relatedCategory(first.normalizedCategory, second.normalizedCategory) ? 'RELATED' : 'NO_MATCH';
+}
+
+function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], prediction: ModelRecognition) {
+  const closest = prediction.closestReferenceId ? catalog.find((item) => item.id === prediction.closestReferenceId) : undefined;
+  const localRule = prediction.normalizedCategory
+    ? catalog.find((item) => item.countryCode === countryCode && item.normalizedCategory === prediction.normalizedCategory)
+    : undefined;
+  const rule = localRule || (closest?.countryCode === countryCode ? closest : undefined);
+  const equivalent = rule ? catalog.find((item) => item.countryCode !== rule.countryCode && item.normalizedCategory === rule.normalizedCategory) || null : null;
+  const matchType: MatchType = !prediction.normalizedCategory
+    ? 'NO_MATCH'
+    : closest && closest.id === rule?.id && prediction.visualSimilarity >= exactVisualThreshold
+      ? 'EXACT_MATCH'
+      : prediction.semanticSimilarity >= semanticMatchThreshold
+        ? 'SEMANTIC_MATCH'
+        : 'RELATED';
+  const debug = { ...prediction, closestReference: closest || null, matchType, equivalentSign: equivalent };
+  if (!rule || matchType === 'RELATED') return { status: 'unknown', signId: null, rule: null, debug };
+  if (rule.status !== 'tested') return { status: 'candidate', signId: rule.id, rule, debug };
+  return { status: 'recognized', signId: rule.id, rule, debug };
+}

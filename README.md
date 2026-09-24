@@ -16,6 +16,16 @@ npm run dev
 
 On macOS/Linux, use `cp .env.example .env`. Open the local frontend URL printed by Vite. The `.env` file is local and must not be committed. Run `npm test`, `npm run check`, and `npm run build` before opening a pull request. See [how to run](docs/how-to-run.md) for keys, troubleshooting, and checks.
 
+## Test semantic sign recognition
+
+1. Start the app with `npm run dev`, choose **PC simulation**, complete the pre-trip briefing, then open **Recognition lab**.
+2. Run an individual matrix row. The trace shows detected country/sign, normalized category, meaning, confidence, closest reference, visual and semantic similarity, match type, model evidence, and the equivalent sign in the other country.
+3. Choose an image variation and rerun the row. The lab can alter angle, lighting, color, crop, obstruction, size, and background without sending the fixture filename or expected label to the model.
+4. Use the Japan ↔ Philippines buttons to verify that different designs return `SEMANTIC_MATCH` when their normalized meanings agree.
+5. Upload a JPEG, PNG, WebP, or SVG for an arbitrary parked test. Newly expanded records remain candidates and therefore never trigger spoken driving guidance.
+
+See [recognition architecture](docs/recognition-architecture.md) for the audit, thresholds, and safety boundary, and [test matrix](docs/test-matrix.md) for the 5 + 5 country-specific cases and 6 equivalent pairs.
+
 ## Project guide
 
 - [Scope and source of truth](docs/project-context.md)

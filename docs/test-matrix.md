@@ -1,21 +1,62 @@
-﻿# Rule and sign test matrix
+# Semantic sign test matrix
 
-**Owner:** John Asher Manit (`@99lash`)
-**Updated:** 2026-09-24
+**Owner:** John Asher Manit (`@99lash`) for rule/source evidence; Ranee for recognition integration
+**Updated:** 24 September 2026
 
-All sign records currently have `candidate` status. `POST /api/recognize` may return a visibly labeled `candidate` result so the controlled vision path can be tested, but the UI must provide no driving instruction or spoken alert. `POST /api/explain` and `POST /api/speak` must reject candidate IDs. Promotion to `tested` still requires the physical live-camera evidence below; a static asset or provider smoke test is not acceptance evidence.
+All records are `candidate`. A PASS in the Recognition Lab means the model returned the expected normalized category. It does not promote the sign to tested driving guidance. Record browser, model name, commit, variation, scores, response, audio state, and screenshot under `docs/evidence/` for a live acceptance run.
 
-| ID | Stationary input | Country | Expected after source review and live gate | Evidence to record |
-| --- | --- | --- | --- | --- |
-| JP-STOP-1 | Physical Japan stop-sign printout, frontal | JP | `jp-stop` | Camera frame, model ID, short alert, source, audio |
-| JP-STOP-2 | Same printout at several angles and distances | JP | `jp-stop` or honest `unknown` | Angle, distance, observed result, latency |
-| JP-RAIL-1 | Physical railway-ahead printout | JP | `jp-railway` | Warning-sign match; confirm no false claim that crossing is immediately ahead |
-| PH-TURN-1 | Physical general No Right Turn printout | PH | `ph-no-right-turn` | Correct general prohibition, no red-signal-only wording |
-| NEG-BLANK | Blank scene | JP | `unknown`, no audio | Response and silence |
-| NEG-OTHER | Unsupported speed sign | JP | `unknown`, no audio | Response and silence |
-| NEG-COUNTRY | PH sign with JP current country | JP | `unknown`, no audio | Response and silence |
-| PERMISSION | Deny camera, then use parked upload | JP | Map stays usable; uploaded still is labeled parked capture | Screenshot and error state |
+## Country-specific set
 
-For each run, write the date, browser, device, model configuration (without keys), source commit, input asset or physical sign, observed ID, response status, audio status, elapsed time, and pass/fail. Save actual screenshots or a short recording under `docs/evidence/` only after checking they show no secrets or unrelated private content. Do not mark a test passed from a planned row.
+These categories are documented by the named country's source and are not normally part of the other country's standard sign catalog used by this prototype.
 
-A sign becomes `tested` only after its source and wording are accepted and the integrated live-camera positive and negative cases are recorded. If any unknown input yields driving guidance, stop the demo and treat it as a blocker.
+| Input | Expected category | Country | Expected detection result |
+| --- | --- | --- | --- |
+| Slow (徐行 / SLOW) | `SLOW` | Japan | Japan-specific candidate |
+| Use of the Horn | `HORN_REQUIRED` | Japan | Japan-specific candidate |
+| Moped two-stage right turn | `MOPED_TWO_STAGE_RIGHT` | Japan | Japan-specific candidate |
+| Priority road ahead | `PRIORITY_ROAD_AHEAD` | Japan | Japan-specific candidate |
+| Road closed without tire chains | `TIRE_CHAINS_REQUIRED` | Japan | Japan-specific candidate |
+| No Jeepneys | `NO_JEEPNEYS` | Philippines | Philippines-specific candidate |
+| No Tricycles | `NO_TRICYCLES` | Philippines | Philippines-specific candidate |
+| No Pushcarts | `NO_PUSHCARTS` | Philippines | Philippines-specific candidate |
+| No Animal-drawn Vehicles | `NO_ANIMAL_DRAWN_VEHICLES` | Philippines | Philippines-specific candidate |
+| BUS–PUJ Stop | `BUS_PUJ_STOP` | Philippines | Philippines-specific candidate |
+
+## Cross-country equivalent pairs
+
+| Japan input | Philippines input | Expected normalized category | Expected pair result |
+| --- | --- | --- | --- |
+| Inverted-triangle Stop (止まれ) | Octagonal STOP | `STOP` | `SEMANTIC_MATCH` |
+| Red-disc No Entry | Philippine No Entry restriction | `NO_ENTRY` | `SEMANTIC_MATCH` |
+| Maximum Speed 40 | Maximum speed restriction 40 | `MAX_SPEED` | `SEMANTIC_MATCH` |
+| Blue Pedestrian Crossing | Yellow diamond Pedestrian Crossing | `PEDESTRIAN_CROSSING` | `SEMANTIC_MATCH` |
+| Blue/red No Parking | Text/symbol No Parking | `NO_PARKING` | `SEMANTIC_MATCH` |
+| Japan No U-turn | Philippine No U-turn | `NO_U_TURN` | `SEMANTIC_MATCH` |
+
+Each individual result must return its expected category. The pair comparison must return `semanticMatch: true`. The images are intentionally different designs; identical images are not required.
+
+## Visual variation suite
+
+Run every country-specific input and both images from every equivalent pair under:
+
+1. Original fixture
+2. Changed photo angle
+3. Low lighting
+4. Shifted color/saturation
+5. Cropped edges
+6. Partial obstruction
+7. Resized/small sign
+8. Different busy background
+
+The lab applies these transformations to a rasterized image before upload. The model does not receive the filename or expected label. A category mismatch is FAIL. An honest unknown under severe obstruction is recorded as FAIL for that test row but must remain silent; a confident wrong driving category is a blocker.
+
+## Negative and safety checks
+
+| Input | Expected |
+| --- | --- |
+| Blank scene | `NO_MATCH`, unknown, no audio |
+| Unsupported sign | `NO_MATCH`, unknown, no audio |
+| Related but different restriction | `RELATED`, no successful semantic match, no audio |
+| Candidate result | Visible candidate data, `/api/speak` and `/api/explain` reject it |
+
+The executable catalog is `shared/rules/recognition-tests.json`. The parked **Recognition lab** screen renders the requested columns: Input, Expected Category, Predicted Category, Country, Confidence, Semantic Match, and Result.

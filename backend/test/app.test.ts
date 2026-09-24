@@ -8,12 +8,22 @@ import { createApp } from '../src/app.js';
 import { BriefingRepository } from '../src/briefings.js';
 import type { GuidanceModel } from '../src/groq.js';
 import { RuleRepository } from '../src/rules.js';
-import type { BriefingRecord, RuleRecord } from '../src/types.js';
+import { comparePredictions } from '../src/app.js';
+import { emptyRecognition } from '../src/groq.js';
+import type { BriefingRecord, ModelRecognition, RuleRecord, SignCategory } from '../src/types.js';
 
 const testedRule: RuleRecord = {
   id: 'jp-stop',
   countryCode: 'JP',
   label: 'Stop',
+  officialName: 'Stop',
+  normalizedCategory: 'STOP',
+  meaning: 'Come to a complete stop.',
+  signKind: 'regulatory',
+  aliases: ['STOP'],
+  visualDescription: 'A stop sign.',
+  assetPath: '/signs/test/jp-stop.svg',
+  countrySpecific: false,
   shortAlert: 'Reviewed short alert.',
   explanation: 'Reviewed explanation.',
   conditions: [],
@@ -27,6 +37,9 @@ const candidateRule: RuleRecord = {
   ...testedRule,
   id: 'jp-crossing',
   label: 'Railway crossing',
+  officialName: 'Railway crossing',
+  normalizedCategory: 'SLOW',
+  meaning: 'Proceed slowly.',
   status: 'candidate',
 };
 
@@ -65,9 +78,17 @@ after(async () => {
   await rm(directory, { recursive: true, force: true });
 });
 
-function modelReturning(signId: string | null): GuidanceModel {
+function prediction(category: SignCategory | null, referenceId: string | null, country: 'JP' | 'PH' | null = 'JP'): ModelRecognition {
   return {
-    async recognize() { return signId; },
+    ...emptyRecognition(), detectedCountry: country, detectedSign: referenceId,
+    normalizedCategory: category, closestReferenceId: referenceId,
+    confidence: category ? 0.91 : 0, semanticSimilarity: category ? 0.94 : 0, visualSimilarity: category ? 0.93 : 0,
+  };
+}
+
+function modelReturning(result: ModelRecognition): GuidanceModel {
+  return {
+    async recognize() { return result; },
     async explain() { return 'Grounded answer.'; },
   };
 }
@@ -76,7 +97,7 @@ const image = 'data:image/jpeg;base64,/9j/AA==';
 
 describe('WayFarer guidance API', () => {
   it('returns only tested country and locality-matched pre-trip reminders', async () => {
-    const app = createApp({ rules, briefings, model: modelReturning(null) });
+    const app = createApp({ rules, briefings, model: modelReturning(emptyRecognition()) });
     const japan = await request(app).get('/api/briefing?countryCode=JP').expect(200);
     assert.equal(japan.body.status, 'ready');
     assert.deepEqual(japan.body.items.map((item: BriefingRecord) => item.id), ['jp-driving-side']);
@@ -92,57 +113,72 @@ describe('WayFarer guidance API', () => {
   });
 
   it('rejects invalid countries and image formats', async () => {
-    const app = createApp({ rules, model: modelReturning('jp-stop') });
+    const app = createApp({ rules, model: modelReturning(prediction('STOP', 'jp-stop')) });
     await request(app).post('/api/recognize').send({ countryCode: 'US', imageDataUrl: image }).expect(400);
     await request(app).post('/api/recognize').send({ countryCode: 'JP', imageDataUrl: 'not-an-image' }).expect(400);
   });
 
   it('returns the reviewed tested rule for an allowed recognition', async () => {
-    const response = await request(createApp({ rules, model: modelReturning('jp-stop') }))
+    const response = await request(createApp({ rules, model: modelReturning(prediction('STOP', 'jp-stop')) }))
       .post('/api/recognize')
       .send({ countryCode: 'JP', imageDataUrl: image })
       .expect(200);
     assert.equal(response.body.status, 'recognized');
     assert.equal(response.body.rule.id, 'jp-stop');
+    assert.equal(response.body.debug.normalizedCategory, 'STOP');
+    assert.equal(response.body.debug.matchType, 'EXACT_MATCH');
   });
 
   it('returns a candidate classification without promoting it to driving guidance', async () => {
-    const response = await request(createApp({ rules, model: modelReturning('jp-crossing') }))
+    const response = await request(createApp({ rules, model: modelReturning(prediction('SLOW', 'jp-crossing')) }))
       .post('/api/recognize')
       .send({ countryCode: 'JP', imageDataUrl: image })
       .expect(200);
     assert.equal(response.body.status, 'candidate');
     assert.equal(response.body.signId, 'jp-crossing');
     assert.equal(response.body.rule.status, 'candidate');
-    await request(createApp({ rules, model: modelReturning('jp-crossing') }))
+    await request(createApp({ rules, model: modelReturning(prediction('SLOW', 'jp-crossing')) }))
       .post('/api/speak')
       .send({ countryCode: 'JP', signId: 'jp-crossing' })
       .expect(404);
   });
 
-  it('returns unknown when the model emits an invented ID', async () => {
-    const response = await request(createApp({ rules, model: modelReturning('invented-sign') }))
+  it('resolves a valid semantic category even when no exact reference ID is supplied', async () => {
+    const response = await request(createApp({ rules, model: modelReturning({ ...prediction('STOP', null), closestReferenceId: 'invented-sign' }) }))
       .post('/api/recognize')
       .send({ countryCode: 'JP', imageDataUrl: image })
       .expect(200);
-    assert.deepEqual(response.body, { status: 'unknown', signId: null, rule: null });
+    assert.equal(response.body.status, 'recognized');
+    assert.equal(response.body.rule.id, 'jp-stop');
+    assert.equal(response.body.debug.closestReference, null);
   });
 
   it('does not use a rule from another country', async () => {
-    const response = await request(createApp({ rules, model: modelReturning('jp-stop') }))
+    const response = await request(createApp({ rules, model: modelReturning(prediction('STOP', 'jp-stop')) }))
       .post('/api/recognize')
       .send({ countryCode: 'PH', imageDataUrl: image })
       .expect(200);
-    assert.deepEqual(response.body, { status: 'unknown', signId: null, rule: null });
+    assert.equal(response.body.status, 'unknown');
+    assert.equal(response.body.rule, null);
   });
 
   it('grounds explanations and browser speech text in a tested record', async () => {
-    const app = createApp({ rules, model: modelReturning('jp-stop') });
+    const app = createApp({ rules, model: modelReturning(prediction('STOP', 'jp-stop')) });
     const explanation = await request(app).post('/api/explain')
       .send({ countryCode: 'JP', signId: 'jp-stop', question: 'What should I do?' }).expect(200);
     assert.equal(explanation.body.sourceUrl, testedRule.sourceUrl);
     const speech = await request(app).post('/api/speak').send({ countryCode: 'JP', signId: 'jp-stop' }).expect(200);
     assert.deepEqual(speech.body, { text: testedRule.shortAlert, engine: 'browser-speech-synthesis' });
     await request(app).post('/api/speak').send({ countryCode: 'JP', signId: 'jp-crossing' }).expect(404);
+  });
+
+  it('distinguishes exact, semantic, related, and no-match comparisons', () => {
+    assert.equal(comparePredictions(prediction('STOP', 'jp-stop'), prediction('STOP', 'jp-stop')), 'EXACT_MATCH');
+    assert.equal(comparePredictions(
+      { ...prediction('STOP', 'jp-stop'), visualSimilarity: 0.55 },
+      { ...prediction('STOP', 'ph-stop', 'PH'), visualSimilarity: 0.48 },
+    ), 'SEMANTIC_MATCH');
+    assert.equal(comparePredictions(prediction('NO_ENTRY', 'jp-entry'), prediction('NO_PARKING', 'ph-parking', 'PH')), 'RELATED');
+    assert.equal(comparePredictions(prediction('STOP', 'jp-stop'), prediction('MAX_SPEED', 'ph-speed', 'PH')), 'NO_MATCH');
   });
 });

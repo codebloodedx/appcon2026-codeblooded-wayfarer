@@ -15,6 +15,7 @@ const navItems: Array<{ id: AppView; label: string; parked?: boolean }> = [
   { id: 'trip', label: 'Trip' },
   { id: 'parked', label: 'Parked details', parked: true },
   { id: 'signs', label: 'Supported signs', parked: true },
+  { id: 'lab', label: 'Recognition lab', parked: true },
   { id: 'devices', label: 'Device previews', parked: true },
 ];
 

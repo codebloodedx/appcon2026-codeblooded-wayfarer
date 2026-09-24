@@ -505,12 +505,54 @@ p { line-height: 1.58; }
 .sign-record-card > img { width: 88px; height: 88px; object-fit: contain; }
 .sign-record-card > .status-badge { position: absolute; top: 1rem; right: 1rem; }
 
+/* Semantic recognition lab */
+.lab-grid { display: grid; grid-template-columns: minmax(280px, .75fr) minmax(420px, 1.25fr); gap: 1rem; }
+.lab-input, .lab-output, .pair-lab, .matrix-card { padding: 1.2rem; }
+.lab-input { display: grid; align-content: start; gap: .8rem; }
+.lab-input h2, .lab-output h2, .pair-lab h2, .matrix-card h2 { margin: .15rem 0 .7rem; }
+.lab-input label { display: grid; gap: .35rem; color: var(--muted); font-size: .7rem; font-weight: 800; }
+.lab-input select, .lab-upload { padding: .7rem; border: 1px solid var(--line); border-radius: .55rem; background: white; color: var(--ink); font: inherit; }
+.lab-upload input { margin-top: .4rem; font-size: .68rem; }
+.lab-preview { width: 100%; max-height: 280px; object-fit: contain; border: 1px solid var(--line); border-radius: .7rem; background: #ecebe5; }
+.lab-note, .matrix-heading p { margin: 0; color: var(--muted); font-size: .68rem; }
+.lab-empty { display: grid; min-height: 300px; place-items: center; border: 1px dashed var(--line); border-radius: .75rem; color: var(--muted); text-align: center; }
+.debug-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; margin: 0; }
+.debug-grid > div { min-height: 72px; padding: .7rem; border: 1px solid var(--line); border-radius: .55rem; background: #f8faf8; }
+.debug-grid dt { margin-bottom: .3rem; color: var(--muted); font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.debug-grid dd { margin: 0; overflow-wrap: anywhere; font-size: .75rem; font-weight: 700; }
+.debug-grid .debug-evidence { grid-column: 1 / -1; }
+.match-exact_match, .match-semantic_match, .test-pass { color: #167148; }
+.match-related { color: #956813; }
+.match-no_match, .test-fail { color: #b33131; }
+.pair-lab { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.2fr); gap: 1rem; margin-top: 1rem; }
+.pair-lab p { margin-bottom: 0; color: var(--muted); }
+.pair-buttons { display: flex; flex-wrap: wrap; align-content: start; gap: .45rem; }
+.pair-buttons button, .test-matrix button { padding: .5rem .65rem; border: 1px solid var(--line); border-radius: .45rem; background: white; color: var(--ink); cursor: pointer; font-size: .65rem; font-weight: 800; }
+.pair-buttons button:hover, .test-matrix button:hover { border-color: var(--green); }
+.pair-result { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .7rem 1.2rem; padding: .85rem; border-radius: .6rem; background: var(--green-soft); font-size: .76rem; }
+.matrix-card { margin-top: 1rem; }
+.matrix-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.table-scroll { overflow: auto; border: 1px solid var(--line); border-radius: .7rem; }
+.test-matrix { width: 100%; min-width: 980px; border-collapse: collapse; font-size: .67rem; }
+.test-matrix th { position: sticky; top: 0; padding: .7rem; background: var(--navy); color: white; text-align: left; }
+.test-matrix td { padding: .55rem .7rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.test-matrix td:first-child { display: flex; align-items: center; gap: .55rem; min-width: 190px; }
+.test-matrix img { width: 42px; height: 42px; object-fit: contain; border-radius: .35rem; background: #f1f2ed; }
+.test-matrix td:first-child span, .test-matrix td:first-child small { display: block; }
+.test-matrix small { margin-top: .15rem; color: var(--muted); text-transform: uppercase; }
+.test-matrix code { white-space: nowrap; }
+
 @media (max-width: 780px) {
   .briefing-heading { flex-direction: column; }
   .briefing-actions { align-items: stretch; flex-direction: column; }
   .assistant-card { grid-column: auto; }
   .sign-record-card { grid-template-columns: 64px 1fr; }
   .sign-record-card > img { width: 64px; height: 64px; }
+  .lab-grid, .pair-lab { grid-template-columns: 1fr; }
+  .debug-grid { grid-template-columns: 1fr; }
+  .debug-grid .debug-evidence { grid-column: auto; }
+  .pair-result { grid-column: auto; }
+  .matrix-heading { align-items: flex-start; flex-direction: column; }
 }
 
 @container (max-width: 520px) {

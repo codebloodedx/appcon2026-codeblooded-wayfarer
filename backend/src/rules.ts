@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { CountryCode, RuleRecord } from './types.js';
-import { isCountryCode } from './types.js';
+import type { CountryCode, RuleRecord, SignCategory } from './types.js';
+import { isCountryCode, isSignCategory } from './types.js';
 
 const defaultRulesPath = fileURLToPath(new URL('../../shared/rules/rules.json', import.meta.url));
 
@@ -12,6 +12,14 @@ function isRuleRecord(value: unknown): value is RuleRecord {
     typeof rule.id === 'string' &&
     isCountryCode(rule.countryCode) &&
     typeof rule.label === 'string' &&
+    typeof rule.officialName === 'string' &&
+    isSignCategory(rule.normalizedCategory) &&
+    typeof rule.meaning === 'string' &&
+    (rule.signKind === 'regulatory' || rule.signKind === 'warning' || rule.signKind === 'information') &&
+    Array.isArray(rule.aliases) && rule.aliases.every((item) => typeof item === 'string') &&
+    typeof rule.visualDescription === 'string' &&
+    typeof rule.assetPath === 'string' &&
+    typeof rule.countrySpecific === 'boolean' &&
     typeof rule.shortAlert === 'string' &&
     typeof rule.explanation === 'string' &&
     Array.isArray(rule.conditions) &&
@@ -41,6 +49,10 @@ export class RuleRepository {
 
   async byCountry(countryCode: CountryCode): Promise<RuleRecord[]> {
     return (await this.all()).filter((rule) => rule.countryCode === countryCode);
+  }
+
+  async byCategory(category: SignCategory): Promise<RuleRecord[]> {
+    return (await this.all()).filter((rule) => rule.normalizedCategory === category);
   }
 
   async testedByCountry(countryCode: CountryCode): Promise<RuleRecord[]> {

@@ -1,8 +1,18 @@
 export type CountryCode = 'JP' | 'PH';
+export type SignCategory = 'STOP' | 'NO_ENTRY' | 'MAX_SPEED' | 'PEDESTRIAN_CROSSING' | 'NO_PARKING' | 'NO_U_TURN' | 'NO_RIGHT_TURN' | 'RAILWAY_CROSSING_AHEAD' | 'SLOW' | 'HORN_REQUIRED' | 'MOPED_TWO_STAGE_RIGHT' | 'PRIORITY_ROAD_AHEAD' | 'TIRE_CHAINS_REQUIRED' | 'NO_JEEPNEYS' | 'NO_TRICYCLES' | 'NO_PUSHCARTS' | 'NO_ANIMAL_DRAWN_VEHICLES' | 'BUS_PUJ_STOP';
+export type MatchType = 'EXACT_MATCH' | 'SEMANTIC_MATCH' | 'RELATED' | 'NO_MATCH';
 export type RuleRecord = {
   id: string;
   countryCode: CountryCode;
   label: string;
+  officialName: string;
+  normalizedCategory: SignCategory;
+  meaning: string;
+  signKind: 'regulatory' | 'warning' | 'information';
+  aliases: string[];
+  visualDescription: string;
+  assetPath: string;
+  countrySpecific: boolean;
   shortAlert: string;
   explanation: string;
   conditions: string[];
@@ -13,10 +23,42 @@ export type RuleRecord = {
   status: 'candidate' | 'tested';
 };
 
+export type RecognitionDebug = {
+  detectedCountry: CountryCode | null;
+  detectedSign: string | null;
+  normalizedCategory: SignCategory | null;
+  confidence: number;
+  closestReferenceId: string | null;
+  closestReference: RuleRecord | null;
+  visualSimilarity: number;
+  semanticSimilarity: number;
+  matchType: MatchType;
+  equivalentSign: RuleRecord | null;
+  evidence: { shape: string; symbol: string; text: string; color: string };
+};
+
 export type RecognitionResult =
-  | { status: 'recognized'; signId: string; rule: RuleRecord }
-  | { status: 'candidate'; signId: string; rule: RuleRecord }
-  | { status: 'unknown'; signId: null; rule: null };
+  | { status: 'recognized'; signId: string; rule: RuleRecord; debug: RecognitionDebug }
+  | { status: 'candidate'; signId: string; rule: RuleRecord; debug: RecognitionDebug }
+  | { status: 'unknown'; signId: null; rule: null; debug: RecognitionDebug };
+
+export type RecognitionTestCase = {
+  id: string;
+  testType: 'country-specific' | 'equivalent';
+  input: string;
+  countryCode: CountryCode;
+  expectedCategory: SignCategory;
+  assetPath: string;
+  pairId?: string;
+  expectedResult: string;
+};
+
+export type ComparisonResult = {
+  first: RecognitionResult;
+  second: RecognitionResult;
+  matchType: MatchType;
+  semanticMatch: boolean;
+};
 
 export type BriefingRecord = {
   id: string;

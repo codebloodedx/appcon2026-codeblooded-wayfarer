@@ -13,14 +13,17 @@
 - The parked view contains manual camera capture/upload, reviewed source detail, and a grounded NLP question form. The supported-sign view shows the actual prototype sign assets and candidate/tested state. Device previews remain labeled as interface previews.
 - The backend returns candidate classifications only for allowlisted same-country records. Invented and cross-country IDs remain unknown. Candidate IDs are rejected by `/api/explain` and `/api/speak`.
 - Three Japan pre-trip records are source-reviewed against JAF and marked tested for briefing use: keep left, no turn on red unless a green arrow permits the direction, and seatbelt/driver-attention reminders.
-- `npm install` added 204 packages with 0 reported vulnerabilities. All 7 backend tests, backend/frontend TypeScript checks, production builds, and `git diff --check` pass locally.
+- `npm install` added 204 packages with 0 reported vulnerabilities. All 8 backend tests, backend/frontend TypeScript checks, the production build, and `git diff --check` pass locally.
+- Recognition now classifies a normalized sign meaning before resolving a country record. The API returns separate visual/semantic scores, model evidence, closest reference, equivalent sign, and match type; pair comparison distinguishes exact, semantic, related, and no match.
+- A parked Recognition Lab includes 5 Japan-specific and 5 Philippines-specific categories, 6 cross-country equivalent pairs, single-image upload, deterministic angle/light/crop/obstruction/size/background variations, pair comparison, and a PASS/FAIL matrix. The catalog contains 24 candidate records, including the two original demo categories, plus generated test fixtures.
+- Live provider checks in the Recognition Lab passed for the Japan Slow fixture (`SLOW`, 95% confidence, 98% visual similarity, 100% semantic similarity) and the differently designed Japan/Philippines Stop pair (`SEMANTIC_MATCH`, semantic match true). Pair calls now run sequentially with bounded timeouts to suit the configured free-tier provider.
 - Live Groq/Qwen provider checks passed with the configured seven-day key: the grounded NLP probe returned the reviewed action, and the vision model identified a rendered Japan stop asset as `jp-stop`. The integrated `/api/recognize` returned `candidate` for that asset, preserving the no-advice gate.
 - A restricted Google Maps browser key is configured in the ignored local `.env`. The route implementation uses Maps JavaScript and Routes, validates the returned endpoint against local Japan/Philippines bounds, and does not require the separately restricted Geocoding API.
 - Browser verification on `http://localhost:5173` confirmed the landing page, PC journey, phone frame, Google map, Tokyo Station-to-Shibuya route, ETA, distance, and next instruction. The verified route returned 26 minutes, 7.7 km, and **Head south** at the time of the check; those live values can change.
 
 ## Remaining gates
 
-- All three sign records remain `candidate`. The static provider/API test proves model connectivity and controlled recognition, but it is not the required physical live-camera acceptance test.
+- All sign records remain `candidate`. Static provider/API tests and Recognition Lab rows prove controlled model behavior only; they are not the required physical live-camera acceptance test. The new provider-backed matrix rows have not yet been executed and recorded.
 - Browser camera permission remained pending in the automated in-app browser. A person must grant permission in Chrome/Edge, present a physical sign, and record the supported and unknown cases.
 - Because no sign is yet `tested`, the live sign alert and parked sign Q&A remain correctly gated. After acceptance, Ranee may change the successful record to `tested` and rerun speech/Q&A checks.
 - The integration branch is local. It has not been pushed, opened as a PR, merged to `main`, deployed, or submitted.

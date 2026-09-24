@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="PH Maximum speed restriction">
+  <rect width="360" height="360" rx="24" fill="#f5f3ed"/>
+  <circle cx="180" cy="170" r="116" fill="#fff" stroke="#d72638" stroke-width="20"/><text x="180" y="168" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="800" font-size="82" fill="#14211c">40</text><text x="180" y="318" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="800" font-size="24" fill="#14211c">SPEED LIMIT</text>
+</svg>

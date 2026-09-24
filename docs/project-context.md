@@ -24,7 +24,7 @@ The product goal is to reduce unintentional violations and misunderstandings wit
 8. A Philippines route example may show an **Avoid restricted zones** toggle and alternate Makati route. Until current official restrictions, exceptions, boundaries, and route behavior are verified, the zone and alternate route must be visibly labeled **simulation**, with no compliance claim.
 9. Phone, dashcam, action-camera/two-wheeler, and EV layouts may be shown as **interface previews**. A dark, high-contrast two-wheeler preview and parked pre-ride checklist can illustrate the rider experience. Their physical connections and sunlight performance are future work.
 
-Candidate demo signs are Japan Stop (止まれ), Japan Railway crossing ahead, and Philippines No right turn. They become **supported** only after John verifies the rule/source and the team verifies live-camera recognition. The defensible minimum is one complete tested sign and an `unknown` case.
+The original candidate demo signs are Japan Stop (止まれ), Japan Railway crossing ahead, and Philippines No right turn. The parked semantic-recognition lab adds a broader candidate test catalog: five country-specific categories per country and six cross-country equivalent pairs. These records become **supported** only after source acceptance and live-camera recognition evidence. The defensible driving demo minimum remains one complete tested sign and an `unknown` case.
 
 ## Outside the MVP
 
