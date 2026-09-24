@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { CountryCode, RuleRecord, SignCategory } from './types.js';
-import { isCountryCode, isSignCategory } from './types.js';
+import { isCountryCode, isModelClass, isSignCategory } from './types.js';
 
 const defaultRulesPath = fileURLToPath(new URL('../../shared/rules/rules.json', import.meta.url));
 
@@ -10,6 +10,8 @@ function isRuleRecord(value: unknown): value is RuleRecord {
   const rule = value as Partial<RuleRecord>;
   return (
     typeof rule.id === 'string' &&
+    isModelClass(rule.modelClass) &&
+    (rule.semanticEquivalent === null || isModelClass(rule.semanticEquivalent)) &&
     isCountryCode(rule.countryCode) &&
     typeof rule.label === 'string' &&
     typeof rule.officialName === 'string' &&
@@ -61,5 +63,9 @@ export class RuleRepository {
 
   async findTested(countryCode: CountryCode, signId: string): Promise<RuleRecord | undefined> {
     return (await this.testedByCountry(countryCode)).find((rule) => rule.id === signId);
+  }
+
+  async findByCountry(countryCode: CountryCode, signId: string): Promise<RuleRecord | undefined> {
+    return (await this.byCountry(countryCode)).find((rule) => rule.id === signId);
   }
 }

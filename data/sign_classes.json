@@ -1,0 +1,126 @@
+{
+  "class_count": 10,
+  "selection_policy": "Exactly five Japan and five Philippines classes. A class change replaces an existing class and requires a new dataset audit.",
+  "classes": [
+    {
+      "index": 0,
+      "model_class": "JP_STOP",
+      "country": "Japan",
+      "normalized_category": "STOP",
+      "display_name": "Stop",
+      "source": "https://universe.roboflow.com/ritsumeikan/japanese-road-signs",
+      "source_license": "CC BY 4.0",
+      "source_label": "Prohibitory",
+      "dataset_status": "requires manual relabel to exact sign",
+      "semantic_equivalent": "PH_STOP"
+    },
+    {
+      "index": 1,
+      "model_class": "JP_MAX_SPEED_30",
+      "country": "Japan",
+      "normalized_category": "MAX_SPEED",
+      "display_name": "Maximum speed 30 km/h",
+      "source": "https://universe.roboflow.com/ritsumeikan/japanese-road-signs",
+      "source_license": "CC BY 4.0",
+      "source_label": "Speed Limit 30",
+      "dataset_status": "exact source label",
+      "semantic_equivalent": null
+    },
+    {
+      "index": 2,
+      "model_class": "JP_PEDESTRIAN_CROSSING",
+      "country": "Japan",
+      "normalized_category": "PEDESTRIAN_CROSSING",
+      "display_name": "Pedestrian Crossing",
+      "source": "https://universe.roboflow.com/ritsumeikan/japanese-road-signs",
+      "source_license": "CC BY 4.0",
+      "source_label": "Information",
+      "dataset_status": "requires manual relabel to exact sign",
+      "semantic_equivalent": "PH_PEDESTRIAN_CROSSING"
+    },
+    {
+      "index": 3,
+      "model_class": "JP_NO_PARKING",
+      "country": "Japan",
+      "normalized_category": "NO_PARKING",
+      "display_name": "No Parking",
+      "source": "https://universe.roboflow.com/ritsumeikan/japanese-road-signs",
+      "source_license": "CC BY 4.0",
+      "source_label": "Prohibitory",
+      "dataset_status": "requires manual relabel to exact sign",
+      "semantic_equivalent": "PH_NO_PARKING"
+    },
+    {
+      "index": 4,
+      "model_class": "JP_NO_U_TURN",
+      "country": "Japan",
+      "normalized_category": "NO_U_TURN",
+      "display_name": "No U-turn",
+      "source": "https://universe.roboflow.com/ritsumeikan/japanese-road-signs",
+      "source_license": "CC BY 4.0",
+      "source_label": "Prohibitory",
+      "dataset_status": "requires manual relabel to exact sign",
+      "semantic_equivalent": "PH_NO_U_TURN"
+    },
+    {
+      "index": 5,
+      "model_class": "PH_STOP",
+      "country": "Philippines",
+      "normalized_category": "STOP",
+      "display_name": "Stop",
+      "source": "https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn",
+      "source_license": "CC BY 4.0",
+      "source_label": null,
+      "dataset_status": "source gap: add licensed real photographs before YOLO training",
+      "semantic_equivalent": "JP_STOP"
+    },
+    {
+      "index": 6,
+      "model_class": "PH_MAX_SPEED_50",
+      "country": "Philippines",
+      "normalized_category": "MAX_SPEED",
+      "display_name": "Maximum speed 50 km/h",
+      "source": "https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn",
+      "source_license": "CC BY 4.0",
+      "source_label": "50kph_speed_limit",
+      "dataset_status": "exact source label",
+      "semantic_equivalent": null
+    },
+    {
+      "index": 7,
+      "model_class": "PH_PEDESTRIAN_CROSSING",
+      "country": "Philippines",
+      "normalized_category": "PEDESTRIAN_CROSSING",
+      "display_name": "Pedestrian Crossing",
+      "source": "https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn",
+      "source_license": "CC BY 4.0",
+      "source_label": "pedestrian_crossing",
+      "dataset_status": "exact source label",
+      "semantic_equivalent": "JP_PEDESTRIAN_CROSSING"
+    },
+    {
+      "index": 8,
+      "model_class": "PH_NO_PARKING",
+      "country": "Philippines",
+      "normalized_category": "NO_PARKING",
+      "display_name": "No Parking",
+      "source": "https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn",
+      "source_license": "CC BY 4.0",
+      "source_label": "no_parking",
+      "dataset_status": "exact source label",
+      "semantic_equivalent": "JP_NO_PARKING"
+    },
+    {
+      "index": 9,
+      "model_class": "PH_NO_U_TURN",
+      "country": "Philippines",
+      "normalized_category": "NO_U_TURN",
+      "display_name": "No U-turn",
+      "source": "https://universe.roboflow.com/nos-workspace-vsodn/philippine-traffic-sign-dataset-9kz1e-qvpnr-jirzn",
+      "source_license": "CC BY 4.0",
+      "source_label": "no_uturn",
+      "dataset_status": "exact source label",
+      "semantic_equivalent": "JP_NO_U_TURN"
+    }
+  ]
+}

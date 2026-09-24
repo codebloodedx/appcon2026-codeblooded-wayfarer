@@ -1,4 +1,4 @@
-# MVP interface contract — version 4
+# MVP interface contract — version 5
 
 **Contract owner:** Ranee. This is the proposed integration baseline for the four independent work areas. A change requires a decision recorded in the issue and a matching update to this file before dependent code changes.
 
@@ -9,7 +9,10 @@
 ```json
 {
   "id": "jp-stop",
+  "modelClass": "JP_STOP",
+  "semanticEquivalent": "PH_STOP",
   "countryCode": "JP",
+  "normalizedCategory": "STOP",
   "label": "Stop (止まれ)",
   "shortAlert": "Stop at this sign and check for traffic before proceeding.",
   "explanation": "Full source-reviewed text, including conditions and exceptions.",
@@ -29,7 +32,7 @@
 
 ## Pre-trip briefing evidence (John)
 
-`shared/rules/briefings.json` is a JSON array of the most important reviewed rules and etiquette reminders to present before driving. A record has `id`, `countryCode`, optional exact `locality`, `category` (`law` or `etiquette`), integer `priority`, `title`, `spokenText`, `details`, `sourceUrl`, `reviewedOn`, and `status` (`candidate` or `tested`). Only `tested` records may be returned or spoken. The API returns at most three reminders, ordered by priority.
+Pre-trip, Reviewed Guidance, and Current Guidance use the same verified records in `shared/rules/driving-guidance.json`. An optional `briefing` object supplies the concise pre-trip category, title, message, icon, review date, why-it-matters note, exceptions, and home-country comparison copy. The parent rule supplies country, jurisdiction, required context, priority, source, and verification state. The API returns exactly three applicable essentials ordered by safety priority, cross-country misunderstanding risk, and category importance; rules that require missing vehicle or time context are withheld. Reviewed Guidance uses the full verified `/api/driving-guidance` result plus source-reviewed sign records and applies country, available-locality, category, and search filters in the parked UI.
 
 Local restrictions such as vehicle number-coding rules must include the exact locality and must not be treated as a nationwide Philippines rule. John must verify the applicable vehicle or plate conditions, schedule, exceptions, current official source, and review date before changing the record to `tested`. If no matching tested record exists, the app says the briefing is unavailable and does not improvise one.
 
@@ -43,10 +46,17 @@ type CameraPanelProps = {
   parked: boolean;
   onSample: (imageDataUrl: string) => Promise<void>;
   onCapture: (imageDataUrl: string) => void;
+  detection?: {
+    bbox: [number, number, number, number];
+    label: string;
+    confidence: number;
+    status: 'recognized' | 'candidate';
+  } | null;
+  recognitionStatus?: 'waiting' | 'recognized' | 'candidate' | 'unknown' | 'error';
 };
 ```
 
-The component obtains permission after a user action, shows the live video, samples JPEG frames no more often than the configured interval, waits for each `onSample` call before another, and releases tracks on stop/unmount. `onCapture` is available only in parked mode. If camera permission is denied, the component keeps a visible disabled state and offers parked-only file upload through the same `onCapture` callback; it must not imply that an uploaded still came from live detection. Gio owns the surrounding page; Bryan owns camera internals.
+The component obtains permission after a user action, shows the live video, samples JPEG frames no more often than the configured interval, waits for each `onSample` call before another, and releases tracks on stop/unmount. It shows waiting, analyzing, unknown, candidate, recognized, and error states. When a valid normalized `bbox` accompanies a candidate or recognized result, it maps that box through the video's `object-fit: cover` crop and draws it over the corresponding sign. It never invents a box when the model does not return one. A rate-limited request uses the backend retry window before sampling again. `onCapture` is available only in parked mode. If camera permission is denied, the component keeps a visible disabled state and offers parked-only file upload through the same `onCapture` callback; it must not imply that an uploaded still came from live detection. Gio owns the surrounding page; Bryan owns camera internals.
 
 ## Map component (Ranee)
 
@@ -55,14 +65,21 @@ Export `MapPanel` from `frontend/src/features/map/MapPanel.tsx`:
 ```ts
 type MapPanelProps = {
   countryCode: 'JP' | 'PH';
+  origin: string;
+  originCoordinate?: { lat: number; lng: number };
   destination: string;
-  demoOrigin?: { lat: number; lng: number; label: string };
+  destinationCoordinate?: { lat: number; lng: number };
+  originSource: 'gps' | 'selected' | 'simulated';
   avoidRestrictedZones?: boolean;
   onCountryResolved?: (countryCode: 'JP' | 'PH' | null, source: 'gps' | 'selected' | 'simulated') => void;
+  onNavigationStatusChange?: (status: NavigationStatus) => void;
+  onGuidanceEvent?: (event: RouteGuidanceEvent) => void;
 };
 ```
 
-Render an interactive map, route line, next-turn card, and ETA when the route service supplies them. If `demoOrigin` is passed, the UI must visibly say **Simulated location** and display its label; this overrides physical GPS only for the stationary demo. Otherwise ask browser location permission on user action and resolve the current country. If denied, report `source: 'selected'`, label the country as **Selected fallback**, and do not claim a detected crossing. An unsupported or uncertain country yields `null` and no rule-backed driving alert. A map or route failure must be visible; do not silently show a static route as live navigation.
+Reuse one persistent Google map instance. Render the origin, destination, returned road polyline, distance, duration, maneuver, and route preview before driving. Navigation states are `loading`, `preview`, `driving`, `paused`, `arrived`, or `error`. In driving mode, interpolate the vehicle through the actual returned path, rotate the marker by bearing, follow it with the map camera, update remaining distance/time/ETA/progress, and provide pause, resume, end, and 1x/2x/4x controls. Clean up animation frames and map overlays on route change and unmount. A destination change while driving recalculates from the current simulated coordinate rather than returning to the original origin.
+
+The trip setup owns user-triggered GPS and place search. `originSource: 'simulated'` must visibly say **Simulated location**. Report `gps` only after a real position resolves. A denied or unavailable GPS request remains visible and must not silently default to the Philippines. An unsupported or uncertain country yields `null` and no rule-backed driving alert. A map, autocomplete, or route failure must be visible; do not silently show a static or straight-line route as live navigation.
 
 In the Philippines preview, `avoidRestrictedZones` may display an alternate route around a Makati example zone. Any mock zone, restriction status, or route must say **Simulation** on the map and route card. Do not label a route compliant until current official plate/day/hour rules, exceptions, boundaries, and the actual computed route have been verified. A missing safe route is an explicit unavailable state, not an invented detour.
 
@@ -70,12 +87,17 @@ In the Philippines preview, `avoidRestrictedZones` may display an alternate rout
 
 - `GET /api/health` → `{ "status": "ok", "service": "wayfarer-api" }` (implemented foundation).
 - `GET /api/rules?countryCode=JP` → array of source-reviewed sign records for the country, including candidate/tested status.
-- `GET /api/briefing?countryCode=JP&locality=Tokyo` → a `ready` response with at most three tested, priority-ordered records and the exact approved `speechText`, or `{ "status": "unavailable", ... "items": [], "speechText": null }`. A locality-specific record is returned only for an exact case-insensitive locality match. Candidate records are never returned.
-- `POST /api/recognize` with `{ "countryCode": "JP", "imageDataUrl": "data:image/jpeg;base64,..." }` → `recognized` for a tested record, `candidate` for a source-reviewed record still awaiting live acceptance, or `unknown`. Every response includes `debug`: detected country/name, normalized category, confidence, closest catalog reference, separate visual and semantic similarity, shape/symbol/text/color evidence, match type, and any opposite-country equivalent. The model classifies meaning against the full catalog; the backend then resolves only the active country's reviewed record. Candidate results remain silent and expose no driving instruction.
+- `GET /api/briefing?countryCode=JP&homeCountry=PH&locality=Tokyo` → a `ready` response with exactly three verified, priority-ordered essentials and the exact approved `speechText`, or `{ "status": "unavailable", ... "items": [], "speechText": null }`. Cross-country copy is selected only when `homeCountry` differs from `countryCode`. A locality-specific record is returned only for an exact case-insensitive locality match. Unverified records and rules requiring missing context are never returned.
+- `GET /api/driving-guidance?countryCode=JP&locality=Tokyo` → verified short rules for that country and matching jurisdiction. Records requiring missing context are withheld. Each item carries event, priority, message, source, trigger mode, cooldown, and jurisdiction.
+- `POST /api/recognize` with `{ "countryCode": "JP", "imageDataUrl": "data:image/jpeg;base64,..." }` → `recognized` for a tested record, `candidate` for a source-reviewed record still awaiting live acceptance, or `unknown`. Every response includes `debug`: detected country/name, exact `modelClass`, normalized category, confidence, normalized bounding box, closest catalog reference, separate visual and semantic similarity, shape/symbol/text/color evidence, match type, and any opposite-country equivalent. Only the ten declared classes are accepted. The backend resolves semantic meaning into the active country's record. During active driving, a candidate may speak its stored source-reviewed `shortAlert` while remaining visibly labeled as prototype evidence; model-generated legal wording is never spoken.
 - `POST /api/explain` with `{ "countryCode": "JP", "signId": "jp-stop", "question": "..." }` → `{ "answer": "...", "sourceUrl": "..." }`. The answer is constrained to the reviewed record; unsupported questions return an uncertainty response.
 - `POST /api/speak` with `{ "countryCode": "JP", "signId": "jp-stop" }` → `{ "text": "approved short alert", "engine": "browser-speech-synthesis" }`. The backend returns text only for a tested record in the selected country. The frontend passes that exact text to the browser `speechSynthesis` API and reports an unavailable state when the browser does not support it.
 
-Backend checks required: country enum, known sign ID, image MIME/size, request limits, strict allowlist validation, and safe errors without exposing keys. Browser calls go through the Vite `/api` proxy in development. Maps and Groq API keys are separate. Groq/Qwen output never supplies the legal guidance itself.
+Backend checks required: country enum, known sign ID, image MIME/size, request limits, strict allowlist validation, and safe errors without exposing credentials. Browser calls go through the Vite `/api` proxy in development. Maps uses a restricted browser key; Vertex AI uses backend Application Default Credentials. Gemini output never supplies the legal guidance itself.
+
+## Current Guidance and speech
+
+Current Guidance is inactive during route preview. `MapPanel` emits structured route or simulation events only after **Start Driving**. Camera detections can trigger a CV event only while navigation is driving. The frontend selects a verified rule from `/api/driving-guidance`, shows the short message and source, and puts it in a priority speech queue. The queue prevents overlap, deduplicates an event instance, applies each rule's cooldown, and cancels speech when driving pauses, ends, or the component unmounts. Simulation events are visibly labeled.
 
 ## Trip UI (Gio)
 

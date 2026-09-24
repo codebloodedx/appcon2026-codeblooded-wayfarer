@@ -1,62 +1,62 @@
-# Semantic sign test matrix
+# Ten-class recognition validation matrix
 
-**Owner:** John Asher Manit (`@99lash`) for rule/source evidence; Ranee for recognition integration
 **Updated:** 24 September 2026
+**Status:** Matrix defined; trained YOLO and held-out photo results are not yet available.
 
-All records are `candidate`. A PASS in the **Live camera test set** means the model returned the expected normalized category from a sampled camera frame. It does not promote the sign to tested driving guidance. Record browser, model name, commit, variation, scores, response, audio state, and screenshot under `docs/evidence/` for a live acceptance run.
+The active catalog contains exactly five Japan visual classes and five Philippines visual classes. SVGs are interface fixtures only. Final PASS/FAIL must come from licensed unseen road photographs or physical live-camera inputs that were never used for training.
 
-## Country-specific set
+## Class matrix
 
-These categories are documented by the named country's source and are not normally part of the other country's standard sign catalog used by this prototype.
+| Input class | Country | Expected category | Predicted category | Confidence | Semantic equivalent | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| `JP_STOP` | Japan | `STOP` | Pending | Pending | `PH_STOP` | NOT RUN |
+| `JP_MAX_SPEED_30` | Japan | `MAX_SPEED` | Pending | Pending | None; value differs | NOT RUN |
+| `JP_PEDESTRIAN_CROSSING` | Japan | `PEDESTRIAN_CROSSING` | Pending | Pending | `PH_PEDESTRIAN_CROSSING` | NOT RUN |
+| `JP_NO_PARKING` | Japan | `NO_PARKING` | Pending | Pending | `PH_NO_PARKING` | NOT RUN |
+| `JP_NO_U_TURN` | Japan | `NO_U_TURN` | Pending | Pending | `PH_NO_U_TURN` | NOT RUN |
+| `PH_STOP` | Philippines | `STOP` | Pending | Pending | `JP_STOP` | NOT RUN |
+| `PH_MAX_SPEED_50` | Philippines | `MAX_SPEED` | Pending | Pending | None; value differs | NOT RUN |
+| `PH_PEDESTRIAN_CROSSING` | Philippines | `PEDESTRIAN_CROSSING` | Pending | Pending | `JP_PEDESTRIAN_CROSSING` | NOT RUN |
+| `PH_NO_PARKING` | Philippines | `NO_PARKING` | Pending | Pending | `JP_NO_PARKING` | NOT RUN |
+| `PH_NO_U_TURN` | Philippines | `NO_U_TURN` | Pending | Pending | `JP_NO_U_TURN` | NOT RUN |
 
-| Input | Expected category | Country | Expected detection result |
+## Semantic pair expectations
+
+| Japan design | Philippines design | Normalized meaning | Expected comparison |
 | --- | --- | --- | --- |
-| Slow (徐行 / SLOW) | `SLOW` | Japan | Japan-specific candidate |
-| Use of the Horn | `HORN_REQUIRED` | Japan | Japan-specific candidate |
-| Moped two-stage right turn | `MOPED_TWO_STAGE_RIGHT` | Japan | Japan-specific candidate |
-| Priority road ahead | `PRIORITY_ROAD_AHEAD` | Japan | Japan-specific candidate |
-| Road closed without tire chains | `TIRE_CHAINS_REQUIRED` | Japan | Japan-specific candidate |
-| No Jeepneys | `NO_JEEPNEYS` | Philippines | Philippines-specific candidate |
-| No Tricycles | `NO_TRICYCLES` | Philippines | Philippines-specific candidate |
-| No Pushcarts | `NO_PUSHCARTS` | Philippines | Philippines-specific candidate |
-| No Animal-drawn Vehicles | `NO_ANIMAL_DRAWN_VEHICLES` | Philippines | Philippines-specific candidate |
-| BUS–PUJ Stop | `BUS_PUJ_STOP` | Philippines | Philippines-specific candidate |
+| `JP_STOP` | `PH_STOP` | `STOP` | `SEMANTIC_MATCH` |
+| `JP_MAX_SPEED_30` | `PH_MAX_SPEED_50` | `MAX_SPEED` | `RELATED`; never substitute one posted value for the other. |
+| `JP_PEDESTRIAN_CROSSING` | `PH_PEDESTRIAN_CROSSING` | `PEDESTRIAN_CROSSING` | `SEMANTIC_MATCH` |
+| `JP_NO_PARKING` | `PH_NO_PARKING` | `NO_PARKING` | `SEMANTIC_MATCH` |
+| `JP_NO_U_TURN` | `PH_NO_U_TURN` | `NO_U_TURN` | `SEMANTIC_MATCH` |
 
-## Cross-country equivalent pairs
+A semantic match never means the sign pixels, posted numeric value, conditions, or jurisdiction are identical. The country-specific class remains available for exact local guidance.
 
-| Japan input | Philippines input | Expected normalized category | Expected pair result |
-| --- | --- | --- | --- |
-| Inverted-triangle Stop (止まれ) | Octagonal STOP | `STOP` | `SEMANTIC_MATCH` |
-| Red-disc No Entry | Philippine No Entry restriction | `NO_ENTRY` | `SEMANTIC_MATCH` |
-| Maximum Speed 40 | Maximum speed restriction 40 | `MAX_SPEED` | `SEMANTIC_MATCH` |
-| Blue Pedestrian Crossing | Yellow diamond Pedestrian Crossing | `PEDESTRIAN_CROSSING` | `SEMANTIC_MATCH` |
-| Blue/red No Parking | Text/symbol No Parking | `NO_PARKING` | `SEMANTIC_MATCH` |
-| Japan No U-turn | Philippine No U-turn | `NO_U_TURN` | `SEMANTIC_MATCH` |
+## Required unseen variations
 
-Present each image to the live camera separately. Both country designs must return the same expected normalized category even when their visual similarity differs. The images are intentionally different designs; identical images are not required.
+For every class, record at least one held-out example for each available condition:
 
-## Visual variation suite
+- different road/background and sign instance
+- oblique photo angle
+- bright and low lighting
+- resized or distant sign
+- partial crop or obstruction
+- mild blur/noise
+- typography or language variation that remains a legitimate sign
 
-Run every country-specific input and both images from every equivalent pair under:
+Do not apply transformations that change the sign's meaning. Split source photographs before augmentation and run `python ml/audit_dataset.py` to detect byte-identical train/validation/test leakage.
 
-1. Original fixture
-2. Changed photo angle
-3. Low lighting
-4. Shifted color/saturation
-5. Cropped edges
-6. Partial obstruction
-7. Resized/small sign
-8. Different busy background
+## Runtime safety tests
 
-Apply these variations physically to the printed sign or second-screen presentation while the camera is open. The model receives only a sampled frame, without the fixture filename or expected label. A category mismatch is FAIL. An honest unknown under severe obstruction is recorded as FAIL for that test row but must remain silent; a confident wrong driving category is a blocker.
-
-## Negative and safety checks
-
-| Input | Expected |
+| Test | Expected |
 | --- | --- |
-| Blank scene | `NO_MATCH`, unknown, no audio |
-| Unsupported sign | `NO_MATCH`, unknown, no audio |
-| Related but different restriction | `RELATED`, no successful semantic match, no audio |
-| Candidate result | Visible candidate data, `/api/speak` and `/api/explain` reject it |
+| Blank scene | `NO_MATCH`; no speech |
+| Unsupported sign | `NO_MATCH`; no speech |
+| Supported category below semantic threshold | `RELATED`; no speech |
+| Candidate class | Debug data visible; no legal alert or grounded Q&A |
+| Tested class while route preview is open | No Current Guidance speech |
+| Tested class after Start Driving | Short country-local guidance; queued once |
+| Japan drive | Only JP rules are returned/spoken |
+| Philippines drive | Only PH rules are returned/spoken |
 
-The internal catalog is `shared/rules/recognition-tests.json`. The active Trip view exposes the current country's fixtures under **Live camera test set** and shows normalized category, country, confidence, visual/semantic scores, match type, equivalent sign, and evidence after each sampled live frame. Record PASS/FAIL outcomes in this matrix or `docs/evidence/`. Use **Parked details** for manual capture/upload and source review.
+`ml/validate_yolo.py` writes `image`, `country`, `expected_class`, `predicted_class`, `confidence`, `normalized_meaning`, bounding-box IoU, and PASS/FAIL. Record physical-camera evidence under `docs/evidence/` with commit, browser, model/weights, variation, response, audio state, and screenshot.

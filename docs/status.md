@@ -1,34 +1,37 @@
 # Current status
 
-**Last inspected:** 24 September 2026, Philippine time. **Active sprint:** WayFarer MVP. **Overall health:** Integrated locally; final demo gates remain. **Deadline:** 24 September 2026, 6:00 PM Philippine time.
+**Last inspected:** 24 September 2026, Philippine time. **Branch:** `feature/navigation-simulation`. **Overall health:** Navigation and structured Current Guidance pass locally; trained ten-class CV evidence and physical-camera acceptance remain open.
 
-## Verified facts
+## Verified locally
 
-- Foundation PR #6, navigation contract PR #7, and the original map/guidance PR #9 are merged on `main`.
-- The local `integration/wayfarer-mvp` branch combines PR #8 traveler UI, PR #10 candidate rule records/assets, PR #11 live camera/capture, and Ranee's Groq/Qwen, briefing, Maps, browser-speech, and integration work. The source PR branches each had a successful GitHub `build` check when fetched.
-- The product name is **WayFarer**. The browser title, UI, README, project context, and API service label use that name.
-- A one-page entry screen now asks the judge to choose **Phone simulation** or **PC simulation**. The selected frame carries the complete existing journey, and **Change view** returns to the selector without discarding the active trip.
-- Trip setup now leads to a pre-trip briefing. The browser check loaded three source-reviewed Japan reminders, then required **I understand — begin trip** before rendering the active map/camera screen.
-- The active trip renders the map and live `CameraPanel` together. Camera frames call `/api/recognize`; parked capture/upload uses the same path. Candidate matches are displayed as candidates and remain silent. Only tested records can trigger `/api/speak` or grounded sign Q&A.
-- The parked view contains manual camera capture/upload, reviewed source detail, and a grounded NLP question form. The supported-sign view shows the actual prototype sign assets and candidate/tested state. Device previews remain labeled as interface previews.
-- The backend resolves model output by normalized category into the active country's reviewed record; a closest reference from another country cannot directly select that country's rule. Candidate IDs are rejected by `/api/explain` and `/api/speak`.
-- Three Japan pre-trip records are source-reviewed against JAF and marked tested for briefing use: keep left, no turn on red unless a green arrow permits the direction, and seatbelt/driver-attention reminders.
-- `npm install` added 204 packages with 0 reported vulnerabilities. All 7 backend tests, backend/frontend TypeScript checks, the production build, and `git diff --check` pass locally.
-- Recognition now classifies a normalized sign meaning before resolving a country record. The API returns separate visual/semantic scores, model evidence, closest reference, equivalent sign, and match type in the live camera view.
-- The live camera test set includes 5 Japan-specific and 5 Philippines-specific categories plus 6 cross-country equivalent pairs. The catalog contains 24 candidate records, including the two original demo categories, plus generated fixtures. Parked details owns manual capture/upload, source details, and grounded questions.
-- Controlled provider probes passed for the Japan Slow fixture (`SLOW`, 95% confidence, 98% visual similarity, 100% semantic similarity) and the differently designed Japan/Philippines Stop examples, which normalized to the same category. These probes do not replace physical live-camera acceptance.
-- The active Trip camera now exposes the semantic result for each sampled live frame: normalized category, match type, confidence, semantic similarity, detected country, other-country equivalent, and visual/OCR evidence. A live test-target strip shows five country-specific and six shared fixtures for the active country; changing the trip switches the country context and target set.
-- Live Groq/Qwen provider checks passed with the configured seven-day key: the grounded NLP probe returned the reviewed action, and the vision model identified a rendered Japan stop asset as `jp-stop`. The integrated `/api/recognize` returned `candidate` for that asset, preserving the no-advice gate.
-- A restricted Google Maps browser key is configured in the ignored local `.env`. The route implementation uses Maps JavaScript and Routes, validates the returned endpoint against local Japan/Philippines bounds, and does not require the separately restricted Geocoding API.
-- Browser verification on `http://localhost:5173` confirmed the landing page, PC journey, phone frame, Google map, Tokyo Station-to-Shibuya route, ETA, distance, and next instruction. The verified route returned 26 minutes, 7.7 km, and **Head south** at the time of the check; those live values can change.
+- WayFarer keeps the existing landing, phone/PC simulation, trip setup, three-rule pre-trip briefing, Google route, live camera PiP, searchable Reviewed Guidance, supported signs, and device previews.
+- Google Maps returns the actual route geometry. The stationary simulator interpolates a branded vehicle marker along that path, follows it, updates distance/time/ETA/progress, supports pause/resume/end and 1x/2x/4x speed, reroutes from the simulated position, and reaches a clean trip-complete state.
+- The recognition contract is limited to exactly five Japan classes and five Philippines classes. The API reports model class, semantic category, normalized bounding box, confidence, visual/semantic similarity, match type, closest reference, and opposite-country equivalent.
+- `data/sign_classes.json`, `shared/rules/rules.json`, `shared/rules/recognition-tests.json`, TypeScript allowlists, and `ml/wayfarer-signs.yaml` use the same ten classes. An automated test checks five classes per country and reciprocal semantic mappings. The 30 km/h Japan and 50 km/h Philippines signs are intentionally `RELATED`, so one value can never replace the other.
+- The backend now uses Gemini on Vertex AI to classify sampled whole camera frames and to answer parked questions from reviewed records. During active driving, a recognized or candidate class automatically speaks its concise source-reviewed meaning. Candidate status stays visible, and unknown signs remain silent.
+- The live camera now shows its sampling/API state and draws a green tested or amber candidate bounding box from the returned normalized `bbox`. Box coordinates account for the crop created by `object-fit: cover`; a model response without a box does not create a fake location.
+- `ml/` provides a YOLO11n transfer-learning path, fixed ten-class config, dataset audit, restrained augmentations, and a held-out per-object validation matrix. The audit rejects missing split coverage, invalid boxes, insufficient unique images, and byte-identical cross-split leakage.
+- Current Guidance uses verified structured rules. It is inactive during route preview and activates only after **Start Driving**. Route events are visibly labeled simulated; CV events are separate.
+- Guidance is short, country-specific, priority ordered, deduplicated, cooled down, and read automatically through browser speech synthesis without overlap. Pausing or ending navigation cancels queued speech.
+- The guidance repository withholds unverified records, wrong-country records, local rules outside their exact locality, and rules whose required context is missing.
+- Browser verification on `http://localhost:5173` confirmed the Japan Tokyo Station to Shibuya route preview remained silent, **Start Driving** spoke “Keep left while driving in Japan,” and later simulated events displayed/spoke the intersection, red-light, and railroad-crossing prompts. The camera PiP and map remained visible. The trip reached the completion state. Browser error logs were empty.
+- The running API returned exactly five JP and five PH sign records, plus six verified guidance events for each country. No Japanese rule appeared in the Philippines response.
+- The former Groq provider was removed after its quota blocked live recognition. Google Cloud CLI and ADC are configured, Vertex AI is enabled, grounded Gemini NLP passed, and the real `/api/recognize` path classified the controlled Japan Stop image as `JP_STOP`/`STOP` with `0.95` confidence and `EXACT_MATCH`.
+- The detection box uses the cloud result only to establish the class and initial location. A browser-side grayscale motion tracker then updates the box about ten times per second between cloud samples; it does not classify signs.
+- `npm test`: 17/17 pass, including normalized box/crop mapping and rate-limit response tests.
+- `npm run check`: backend and frontend pass.
+- `npm run build`: backend and Vite production build pass.
+- `python -m py_compile ml/audit_dataset.py ml/train_yolo.py ml/validate_yolo.py`: pass.
+- The refreshed prototype rendered without browser console errors after the tracking and speech changes.
 
-## Remaining gates
+## Open evidence gates
 
-- All sign records remain `candidate`. Static provider/API tests and fixture probes prove controlled model behavior only; they are not the required physical live-camera acceptance test. The live-camera matrix rows have not yet been executed and recorded.
-- Browser camera permission remained pending in the automated in-app browser. A person must grant permission in Chrome/Edge, present a physical sign, and record the supported and unknown cases.
-- Because no sign is yet `tested`, the live sign alert and parked sign Q&A remain correctly gated. After acceptance, Ranee may change the successful record to `tested` and rerun speech/Q&A checks.
-- Deployment and event submission evidence have not been recorded.
+- No Roboflow dataset export is present in this checkout. Four Japanese categories require exact-class manual relabeling because the inspected Japanese dataset uses broad labels. The inspected Philippines dataset supplies four selected exact labels but no Stop label, so licensed PH Stop photographs are still required.
+- Ultralytics and training data are not installed/downloaded here. No YOLO weights have been trained, and no held-out YOLO matrix has been run. Do not claim custom-model accuracy yet.
+- All ten sign records remain `candidate`. A person must grant browser camera permission, present unseen physical examples plus an unknown control, and record the results before any sign can become `tested` and speak while driving.
+- Live cloud recognition depends on Vertex AI model availability, eligible billing, and quota. Authentication and API enablement pass locally; physical live-camera detection still needs manual evidence with unseen signs and an unknown control.
+- The changes are local and uncommitted. They have not been pushed, reviewed in a pull request, merged, deployed, or submitted.
 
-## Gate recommendation
+## Next gate
 
-Do not claim final submission readiness yet. Run one physical sign plus one unknown live-camera case, promote only the successful sign, then verify alert speech and parked Q&A before deployment and submission.
+Record physical-camera positive and unknown controls. In parallel, export/relabel licensed data, add PH Stop photographs, and run the YOLO audit/training/held-out matrix. Promote only classes whose evidence passes.

@@ -1,59 +1,26 @@
 import type { ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
-import type { TripPlan } from '../features/trip/types';
-import { BrandLogo } from './BrandLogo';
 
 type AppShellProps = {
   activeView: AppView;
-  trip: TripPlan;
   children: ReactNode;
   onChangeView: (view: AppView) => void;
-  onEditTrip: () => void;
 };
 
-const navItems: Array<{ id: AppView; label: string; parked?: boolean }> = [
-  { id: 'trip', label: 'Trip' },
-  { id: 'parked', label: 'Parked details', parked: true },
-  { id: 'signs', label: 'Supported signs', parked: true },
-  { id: 'devices', label: 'Device previews', parked: true },
+const navItems: Array<{ id: AppView; label: string; icon: string; parked?: boolean }> = [
+  { id: 'trip', label: 'Map', icon: '⌖' },
+  { id: 'parked', label: 'Guidance', icon: '≡', parked: true },
+  { id: 'signs', label: 'Signs', icon: '◇', parked: true },
+  { id: 'devices', label: 'Devices', icon: '▣', parked: true },
 ];
 
-export function AppShell({ activeView, trip, children, onChangeView, onEditTrip }: AppShellProps) {
+export function AppShell({ activeView, children, onChangeView }: AppShellProps) {
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <button className="brand" type="button" onClick={() => onChangeView('trip')} aria-label="WayFarer trip home">
-          <BrandLogo />
-          <span>
-            <strong>WayFarer</strong>
-            <small>{trip.homeCountry === 'PH' ? 'Philippines' : 'Japan'} → {trip.destinationCountry === 'PH' ? 'Philippines' : 'Japan'}</small>
-          </span>
-        </button>
-
-        <div className="topbar-trip">
-          <span className="location-dot" aria-hidden="true" />
-          <span><small>Destination</small><strong>{trip.destination}</strong></span>
-        </div>
-
-        <button className="button button-secondary compact" type="button" onClick={onEditTrip}>Edit trip</button>
-      </header>
-
-      <nav className="view-tabs" aria-label="Trip views">
-        {navItems.map((item) => (
-          <button
-            className={activeView === item.id ? 'view-tab active' : 'view-tab'}
-            type="button"
-            key={item.id}
-            onClick={() => onChangeView(item.id)}
-            aria-current={activeView === item.id ? 'page' : undefined}
-          >
-            {item.label}
-            {item.parked && <span className="parked-dot" title="Use while parked" aria-label="Use while parked" />}
-          </button>
-        ))}
+    <div className="app-shell navigation-shell">
+      <main className="app-content navigation-content">{children}</main>
+      <nav className="navigation-bottom-nav" aria-label="Main navigation">
+        {navItems.map((item) => <button key={item.id} type="button" className={activeView === item.id ? 'active' : ''} onClick={() => onChangeView(item.id)} aria-current={activeView === item.id ? 'page' : undefined} title={item.id === 'parked' ? 'Reviewed Guidance' : item.label}><span aria-hidden="true">{item.icon}</span><small>{item.label}</small>{item.parked && <i title="Use while parked" />}</button>)}
       </nav>
-
-      <main className="app-content">{children}</main>
     </div>
   );
 }

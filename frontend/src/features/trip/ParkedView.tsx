@@ -1,44 +1,145 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
 import { CameraPanel } from '../camera';
-import { explainRule, speakBrowserText } from '../guidance';
-import type { CountryCode, RuleRecord } from '../guidance/types';
+import { listDrivingGuidance, listRules } from '../guidance';
+import type { CountryCode, DrivingGuidanceRule, GuidanceEvent, RuleRecord } from '../guidance/types';
 import type { TripPlan } from './types';
 
-type Props = { trip: TripPlan; currentCountry: CountryCode | null; locationSource: 'gps' | 'selected' | 'simulated'; latestRule: RuleRecord | null; candidateRule: RuleRecord | null; guidanceError: string | null; onCapture: (imageDataUrl: string) => void };
+type Props = {
+  trip: TripPlan;
+  latestRule: RuleRecord | null;
+  candidateRule: RuleRecord | null;
+  guidanceError: string | null;
+  navigationActive?: boolean;
+  onBack?: () => void;
+  onCapture: (imageDataUrl: string) => void;
+};
+
+type GuidanceCard = {
+  id: string;
+  countryCode: CountryCode;
+  category: string;
+  title: string;
+  summary: string;
+  priority: string;
+  locality: string;
+  sourceUrl: string;
+  details?: string;
+  kind: 'guidance' | 'sign';
+};
+
 const names: Record<CountryCode, string> = { JP: 'Japan', PH: 'Philippines' };
+const categoryByEvent: Record<GuidanceEvent, string> = {
+  TRIP_START: 'Road rules', RAILROAD_CROSSING: 'Railroad crossings', INTERSECTION: 'Road rules',
+  TRAFFIC_LIGHT: 'Traffic lights', ROUNDABOUT: 'Roundabouts', TURN: 'Turns on red',
+  PEDESTRIAN_CROSSING: 'Pedestrians', COUNTRY_RULE_ZONE: 'Local exceptions',
+  RESTRICTED_TIME_ZONE: 'Restricted driving times', HEADLIGHT_RULE: 'Headlights',
+  STOP_SIGN: 'Road rules', ROAD_SIGN_DETECTION: 'Road signs',
+};
 
-export function ParkedView({ trip, currentCountry, locationSource, latestRule, candidateRule, guidanceError, onCapture }: Props) {
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [asking, setAsking] = useState(false);
-  const [questionError, setQuestionError] = useState<string | null>(null);
+function guidanceCard(rule: DrivingGuidanceRule): GuidanceCard {
+  return {
+    id: rule.id, countryCode: rule.countryCode, category: categoryByEvent[rule.event],
+    title: rule.briefing?.title ?? rule.title, summary: rule.briefing?.message ?? rule.message,
+    details: [rule.briefing?.whyItMatters, rule.briefing?.exceptions].filter(Boolean).join(' '),
+    priority: rule.priority,
+    locality: rule.jurisdiction?.type === 'country' ? names[rule.countryCode] : rule.jurisdiction?.value ?? names[rule.countryCode],
+    sourceUrl: rule.sourceUrl, kind: 'guidance',
+  };
+}
+
+function signCard(rule: RuleRecord): GuidanceCard {
+  return {
+    id: rule.id, countryCode: rule.countryCode, category: 'Road signs', title: rule.label,
+    summary: rule.shortAlert, details: rule.explanation,
+    priority: rule.status === 'tested' ? 'TESTED' : 'REVIEWED', locality: names[rule.countryCode],
+    sourceUrl: rule.sourceUrl, kind: 'sign',
+  };
+}
+
+export function ParkedView({ trip, latestRule, candidateRule, guidanceError, navigationActive = false, onBack, onCapture }: Props) {
+  const [country, setCountry] = useState<CountryCode>(trip.destinationCountry);
+  const [category, setCategory] = useState('All');
+  const [locality, setLocality] = useState('All');
+  const [search, setSearch] = useState('');
+  const [guidance, setGuidance] = useState<DrivingGuidanceRule[]>([]);
+  const [signs, setSigns] = useState<RuleRecord[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(true);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
   const detectedRule = latestRule ?? candidateRule;
+  const tripLocality = trip.destination.split(',').at(-1)?.trim();
 
-  async function ask(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!latestRule || !currentCountry || !question.trim()) return;
-    setAsking(true);
-    setQuestionError(null);
-    try {
-      const result = await explainRule(currentCountry, latestRule.id, question.trim());
-      setAnswer(result.answer);
-      speakBrowserText(result.answer);
-    } catch (error) {
-      setQuestionError(error instanceof Error ? error.message : 'The assistant could not answer.');
-    } finally {
-      setAsking(false);
-    }
-  }
+  useEffect(() => {
+    let active = true;
+    setLibraryLoading(true);
+    setLibraryError(null);
+    Promise.all([listDrivingGuidance(country, country === trip.destinationCountry ? tripLocality : undefined), listRules(country)])
+      .then(([guidanceRules, signRules]) => {
+        if (!active) return;
+        setGuidance(guidanceRules);
+        setSigns(signRules);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setGuidance([]);
+        setSigns([]);
+        setLibraryError(error instanceof Error ? error.message : 'Reviewed guidance could not be loaded.');
+      })
+      .finally(() => { if (active) setLibraryLoading(false); });
+    return () => { active = false; };
+  }, [country, trip.destinationCountry, tripLocality]);
+
+  const cards = useMemo(() => [...guidance.map(guidanceCard), ...signs.map(signCard)], [guidance, signs]);
+  const categories = useMemo(() => ['All', ...Array.from(new Set(cards.map((item) => item.category))).sort()], [cards]);
+  const localities = useMemo(() => ['All', ...Array.from(new Set(cards.map((item) => item.locality))).sort()], [cards]);
+  const filteredCards = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    return cards.filter((item) => {
+      if (category !== 'All' && item.category !== category) return false;
+      if (locality !== 'All' && item.locality !== locality) return false;
+      return !query || `${item.title} ${item.summary} ${item.details ?? ''} ${item.category} ${item.locality}`.toLocaleLowerCase().includes(query);
+    });
+  }, [cards, category, locality, search]);
+
+  useEffect(() => {
+    if (!categories.includes(category)) setCategory('All');
+    if (!localities.includes(locality)) setLocality('All');
+  }, [categories, category, localities, locality]);
 
   return (
-    <section className="parked-view" aria-labelledby="parked-title">
-      <div className="page-heading"><div><p className="eyebrow">Review while stationary</p><h1 id="parked-title">Parked details</h1><p>Capture a sign, inspect its reviewed source, and ask a grounded question.</p></div><StatusBadge tone="success">Parked view</StatusBadge></div>
-      <div className="parked-grid">
-        <article className="detail-card route-detail"><p className="panel-kicker">Trip overview</p><h2>{names[trip.homeCountry]} → {names[trip.destinationCountry]}</h2><dl><div><dt>Destination</dt><dd>{trip.destination}</dd></div><div><dt>Current country</dt><dd>{currentCountry ? names[currentCountry] : 'Unsupported or unknown'}</dd></div><div><dt>Location source</dt><dd>{locationSource === 'simulated' ? 'Simulated origin' : locationSource === 'gps' ? 'GPS detection' : 'Selected fallback'}</dd></div><div><dt>Route</dt><dd>See the map for current route status</dd></div></dl></article>
-        <article className="detail-card etiquette-card"><p className="panel-kicker">Reviewed guidance</p><h2>{detectedRule?.label ?? `Before driving in ${names[trip.destinationCountry]}`}</h2><p>{latestRule?.explanation ?? (candidateRule ? 'The model recognized this candidate sign, but it cannot provide driving advice until the acceptance test is complete.' : 'No live sign has been recognized. Review official requirements and local road etiquette before driving.')}</p>{latestRule?.etiquette && <p>{latestRule.etiquette}</p>}{detectedRule ? <a href={detectedRule.sourceUrl} target="_blank" rel="noreferrer">Open reviewed source</a> : <div className="source-placeholder"><span aria-hidden="true">↗</span><span><strong>No source-linked recognition yet</strong><small>Only tested records can produce guidance.</small></span></div>}{guidanceError && <p className="field-error" role="alert">{guidanceError}</p>}</article>
-        <article className="detail-card photo-card"><p className="panel-kicker">Manual photo exploration</p><h2>Inspect a sign while parked</h2><CameraPanel active parked onSample={async () => undefined} onCapture={onCapture} /><p className="muted">Capture or upload a sign while stationary. Candidate matches remain silent.</p></article>
-        <article className="detail-card assistant-card"><p className="panel-kicker">Grounded NLP assistant</p><h2>Ask about the recognized rule</h2><form onSubmit={(event) => void ask(event)}><label className="field-label" htmlFor="rule-question">Your question</label><textarea id="rule-question" value={question} maxLength={300} onChange={(event) => setQuestion(event.target.value)} placeholder="What should I do at this sign?" disabled={!latestRule} /><button className="button button-primary" type="submit" disabled={!latestRule || !question.trim() || asking}>{asking ? 'Checking reviewed record…' : 'Ask WayFarer'}</button></form>{!latestRule && <p className="muted">A tested sign must be recognized before the assistant can answer.</p>}{questionError && <p className="field-error" role="alert">{questionError}</p>}{answer && <div className="assistant-answer" aria-live="polite"><strong>WayFarer</strong><p>{answer}</p></div>}</article>
+    <section className="parked-view reviewed-guidance-view" aria-labelledby="reviewed-guidance-title">
+      {onBack && <button className="reviewed-guidance-back" type="button" onClick={onBack}>← Back to briefing</button>}
+      <div className="page-heading">
+        <div><p className="eyebrow">Review while stationary</p><h1 id="reviewed-guidance-title">Reviewed Guidance</h1><p>Browse verified local driving rules and guidance before or after a trip.</p></div>
+        <StatusBadge tone="success">Parked review</StatusBadge>
+      </div>
+      {navigationActive && <p className="parked-safety-notice" role="note">Review detailed guidance only when safely parked.</p>}
+
+      <div className="guidance-browser-controls" aria-label="Reviewed guidance filters">
+        <label><span>Country</span><select value={country} onChange={(event) => setCountry(event.target.value as CountryCode)}><option value="JP">Japan</option><option value="PH">Philippines</option></select></label>
+        <label><span>Region or city</span><select value={locality} onChange={(event) => setLocality(event.target.value)}>{localities.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label className="guidance-search"><span>Search</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search local driving guidance…" /></label>
+      </div>
+
+      <div className="guidance-category-filter" aria-label="Guidance categories">
+        {categories.map((item) => <button key={item} type="button" className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{item}</button>)}
+      </div>
+
+      {libraryLoading && <p className="guidance-library-state" role="status">Loading reviewed guidance…</p>}
+      {libraryError && <p className="field-error guidance-library-state" role="alert">{libraryError}</p>}
+      {!libraryLoading && !libraryError && <div className="guidance-library">
+        {filteredCards.map((item) => <article className="guidance-library-card" key={`${item.kind}-${item.id}`}>
+          <div><span>{item.category}</span><b className={`guidance-priority priority-${item.priority.toLocaleLowerCase()}`}>{item.priority}</b></div>
+          <h2>{item.title}</h2><p>{item.summary}</p><small>{names[item.countryCode]} · {item.locality}</small>
+          {item.details && <details><summary>View details</summary><p>{item.details}</p></details>}
+          <a href={item.sourceUrl} target="_blank" rel="noreferrer">Reviewed source ↗</a>
+        </article>)}
+        {filteredCards.length === 0 && <p className="guidance-library-state">No reviewed guidance matches these filters.</p>}
+      </div>}
+
+      <div className="parked-grid reviewed-tools">
+        <article className="detail-card etiquette-card"><p className="panel-kicker">Previously shown guidance</p><h2>{detectedRule?.label ?? 'No recognized sign yet'}</h2><p>{latestRule?.explanation ?? candidateRule?.explanation ?? 'Recognized sign guidance will appear here for later review.'}</p>{latestRule?.etiquette && <p>{latestRule.etiquette}</p>}{detectedRule && <a href={detectedRule.sourceUrl} target="_blank" rel="noreferrer">Open reviewed source</a>}{guidanceError && <p className="field-error" role="alert">{guidanceError}</p>}</article>
+        <article className="detail-card photo-card"><p className="panel-kicker">Manual photo exploration</p><h2>Inspect a sign while parked</h2><CameraPanel active parked onSample={async () => undefined} onCapture={onCapture} /><p className="muted">Upload a JPEG, PNG, or WebP, or capture a photo while stationary.</p></article>
       </div>
     </section>
   );

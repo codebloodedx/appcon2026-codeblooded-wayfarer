@@ -27,6 +27,67 @@
   position: absolute;
   inset: 0;
 }
+.rr-camera__photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #070d18;
+}
+
+.rr-camera__detection {
+  position: absolute;
+  z-index: 4;
+  min-width: 32px;
+  min-height: 32px;
+  border: 3px solid #25e785;
+  border-radius: 7px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.72), 0 0 18px rgba(37, 231, 133, 0.38);
+  pointer-events: none;
+  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+.rr-camera__detection--candidate {
+  border-color: #f2b705;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.72), 0 0 18px rgba(242, 183, 5, 0.38);
+}
+.rr-camera__detection > span {
+  position: absolute;
+  top: -27px;
+  left: -3px;
+  max-width: min(240px, 70vw);
+  overflow: hidden;
+  padding: 4px 8px;
+  border-radius: 5px 5px 5px 0;
+  background: #0a9c59;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rr-camera__detection--candidate > span { background: #a66f00; }
+
+.rr-camera__scan-status {
+  position: absolute;
+  z-index: 5;
+  right: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #dce7f5;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rr-camera__scan-status--recognized { color: #79f0ae; }
+.rr-camera__scan-status--candidate { color: #ffd76c; }
+.rr-camera__scan-status--error { color: #ff8b8b; }
 
 .rr-camera__badge {
   position: absolute;

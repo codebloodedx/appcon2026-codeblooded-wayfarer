@@ -34,5 +34,41 @@
     "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
     "reviewedOn": "2026-09-24",
     "status": "tested"
+  },
+  {
+    "id": "ph-keep-right",
+    "countryCode": "PH",
+    "category": "law",
+    "priority": 1,
+    "title": "Keep right",
+    "spokenText": "Keep to the right side of the road and overtake only when the way is clear.",
+    "details": "The LTO Filipino Driver's Manual explains Philippine lane discipline and requires drivers to make overtaking and passing maneuvers only when the opposing side is clearly visible and free of oncoming traffic for a safe distance.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
+  },
+  {
+    "id": "ph-intersection-awareness",
+    "countryCode": "PH",
+    "category": "law",
+    "priority": 2,
+    "title": "Check intersections",
+    "spokenText": "Slow down at intersections and check for crossing vehicles and pedestrians.",
+    "details": "The LTO manual's road-safety guidance requires drivers to approach intersections carefully, observe right-of-way controls, and check conflicting traffic before proceeding.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
+  },
+  {
+    "id": "ph-follow-signals",
+    "countryCode": "PH",
+    "category": "law",
+    "priority": 3,
+    "title": "Follow traffic signals",
+    "spokenText": "Follow traffic lights, signs, and road markings before turning or proceeding.",
+    "details": "The LTO Filipino Driver's Manual presents traffic lights, regulatory signs, warning signs, and pavement markings as controls drivers must observe on Philippine roads.",
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
   }
 ]

@@ -1,58 +1,199 @@
-import { useEffect, useMemo, useState } from 'react';
-import { StatusBadge } from '../../components/StatusBadge';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { CameraPanel } from '../camera';
-import { listRules } from '../guidance';
-import type { CountryCode, RecognitionDebug, RuleRecord } from '../guidance/types';
-import { MapPanel } from '../map';
+import { listDrivingGuidance, useGuidanceAnnouncer } from '../guidance';
+import type { CountryCode, DrivingGuidanceRule, GuidanceEvent, RecognitionDebug, RuleRecord } from '../guidance/types';
+import { MapPanel, PlaceSearchInput } from '../map';
+import type { NavigationStatus, RouteGuidanceEvent } from '../map';
 import type { TripPlan } from './types';
 
 type Props = {
   trip: TripPlan;
   currentCountry: CountryCode | null;
-  locationSource: 'gps' | 'selected' | 'simulated';
   latestRule: RuleRecord | null;
   candidateRule: RuleRecord | null;
   recognitionDebug: RecognitionDebug | null;
   guidanceError: string | null;
-  audioStatus: string;
   onCountryResolved: (country: CountryCode | null, source: 'gps' | 'selected' | 'simulated') => void;
   onRecognize: (imageDataUrl: string) => Promise<void>;
-  onPark: () => void;
+  onUpdateTrip: (trip: TripPlan) => void;
+  onEditTrip: () => void;
+  onNavigationStateChange?: (status: NavigationStatus) => void;
 };
 const names: Record<CountryCode, string> = { JP: 'Japan', PH: 'Philippines' };
-const demoOrigins = {
-  JP: { lat: 35.6812, lng: 139.7671, label: 'Tokyo Station' },
-  PH: { lat: 14.5547, lng: 121.0244, label: 'Makati City' },
-};
 
-export function TripScreen({ trip, currentCountry, locationSource, latestRule, candidateRule, recognitionDebug, guidanceError, audioStatus, onCountryResolved, onRecognize, onPark }: Props) {
+export function TripScreen({ trip, currentCountry, latestRule, candidateRule, recognitionDebug, guidanceError, onCountryResolved, onRecognize, onUpdateTrip, onEditTrip, onNavigationStateChange }: Props) {
+  const [cameraExpanded, setCameraExpanded] = useState(true);
+  const [routeEditorOpen, setRouteEditorOpen] = useState(false);
+  const [destinationInput, setDestinationInput] = useState(trip.destination);
+  const [destinationCoordinate, setDestinationCoordinate] = useState(trip.destinationCoordinate);
   const [avoidZones, setAvoidZones] = useState(false);
-  const [testRules, setTestRules] = useState<RuleRecord[]>([]);
-  const demoOrigin = trip.useSimulatedOrigin ? demoOrigins[trip.destinationCountry] : undefined;
-  const showZonePreview = trip.destinationCountry === 'PH';
+  const [alertDismissed, setAlertDismissed] = useState(false);
+  const [navigationStatus, setNavigationStatus] = useState<NavigationStatus>('loading');
+  const [guidanceRules, setGuidanceRules] = useState<DrivingGuidanceRule[]>([]);
+  const [pendingRouteEvent, setPendingRouteEvent] = useState<RouteGuidanceEvent | null>(null);
+  const [currentGuidance, setCurrentGuidance] = useState<DrivingGuidanceRule | null>(null);
   const detectedRule = latestRule ?? candidateRule;
+  const showZonePreview = trip.destinationCountry === 'PH';
+  const guidanceActive = navigationStatus === 'driving';
+  const announcerEnabled = guidanceActive || Boolean(detectedRule);
+  const { announce, status: announcementStatus } = useGuidanceAnnouncer(announcerEnabled);
+  const lastAnnouncedRuleId = useRef<string | null>(null);
+
+  useEffect(() => {
+    setDestinationInput(trip.destination);
+    setDestinationCoordinate(trip.destinationCoordinate);
+  }, [trip.destination, trip.destinationCoordinate]);
+  useEffect(() => setAlertDismissed(false), [detectedRule?.id]);
   useEffect(() => {
     const countryCode = currentCountry ?? trip.destinationCountry;
+    const locality = trip.destination.split(',').at(-1)?.trim();
     let active = true;
-    listRules(countryCode).then((records) => { if (active) setTestRules(records); }).catch(() => { if (active) setTestRules([]); });
+    listDrivingGuidance(countryCode, locality).then((records) => { if (active) setGuidanceRules(records); }).catch(() => { if (active) setGuidanceRules([]); });
     return () => { active = false; };
-  }, [currentCountry, trip.destinationCountry]);
-  const cameraTargets = useMemo(() => {
-    const specific = testRules.filter((rule) => rule.countrySpecific).slice(0, 5);
-    const equivalents = testRules.filter((rule) => !rule.countrySpecific && rule.assetPath.includes('/test/')).slice(0, 6);
-    return [...specific, ...equivalents];
-  }, [testRules]);
+  }, [currentCountry, trip.destination, trip.destinationCountry]);
+
+  useEffect(() => {
+    if (!guidanceActive || !pendingRouteEvent) return;
+    const rule = guidanceRules.find((item) => item.event === pendingRouteEvent.event);
+    if (!rule) return;
+    setCurrentGuidance(rule);
+    announce(rule, pendingRouteEvent.id);
+    setPendingRouteEvent(null);
+  }, [announce, guidanceActive, guidanceRules, pendingRouteEvent]);
+
+  useEffect(() => {
+    if (!detectedRule) {
+      lastAnnouncedRuleId.current = null;
+      return;
+    }
+    if (detectedRule.id === lastAnnouncedRuleId.current) return;
+    lastAnnouncedRuleId.current = detectedRule.id;
+    const eventByCategory: Partial<Record<RuleRecord['normalizedCategory'], GuidanceEvent>> = {
+      STOP: 'STOP_SIGN', PEDESTRIAN_CROSSING: 'PEDESTRIAN_CROSSING',
+    };
+    const event = eventByCategory[detectedRule.normalizedCategory] ?? 'ROAD_SIGN_DETECTION';
+    const matchingRule = guidanceRules.find((item) => item.event === event && item.triggerMode === 'cv');
+    const rule: DrivingGuidanceRule = matchingRule ?? {
+      id: `sign-${detectedRule.id}`, countryCode: detectedRule.countryCode, event, priority: 'HIGH',
+      title: detectedRule.label, message: detectedRule.shortAlert, sourceUrl: detectedRule.sourceUrl,
+      verified: true, triggerMode: 'cv', cooldownSeconds: 15,
+    };
+    setCurrentGuidance(rule);
+    announce(rule, `camera-${detectedRule.id}`);
+  }, [announce, detectedRule, guidanceRules]);
+  const cameraDetection = useMemo(() => {
+    if (!detectedRule || !recognitionDebug?.bbox || (!latestRule && !candidateRule)) return null;
+    return {
+      bbox: recognitionDebug.bbox,
+      label: detectedRule.label,
+      confidence: recognitionDebug.confidence,
+      status: latestRule ? 'recognized' as const : 'candidate' as const,
+    };
+  }, [candidateRule, detectedRule, latestRule, recognitionDebug]);
+  const externalDrivingEvent = useMemo(() => {
+    if (!detectedRule || navigationStatus !== 'driving') return null;
+    const event: GuidanceEvent | null = detectedRule.normalizedCategory === 'STOP'
+      ? 'STOP_SIGN'
+      : detectedRule.normalizedCategory === 'PEDESTRIAN_CROSSING' ? 'PEDESTRIAN_CROSSING' : null;
+    if (!event) return null;
+    return { id: `camera-motion-${detectedRule.id}`, event };
+  }, [detectedRule, navigationStatus]);
+  const recognitionStatus = guidanceError
+    ? 'error' as const
+    : latestRule
+      ? 'recognized' as const
+      : candidateRule
+        ? 'candidate' as const
+        : recognitionDebug
+          ? 'unknown' as const
+          : 'waiting' as const;
+
+  const handleNavigationStatus = useCallback((status: NavigationStatus) => {
+    setNavigationStatus(status);
+    onNavigationStateChange?.(status);
+    if (status === 'preview' || status === 'loading' || status === 'error') {
+      setCurrentGuidance(null);
+      setPendingRouteEvent(null);
+    }
+  }, [onNavigationStateChange]);
+  const handleRouteGuidance = useCallback((event: RouteGuidanceEvent) => setPendingRouteEvent(event), []);
+
+  function updateDestination(event: FormEvent) {
+    event.preventDefault();
+    if (!destinationInput.trim()) return;
+    onUpdateTrip({ ...trip, destination: destinationInput.trim(), destinationCoordinate });
+    setRouteEditorOpen(false);
+  }
+
   return (
-    <section className="trip-view" aria-labelledby="trip-heading">
-      <div className="trip-heading-row"><div><p className="eyebrow">Stationary judging view</p><h1 id="trip-heading">Your route in {names[trip.destinationCountry]}</h1><p className="muted">The map and live camera stay together. Run the demonstration while stationary.</p></div><button className="button button-dark" type="button" onClick={onPark}>Parked details <span aria-hidden="true">→</span></button></div>
-      <div className="trip-status-strip" aria-label="Trip status"><div><span className="flag-tile" aria-hidden="true">{currentCountry === 'PH' ? '🇵🇭' : currentCountry === 'JP' ? '🇯🇵' : '🌐'}</span><span><small>Current country</small><strong>{currentCountry ? names[currentCountry] : 'Unsupported location'}</strong></span></div><div><span className="source-icon" aria-hidden="true">⌖</span><span><small>Location source</small><strong>{locationSource === 'simulated' ? `Simulated · ${demoOrigin?.label}` : locationSource === 'gps' ? 'Detected by GPS' : 'Selected fallback · GPS not resolved'}</strong></span></div><StatusBadge tone="warning">{locationSource === 'simulated' ? 'Simulated location' : locationSource === 'gps' ? 'GPS location' : 'Selected fallback'}</StatusBadge></div>
-      <div className="judging-grid">
-        <article className="panel map-panel" aria-label="Destination route"><MapPanel countryCode={trip.destinationCountry} destination={trip.destination} demoOrigin={demoOrigin} avoidRestrictedZones={showZonePreview && avoidZones} onCountryResolved={onCountryResolved} /></article>
-        <article className="panel camera-panel" aria-labelledby="camera-title"><div className="panel-header dark-header"><div><p className="panel-kicker">Camera</p><h2 id="camera-title">Live road sign view</h2></div><span className="camera-online">User controlled</span></div><CameraPanel active parked={false} onSample={onRecognize} onCapture={() => undefined} /><div className="recognition-strip" aria-live="polite"><span className="pulse-dot" aria-hidden="true" /><div><small>Live recognition</small><strong>{guidanceError ? 'Service unavailable' : latestRule ? latestRule.label : candidateRule ? `${candidateRule.label} · candidate` : 'Scanning · no supported sign'}</strong></div><StatusBadge tone={guidanceError ? 'danger' : latestRule ? 'success' : candidateRule ? 'warning' : 'neutral'}>{guidanceError ? 'Error' : latestRule ? 'Reviewed rule' : candidateRule ? 'Silent candidate' : 'Safe fallback'}</StatusBadge></div>{recognitionDebug && <div className="live-semantic-trace" aria-label="Live recognition explanation"><div><small>Category</small><strong>{recognitionDebug.normalizedCategory ?? 'UNKNOWN'}</strong></div><div><small>Match</small><strong>{recognitionDebug.matchType}</strong></div><div><small>Confidence</small><strong>{Math.round(recognitionDebug.confidence * 100)}%</strong></div><div><small>Semantic</small><strong>{Math.round(recognitionDebug.semanticSimilarity * 100)}%</strong></div><div><small>Detected country</small><strong>{recognitionDebug.detectedCountry ? names[recognitionDebug.detectedCountry] : 'Unknown'}</strong></div><div><small>Equivalent</small><strong>{recognitionDebug.equivalentSign ? `${names[recognitionDebug.equivalentSign.countryCode]} · ${recognitionDebug.equivalentSign.label}` : 'None in catalog'}</strong></div><p><b>Why:</b> {recognitionDebug.evidence.symbol || recognitionDebug.evidence.text || recognitionDebug.evidence.shape || 'No reliable visual evidence returned.'}</p></div>}</article>
-      </div>
-      <article className="live-test-guide" aria-labelledby="live-test-title"><div><p className="panel-kicker">Live camera test set · {names[currentCountry ?? trip.destinationCountry]}</p><h2 id="live-test-title">Hold one of these signs in front of the camera</h2><p>The camera samples a frame every 2.5 seconds. Use a printed sign or second screen while stationary; the expected normalized category is shown below each reference.</p></div><div className="live-test-targets">{cameraTargets.map((rule) => <a key={rule.id} href={rule.assetPath} target="_blank" rel="noreferrer" title={`Open ${rule.label} test fixture`}><img src={rule.assetPath} alt={`${rule.label} live-camera test target`} /><span>{rule.label}<code>{rule.normalizedCategory}</code></span></a>)}</div><p className="live-test-note">To test the other country, edit the trip and choose that destination so the live country context and reviewed rule record change together.</p></article>
-      <div className="driving-grid"><article className="guidance-card"><div className="guidance-icon" aria-hidden="true">{latestRule ? '!' : candidateRule ? '⌁' : '?'}</div><div><div className="guidance-title"><p className="panel-kicker">Current guidance</p><StatusBadge tone={candidateRule ? 'warning' : 'neutral'}>{latestRule ? 'Source reviewed and tested' : candidateRule ? 'Candidate recognition' : 'No sign detected'}</StatusBadge></div><h2>{detectedRule?.label ?? 'No verified sign recognized'}</h2><p>{guidanceError ?? latestRule?.shortAlert ?? (candidateRule ? 'The vision model matched a candidate sign. WayFarer stays silent until the live test and source review gate are accepted.' : 'Follow posted signs and local authorities. Unknown and unsupported signs produce no driving advice.')}</p>{detectedRule && <a href={detectedRule.sourceUrl} target="_blank" rel="noreferrer">View reviewed source</a>}</div><div className="audio-status" aria-label="Audio status"><span aria-hidden="true">◖))</span><span><small>Audio</small><strong>{audioStatus}</strong></span></div></article>{showZonePreview && <article className="restricted-card"><div><p className="panel-kicker">Philippines route preview</p><h2>Restricted zone simulation</h2><p>The map can label a simulated avoidance preview. It does not calculate or verify a compliant alternate route.</p></div><label className="switch" aria-label="Show restricted zone simulation"><input type="checkbox" checked={avoidZones} onChange={(event) => setAvoidZones(event.target.checked)} /><span /></label><div className="verification-row"><StatusBadge tone="warning">Simulation only</StatusBadge><StatusBadge tone="warning">No compliant route claim</StatusBadge></div></article>}</div>
-      <p className="safety-banner"><strong>Before you move:</strong> Set your destination and review details while parked. This MVP does not provide production navigation or safety-critical guidance.</p>
+    <section className="navigation-cockpit" aria-label="WayFarer navigation simulation">
+      <MapPanel
+        countryCode={trip.destinationCountry}
+        origin={trip.origin}
+        originCoordinate={trip.originCoordinate}
+        originSource={trip.originSource}
+        destination={trip.destination}
+        destinationCoordinate={trip.destinationCoordinate}
+        avoidRestrictedZones={showZonePreview && avoidZones}
+        onCountryResolved={onCountryResolved}
+        onNavigationStatusChange={handleNavigationStatus}
+        onGuidanceEvent={handleRouteGuidance}
+        externalDrivingEvent={externalDrivingEvent}
+      />
+
+      <header className="navigation-search-bar">
+        <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
+        <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
+          <span><small>From</small><strong>{trip.origin}</strong></span>
+          <i aria-hidden="true">→</i>
+          <span><small>To</small><strong>{trip.destination}</strong></span>
+        </button>
+        <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>
+        {routeEditorOpen && (
+          <form className="route-editor-popover" onSubmit={updateDestination}>
+            <div><strong>Change destination</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
+            <p>WayFarer will pause and calculate from the simulated vehicle’s current position.</p>
+            <PlaceSearchInput id="active-destination" label="To" value={destinationInput} countryCode={trip.destinationCountry} placeholder="Enter a new destination" onChange={(value) => { setDestinationInput(value); setDestinationCoordinate(undefined); }} onSelect={(place) => { setDestinationInput(place.label); setDestinationCoordinate(place.coordinate); }} />
+            <button className="button button-primary full" type="submit">Update Route <span>→</span></button>
+            <button className="route-new-trip" type="button" onClick={onEditTrip}>Change origin or driving country</button>
+          </form>
+        )}
+      </header>
+
+      {!alertDismissed && candidateRule && (
+        <aside className="navigation-sign-alert candidate" aria-live="polite">
+          <img src={candidateRule.assetPath} alt="" />
+          <div><span>Prototype sign detection</span><strong>{candidateRule.label}</strong><small>{names[candidateRule.countryCode]} · Brief meaning spoken while driving{recognitionDebug?.equivalentSign ? ` · Equivalent ${names[recognitionDebug.equivalentSign.countryCode]} meaning: ${recognitionDebug.equivalentSign.meaning}` : ''}</small></div>
+          <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">×</button>
+        </aside>
+      )}
+      {(navigationStatus === 'driving' || navigationStatus === 'paused') && currentGuidance ? (
+        <aside className={`current-guidance-card priority-${currentGuidance.priority.toLowerCase()}`} aria-live="polite">
+          <span className="current-guidance-icon" aria-hidden="true">{currentGuidance.event === 'TRAFFIC_LIGHT' ? '●' : currentGuidance.event === 'RAILROAD_CROSSING' ? '╳' : currentGuidance.event === 'PEDESTRIAN_CROSSING' ? '↟' : currentGuidance.event === 'STOP_SIGN' ? '!' : '↱'}</span>
+          <div><small>Current guidance · {currentGuidance.title}</small><strong>{currentGuidance.message}</strong><span>{names[currentGuidance.countryCode]} rule · {currentGuidance.triggerMode === 'simulation' ? 'Simulated route event' : 'Camera detection'} · {announcementStatus}</span></div>
+          <a href={currentGuidance.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source for ${currentGuidance.title}`}>Source</a>
+        </aside>
+      ) : !candidateRule && <div className="navigation-monitor-pill"><span /><strong>{guidanceError ? 'Sign recognition unavailable' : navigationStatus === 'preview' ? 'Guidance starts with Start Driving' : 'Road sign monitoring ready'}</strong><small>{guidanceError ? 'Map simulation remains available' : 'Verified prompts only · unknown signs stay silent'}</small></div>}
+
+      {showZonePreview && <label className="navigation-zone-control"><span><strong>Avoid restricted zone</strong><small>Simulation preview</small></span><input type="checkbox" checked={avoidZones} onChange={(event) => setAvoidZones(event.target.checked)} /></label>}
+
+      <aside className={`camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
+        <button className="camera-pip-toggle" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
+          <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
+          <b>{cameraExpanded ? '▾ Minimize' : '▴ Camera Feed'}</b>
+        </button>
+        <div className="camera-pip-body">
+          <CameraPanel active parked={false} onSample={onRecognize} onCapture={() => undefined} detection={cameraDetection} recognitionStatus={recognitionStatus} />
+          {detectedRule && (
+            <div className="camera-spoken-result" aria-live="polite">
+              <span><small>{names[detectedRule.countryCode]} sign</small><strong>{detectedRule.label}</strong></span>
+              <p>{detectedRule.shortAlert}</p>
+              <b>{announcementStatus}</b>
+            </div>
+          )}
+          {guidanceError && <p className="camera-service-error" role="alert">Recognition is temporarily unavailable. The camera remains active and will retry.</p>}
+        </div>
+      </aside>
     </section>
   );
 }

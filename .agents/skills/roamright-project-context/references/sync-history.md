@@ -1,5 +1,13 @@
 # Context synchronization history
 
+## 2026-09-24 — Difference-based pre-trip briefing
+
+- Trigger: Ranee requested a short, safety-first briefing that adapts to home and destination countries and reuses Current Guidance rules.
+- Unified pre-trip and in-drive copy in `shared/rules/driving-guidance.json` through optional verified `briefing` metadata.
+- `GET /api/briefing` now accepts `homeCountry`, preserves exact locality and required-context filtering, and returns up to seven priority-sorted essentials.
+- The traveler UI shows six compact cards per supported country with icons, priority, comparison context, exceptions, sources, and a direct Start driving action.
+- Automated acceptance covers PH to JP, JP to PH, and same-country behavior.
+
 ## Initial bounded setup audit
 
 - Baseline commit: `03c0c3c` on `main`.
@@ -49,3 +57,41 @@ After the foundation is merged, record the merged commit and inspect material di
 - Runtime behavior: setup → three-item sourced briefing → acknowledgment → combined map/camera; live or parked frames call recognition; candidate matches are visible but silent; tested matches can unlock speech and parked grounded Q&A.
 - Evidence: 204 packages with zero reported audit vulnerabilities; seven backend tests, TypeScript checks, production builds, and diff check pass; live NLP and static Japan-stop vision pass; integrated API returns `candidate`; browser setup, briefing, active trip, signs, and parked views render.
 - Remaining: Maps key is blank in this checkout, real browser camera permission/physical sign evidence is absent, no sign is tested, and the branch is not pushed, reviewed, merged, deployed, or submitted.
+
+## Navigation simulation checkpoint
+
+- Trigger: Ranee requested a functional Google Maps-style route simulation using PR #12 as a mobile interaction reference while preserving WayFarer's visual system and live camera workflow.
+- Local branch: `feature/navigation-simulation` from merged `main` at `c6ffcc0`; changes remain uncommitted at this checkpoint.
+- Implemented: separate From/To place search, explicit GPS/manual/demo-origin states, actual Google route geometry, route preview, smooth interpolated marker and bearing, follow camera, remaining metrics, 1x/2x/4x controls, pause/resume/end, reroute from current simulated position, arrival/restart, camera PiP, sign-alert HUD, fixed bottom navigation, and retained-map bottom sheets.
+- Evidence: ten automated tests, TypeScript checks, production build, and diff check pass. Browser checks covered National University Manila to SM Mall of Asia, mid-drive reroute to Rizal Park, and Tokyo Station to Shibuya through arrival and restart.
+- Boundary: Google supplies the route path and current traffic estimate; marker travel and elapsed trip are accelerated stationary simulations. Browser camera permission and physical sign recognition remain manual acceptance gates.
+
+## Ten-class recognition and Current Guidance checkpoint
+
+- Trigger: Ranee requested exactly five Japan and five Philippines visual classes, transfer-learning preparation, semantic normalization, and concise verified driving guidance that starts only after Start Driving.
+- Implemented locally: ten-class manifests and API allowlists; model-class/bounding-box recognition output; semantic equivalents; structured driving-rule endpoint; country/jurisdiction/context filtering; simulated route events; Current Guidance HUD; automatic priority speech queue, deduplication, and cooldown; YOLO11 dataset audit, train, and held-out validation scripts.
+- Evidence: 13 automated tests, TypeScript checks, Vite/backend production build, Python script compilation, empty browser error log, exact 5+5 live API count, and a Japan route run through trip start, intersection, red-light, railroad-crossing, and arrival.
+- Boundary: the inspected licensed datasets still require export and relabeling, the Philippines Stop class needs licensed photos, no YOLO weights or held-out model result exists, and all ten CV records remain candidates pending physical-camera evidence.
+
+## Live detection overlay and quota diagnosis
+
+- Trigger: Ranee reported that the live camera showed no detection and requested a square around a detected sign.
+- Cause reproduced: a real Japan Stop request reached `/api/recognize`, but the configured Groq account returned HTTP 429. Camera capture was not the failing boundary.
+- Implemented locally: higher-resolution 960px samples, visible waiting/analyzing/unknown/error states, aspect-correct normalized bounding boxes over the live video, a local translation tracker between cloud samples, amber candidate and green tested styling, provider retry backoff, and automatic concise speech for both tested and visibly labeled candidate detections during active driving.
+- Boundary: a box appears only when the recognizer returns a valid class and bbox. Groq quota or a trained local detector is still required for actual live detections.
+
+## Gemini on Vertex AI provider checkpoint
+
+- Trigger: Ranee asked to replace the rate-limited provider with Gemini for both computer vision and NLP and confirmed use of the Google Cloud trial setup.
+- Implemented locally: `@google/genai` in Vertex mode, backend-only Application Default Credentials, Gemini Flash image classification, Gemini Flash-Lite reviewed-record explanations, the unchanged ten-class/semantic API contract, and the existing local tracking, verified-rule, browser-speech, and provider-backoff boundaries.
+- Configuration: `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`, `GOOGLE_GENAI_USE_VERTEXAI`, `GEMINI_VISION_MODEL`, and `GEMINI_TEXT_MODEL`; no Gemini credential is exposed to the browser bundle.
+- Evidence: Google Cloud CLI 586.0.0 installed; CLI and ADC authentication configured; Vertex AI API enabled; grounded NLP passed; the controlled Japan Stop image returned `JP_STOP`, normalized `STOP`, `0.95` confidence, and `EXACT_MATCH` through the real `/api/recognize` endpoint; 17 automated tests, TypeScript checks, and production build pass.
+- Open gate: physical-camera evidence with unseen signs and an unknown control is not complete. The historical Groq evidence above remains history rather than current provider status.
+
+## Three-rule briefing and Reviewed Guidance checkpoint
+
+- Trigger: Ranee requested a faster pre-trip experience with only three rules and renamed the parked information area to Reviewed Guidance.
+- Implemented locally: briefing selection now returns exactly three essentials ranked by safety priority, cross-country misunderstanding risk, and category importance; the pre-trip CTA opens the destination-filtered Reviewed Guidance library without activating navigation.
+- Reviewed Guidance: country, available-locality, category, and search filters; source-linked rule and sign cards, prior sign review, and manual parked capture remain available. Active navigation shows a parked-use notice. Trip Context and the Grounded Assistant were removed from this page by Ranee's follow-up decision.
+- Evidence: 25 automated tests, TypeScript checks, production build, and diff check pass.
+- Boundary: physical-camera acceptance, commit/PR review, deployment, and submission remain open.
