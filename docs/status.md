@@ -1,10 +1,11 @@
 # Current status
 
-**Last inspected:** 24 September 2026, Philippine time. **Branch:** `feature/navigation-simulation`. **Overall health:** Navigation and structured Current Guidance pass locally; trained ten-class CV evidence and physical-camera acceptance remain open.
+**Last inspected:** 24 September 2026, Philippine time. **Branch:** `integration/pr15-ui`. **Overall health:** PR #15's visual system is integrated with the working navigation and structured Current Guidance; trained ten-class CV evidence and physical-camera acceptance remain open.
 
 ## Verified locally
 
 - WayFarer keeps the existing landing, phone/PC simulation, trip setup, three-rule pre-trip briefing, Google route, live camera PiP, searchable Reviewed Guidance, supported signs, and device previews.
+- PR #15's WayFarer branding, SVG navigation, fixed phone hardware, full-screen cockpit styling, and reusable bottom-sheet drawers are integrated without replacing the current route, camera, Gemini, speech, briefing, or rule behavior. The service worker registers only in production and uses network-first navigation updates.
 - Google Maps returns the actual route geometry. The stationary simulator interpolates a branded vehicle marker along that path, follows it, updates distance/time/ETA/progress, supports pause/resume/end and 1x/2x/4x speed, reroutes from the simulated position, and reaches a clean trip-complete state.
 - The recognition contract is limited to exactly five Japan classes and five Philippines classes. The API reports model class, semantic category, normalized bounding box, confidence, visual/semantic similarity, match type, closest reference, and opposite-country equivalent.
 - `data/sign_classes.json`, `shared/rules/rules.json`, `shared/rules/recognition-tests.json`, TypeScript allowlists, and `ml/wayfarer-signs.yaml` use the same ten classes. An automated test checks five classes per country and reciprocal semantic mappings. The 30 km/h Japan and 50 km/h Philippines signs are intentionally `RELATED`, so one value can never replace the other.
@@ -18,7 +19,7 @@
 - The running API returned exactly five JP and five PH sign records, plus six verified guidance events for each country. No Japanese rule appeared in the Philippines response.
 - The former Groq provider was removed after its quota blocked live recognition. Google Cloud CLI and ADC are configured, Vertex AI is enabled, grounded Gemini NLP passed, and the real `/api/recognize` path classified the controlled Japan Stop image as `JP_STOP`/`STOP` with `0.95` confidence and `EXACT_MATCH`.
 - The detection box uses the cloud result only to establish the class and initial location. A browser-side grayscale motion tracker then updates the box about ten times per second between cloud samples; it does not classify signs.
-- `npm test`: 17/17 pass, including normalized box/crop mapping and rate-limit response tests.
+- `npm test`: 26/26 pass, including navigation interpolation, 50-60 km/h cruise behavior, normalized box/crop mapping, briefing selection, and rate-limit response tests.
 - `npm run check`: backend and frontend pass.
 - `npm run build`: backend and Vite production build pass.
 - `python -m py_compile ml/audit_dataset.py ml/train_yolo.py ml/validate_yolo.py`: pass.
@@ -30,7 +31,7 @@
 - Ultralytics and training data are not installed/downloaded here. No YOLO weights have been trained, and no held-out YOLO matrix has been run. Do not claim custom-model accuracy yet.
 - All ten sign records remain `candidate`. A person must grant browser camera permission, present unseen physical examples plus an unknown control, and record the results before any sign can become `tested` and speak while driving.
 - Live cloud recognition depends on Vertex AI model availability, eligible billing, and quota. Authentication and API enablement pass locally; physical live-camera detection still needs manual evidence with unseen signs and an unknown control.
-- The changes are local and uncommitted. They have not been pushed, reviewed in a pull request, merged, deployed, or submitted.
+- The functional checkpoint and PR #15 UI integration are committed locally on `integration/pr15-ui`. They have not been pushed, merged into `main`, deployed, or submitted.
 
 ## Next gate
 

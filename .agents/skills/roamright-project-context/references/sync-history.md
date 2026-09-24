@@ -63,6 +63,14 @@ After the foundation is merged, record the merged commit and inspect material di
 - Trigger: Ranee requested a functional Google Maps-style route simulation using PR #12 as a mobile interaction reference while preserving WayFarer's visual system and live camera workflow.
 - Local branch: `feature/navigation-simulation` from merged `main` at `c6ffcc0`; changes remain uncommitted at this checkpoint.
 - Implemented: separate From/To place search, explicit GPS/manual/demo-origin states, actual Google route geometry, route preview, smooth interpolated marker and bearing, follow camera, remaining metrics, 1x/2x/4x controls, pause/resume/end, reroute from current simulated position, arrival/restart, camera PiP, sign-alert HUD, fixed bottom navigation, and retained-map bottom sheets.
+
+## 2026-09-24 - PR #15 visual integration checkpoint
+
+- Trigger: Ranee approved combining PR #15's UI with her newer functional navigation and assistant work while retaining her features.
+- Integration: preserved the phone/PC landing, From/To search, Start Driving state, route interpolation, 50-60 km/h vehicle speed, playback controls, camera tracking, Gemini recognition, concise speech, briefing, and reviewed rules. Adopted PR #15's branding, icon library, fixed phone hardware, Google Maps-style cockpit, bottom navigation, bottom-sheet drawer, responsive styles, manifest, and app icons.
+- Safety fixes: removed the duplicate older guidance hook, kept country-specific sources, restricted service-worker registration to production, and made navigation documents network-first to prevent stale local UI.
+- Evidence: 26 tests, TypeScript checks, production build, diff check, phone and desktop setup renders, bottom-sheet guidance, and an active Tokyo route at 50 km/h passed locally.
+- State: committed locally on `integration/pr15-ui`; not pushed or merged to `main`. Physical-camera and trained-model evidence remain open.
 - Evidence: ten automated tests, TypeScript checks, production build, and diff check pass. Browser checks covered National University Manila to SM Mall of Asia, mid-drive reroute to Rizal Park, and Tokyo Station to Shibuya through arrival and restart.
 - Boundary: Google supplies the route path and current traffic estimate; marker travel and elapsed trip are accelerated stationary simulations. Browser camera permission and physical sign recognition remain manual acceptance gates.
 
