@@ -91,20 +91,28 @@ p { line-height: 1.58; }
 .simulation-desktop .simulation-device { min-height: calc(100vh - 58px); }
 .simulation-phone { --phone-frame-width: 430px; --phone-frame-height: 840px; overflow: auto; padding-bottom: 2rem; background: radial-gradient(circle at top, #eef3fb, #c9d3e2); }
 .simulation-phone .simulation-toolbar { margin-bottom: 1.6rem; }
-.simulation-phone .simulation-device { width: var(--phone-frame-width); height: var(--phone-frame-height); min-width: var(--phone-frame-width); min-height: var(--phone-frame-height); flex: 0 0 auto; padding: 7px; border: 1px solid #77808d; border-radius: 3rem; background: linear-gradient(115deg, #4b5360 0%, #e2e6eb 9%, #737c88 18%, #1a2029 52%, #9aa3ad 82%, #e7eaed 92%, #4b535d 100%); box-shadow: 0 32px 75px rgba(3,16,43,.3), 0 7px 18px rgba(3,16,43,.25), inset 0 0 0 1px rgba(255,255,255,.65), inset 0 0 0 3px rgba(0,0,0,.38); }
-.simulation-phone .simulation-device::after { position: absolute; z-index: 75; inset: 8px; border-radius: 2.48rem; background: linear-gradient(118deg, rgba(255,255,255,.14), transparent 20%, transparent 76%, rgba(255,255,255,.06)); content: ''; pointer-events: none; }
+.simulation-phone .simulation-device { width: var(--phone-frame-width); height: var(--phone-frame-height); min-width: var(--phone-frame-width); min-height: var(--phone-frame-height); flex: 0 0 auto; padding: 5px; border: 2px solid #090b0f; border-radius: 3.15rem; background: linear-gradient(100deg, #101318 0%, #60656c 5%, #15181d 11%, #050608 48%, #22262c 88%, #777c82 95%, #111318 100%); box-shadow: 0 32px 75px rgba(3,16,43,.3), 0 8px 20px rgba(3,16,43,.28), inset 0 0 0 1px #8c9197, inset 0 0 0 3px #15181d; }
+.simulation-phone .simulation-device::after { position: absolute; z-index: 75; inset: 7px; border-radius: 2.72rem; background: linear-gradient(118deg, rgba(255,255,255,.1), transparent 18%, transparent 78%, rgba(255,255,255,.035)); content: ''; pointer-events: none; }
 .simulation-phone-hardware { position: absolute; z-index: 90; inset: 0; pointer-events: none; }
-.phone-island { position: absolute; top: 1rem; left: 50%; display: flex; width: 7.1rem; height: 1.8rem; align-items: center; justify-content: center; gap: .48rem; border: 1px solid rgba(255,255,255,.06); border-radius: 999px; background: linear-gradient(#080a0e, #12151b); box-shadow: 0 2px 7px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.05); transform: translateX(-50%); }
-.phone-speaker { width: 2.2rem; height: .27rem; border-radius: 999px; background: repeating-linear-gradient(90deg, #242a32 0 2px, #101318 2px 4px); box-shadow: inset 0 1px 2px #000; }
-.phone-camera { width: .55rem; height: .55rem; border: 1px solid #263550; border-radius: 50%; background: radial-gradient(circle at 35% 32%, #3f6991 0 7%, #101c2d 17% 36%, #02050a 56%); box-shadow: 0 0 0 2px #06080c, inset 0 0 3px #2b74ae; }
-.phone-sensor { width: .26rem; height: .26rem; border-radius: 50%; background: #1d2732; box-shadow: inset 0 0 2px #55718a; }
-.phone-button { position: absolute; display: block; background: linear-gradient(90deg, #303741, #a9b0b7 48%, #303741); box-shadow: 0 2px 4px rgba(3,8,15,.4); }
-.phone-mute { top: 6.5rem; left: -.28rem; width: .3rem; height: 2rem; border-radius: .25rem 0 0 .25rem; }
-.phone-volume-up { top: 9.2rem; left: -.32rem; width: .34rem; height: 3.25rem; border-radius: .25rem 0 0 .25rem; }
-.phone-volume-down { top: 13rem; left: -.32rem; width: .34rem; height: 3.25rem; border-radius: .25rem 0 0 .25rem; }
-.phone-power { top: 9.5rem; right: -.32rem; width: .34rem; height: 4.7rem; border-radius: 0 .25rem .25rem 0; }
-.phone-gesture-bar { position: absolute; bottom: .9rem; left: 50%; width: 8rem; height: .3rem; border-radius: 999px; background: rgba(10,15,24,.78); box-shadow: 0 1px rgba(255,255,255,.22); transform: translateX(-50%); }
-.simulation-phone .simulation-viewport { height: 100%; overflow-x: hidden; overflow-y: auto; padding: 1.45rem 0 1.2rem; border: 2px solid #070a0f; border-radius: 2.48rem; background: #f3f6fb; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), inset 0 0 14px rgba(0,0,0,.18); scrollbar-width: thin; scrollbar-color: rgba(7,26,61,.42) transparent; }
+.simulation-phone-status { position: absolute; z-index: 88; top: 1.03rem; right: 1.45rem; left: 1.45rem; display: flex; align-items: center; justify-content: space-between; color: white; font: 700 .63rem/1 'DM Sans'; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.simulation-phone-signals { display: flex; align-items: center; gap: .35rem; }
+.phone-signal-bars { width: .78rem; height: .55rem; background: linear-gradient(to top, white 0 100%) 0 100%/2px 35% no-repeat, linear-gradient(to top, white 0 100%) 3px 100%/2px 55% no-repeat, linear-gradient(to top, white 0 100%) 6px 100%/2px 75% no-repeat, linear-gradient(to top, white 0 100%) 9px 100%/2px 100% no-repeat; }
+.phone-wifi { width: .75rem; height: .5rem; border-top: 2px solid white; border-radius: 50% 50% 0 0; transform: translateY(1px); }
+.phone-wifi::after { display: block; width: .2rem; height: .2rem; margin: .18rem auto 0; border-radius: 50%; background: white; content: ''; }
+.phone-battery { position: relative; width: .9rem; height: .48rem; border: 1px solid rgba(255,255,255,.9); border-radius: .14rem; }
+.phone-battery::before { position: absolute; inset: 1px; border-radius: .06rem; background: white; content: ''; }
+.phone-battery::after { position: absolute; top: .1rem; right: -.2rem; width: .12rem; height: .22rem; border-radius: 0 .1rem .1rem 0; background: rgba(255,255,255,.85); content: ''; }
+.simulation-phone-island { position: absolute; z-index: 92; top: .72rem; left: 50%; display: flex; width: 5.15rem; height: 1.55rem; align-items: center; justify-content: flex-end; gap: .35rem; padding: 0 .46rem; border: 1px solid rgba(255,255,255,.045); border-radius: 999px; background: linear-gradient(#050608, #111318); box-shadow: 0 2px 6px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.045); transform: translateX(-50%); }
+.simulation-phone-speaker { position: absolute; left: 1.15rem; width: 1.65rem; height: .17rem; border-radius: 999px; background: #171b21; box-shadow: inset 0 1px 2px #000; }
+.simulation-phone-camera { width: .48rem; height: .48rem; border: 1px solid #263550; border-radius: 50%; background: radial-gradient(circle at 35% 32%, #4d7ea8 0 7%, #101c2d 18% 38%, #02050a 58%); box-shadow: 0 0 0 2px #050609, inset 0 0 3px #2b74ae; }
+.simulation-phone-sensor { width: .22rem; height: .22rem; border-radius: 50%; background: #1b2631; box-shadow: inset 0 0 2px #55718a; }
+.phone-button { position: absolute; display: block; background: linear-gradient(90deg, #080a0d, #444950 50%, #090b0e); box-shadow: 0 1px 2px rgba(3,8,15,.5); }
+.phone-mute { top: 5.4rem; left: -.22rem; width: .22rem; height: 1.65rem; border-radius: .2rem 0 0 .2rem; }
+.phone-volume-up { top: 8rem; left: -.25rem; width: .25rem; height: 2.8rem; border-radius: .2rem 0 0 .2rem; }
+.phone-volume-down { top: 11.35rem; left: -.25rem; width: .25rem; height: 2.8rem; border-radius: .2rem 0 0 .2rem; }
+.phone-power { top: 8.5rem; right: -.25rem; width: .25rem; height: 4.15rem; border-radius: 0 .2rem .2rem 0; }
+.simulation-phone-gesture-bar { position: absolute; z-index: 92; bottom: .72rem; left: 50%; width: 7.2rem; height: .24rem; border-radius: 999px; background: rgba(10,15,24,.75); box-shadow: 0 1px rgba(255,255,255,.2); transform: translateX(-50%); }
+.simulation-phone .simulation-viewport { height: 100%; overflow-x: hidden; overflow-y: auto; padding: 2.15rem 0 1.1rem; border: 2px solid #020305; border-radius: 2.78rem; background: linear-gradient(#061b46 0 2.15rem, #f3f6fb 2.15rem); box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), inset 0 0 9px rgba(0,0,0,.22); scrollbar-width: thin; scrollbar-color: rgba(7,26,61,.42) transparent; }
 
 .brand { display: inline-flex; align-items: center; gap: .7rem; border: 0; background: none; color: inherit; text-align: left; text-decoration: none; cursor: pointer; }
 .brand-mark { display: grid; width: 2.7rem; height: 2.7rem; flex: 0 0 auto; place-items: center; }

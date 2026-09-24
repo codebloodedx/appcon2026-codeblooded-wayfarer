@@ -26,12 +26,20 @@ export function SimulationFrame({ mode, children, onChangeMode }: SimulationFram
             <span className="phone-button phone-volume-up" />
             <span className="phone-button phone-volume-down" />
             <span className="phone-button phone-power" />
-            <span className="phone-island">
-              <i className="phone-speaker" />
-              <i className="phone-camera" />
-              <i className="phone-sensor" />
+            <span className="simulation-phone-status">
+              <b>9:41</b>
+              <span className="simulation-phone-signals">
+                <i className="phone-signal-bars" />
+                <i className="phone-wifi" />
+                <i className="phone-battery" />
+              </span>
             </span>
-            <span className="phone-gesture-bar" />
+            <span className="simulation-phone-island">
+              <i className="simulation-phone-speaker" />
+              <i className="simulation-phone-sensor" />
+              <i className="simulation-phone-camera" />
+            </span>
+            <span className="simulation-phone-gesture-bar" />
           </div>
         )}
         <div className="simulation-viewport">{children}</div>
