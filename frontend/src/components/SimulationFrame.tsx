@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SimulationMode } from '../features/trip/types';
+import { DevicesIcon } from './Icons';
 
 type SimulationFrameProps = {
   mode: SimulationMode;
@@ -27,7 +28,8 @@ export function SimulationFrame({ mode, children, onToggleMode }: SimulationFram
             onClick={onToggleMode}
             title={isPhone ? 'Switch to wide cockpit view' : 'Switch to smartphone frame'}
           >
-            {isPhone ? '💻 Wide PC View' : '📱 Phone Frame'}
+            <DevicesIcon size={14} />
+            <span>{isPhone ? 'Wide PC View' : 'Phone Frame'}</span>
           </button>
         )}
       </div>

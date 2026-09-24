@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { BrandLogo, wayfarerLogoUrl } from '../../components/BrandLogo';
+import { BrandLogo } from '../../components/BrandLogo';
 import { ArrowRightIcon, ShieldCheckIcon, SparklesIcon, TargetIcon } from '../../components/Icons';
 import { StatusBadge } from '../../components/StatusBadge';
 import type { CountryCode, TripPlan } from './types';
@@ -51,7 +51,9 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
       (err) => {
         setLocationNotice(
           err.code === 1
-            ? 'Location permission was denied. Please select manually.'
+            ? 'Location permission was denied in browser.'
+            : err.code === 2
+            ? 'Device GPS is turned off. Please enable Location in phone settings.'
             : 'Unable to retrieve location. Please select manually.'
         );
         setLocating(false);
@@ -99,7 +101,6 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
               </h1>
               <p>Real-time traffic sign recognition, verified local rules, and audio driving guidance for overseas travelers.</p>
             </div>
-            <img className="setup-logo-art" src={wayfarerLogoUrl} alt="WayFarer emblem" />
           </div>
 
           <div className="journey-visual" aria-label="Selected route between countries">

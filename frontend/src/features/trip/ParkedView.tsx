@@ -71,7 +71,7 @@ export function ParkedView({
           className={`parked-tab-btn ${tab === 'inspector' ? 'active' : ''}`}
           onClick={() => setTab('inspector')}
         >
-          Sign Inspector & Q&A
+          Inspector & Q&A
         </button>
         <button
           type="button"
@@ -108,8 +108,8 @@ export function ParkedView({
                 />
               ) : (
                 <div className="empty-sign-box">
-                  <CameraIcon size={32} />
-                  <span>No Sign Selected</span>
+                  <CameraIcon size={30} />
+                  <span>No Sign</span>
                 </div>
               )}
             </div>

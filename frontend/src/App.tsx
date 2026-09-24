@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
-import { wayfarerLogoUrl } from './components/BrandLogo';
+import { wayfarerIconUrl } from './components/BrandLogo';
 import { SimulationFrame } from './components/SimulationFrame';
 import { getTripBriefing, speakBrowserText, useTripGuidance } from './features/guidance';
 import type { CountryCode, TripBriefing } from './features/guidance/types';
@@ -48,7 +48,7 @@ export default function App() {
     const favicon = existingIcon ?? document.createElement('link');
     favicon.rel = 'icon';
     favicon.type = 'image/png';
-    favicon.href = wayfarerLogoUrl;
+    favicon.href = wayfarerIconUrl;
     if (!existingIcon) document.head.appendChild(favicon);
   }, []);
 
