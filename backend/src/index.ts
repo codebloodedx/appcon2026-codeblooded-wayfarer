@@ -6,5 +6,5 @@ dotenv.config({ path: resolve(process.cwd(), '..', '.env') });
 
 const port = Number(process.env.PORT || 3001);
 app.listen(port, () => {
-  console.log(`RoamRight API listening on http://localhost:${port}`);
+  console.log(`WayFarer API listening on http://localhost:${port}`);
 });

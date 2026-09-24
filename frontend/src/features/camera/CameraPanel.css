@@ -1,0 +1,146 @@
+.rr-camera {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.rr-camera__stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #0c1014;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.rr-camera__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #0c1014;
+}
+.rr-camera__video--hidden {
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+
+.rr-camera__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rr-camera__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5484d;
+  box-shadow: 0 0 0 2px rgba(229, 72, 77, 0.25);
+  animation: rr-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes rr-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.rr-camera__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  color: #a8b3bd;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.03), transparent 70%);
+}
+.rr-camera__placeholder p {
+  margin: 0;
+  max-width: 34ch;
+}
+
+.rr-camera__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.rr-camera__btn {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: 10px;
+  border: 1px solid #4a5661;
+  background: rgba(255, 255, 255, 0.02);
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.rr-camera__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #6b7883;
+}
+.rr-camera__btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.rr-camera__btn--primary {
+  background: #1f6f5c;
+  border-color: #1f6f5c;
+  color: #fff;
+}
+.rr-camera__btn--primary:hover:not(:disabled) {
+  background: #257a65;
+  border-color: #257a65;
+}
+
+.rr-camera__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rr-camera__btn:focus-visible {
+  outline: 3px solid #f2b705;
+  outline-offset: 2px;
+}
+
+.rr-camera__file {
+  display: none;
+}
+
+.rr-camera__notice {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  background: rgba(242, 183, 5, 0.08);
+  border: 1px solid rgba(242, 183, 5, 0.25);
+  color: #e8c766;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-camera * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
