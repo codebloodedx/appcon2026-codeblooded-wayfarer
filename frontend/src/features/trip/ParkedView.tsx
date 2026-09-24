@@ -55,7 +55,6 @@ function signCard(rule: RuleRecord): GuidanceCard {
 export function ParkedView({ trip, navigationActive = false, onBack }: Props) {
   const [country, setCountry] = useState<CountryCode>(trip.destinationCountry);
   const [category, setCategory] = useState('All');
-  const [locality, setLocality] = useState('All');
   const [search, setSearch] = useState('');
   const [guidance, setGuidance] = useState<DrivingGuidanceRule[]>([]);
   const [signs, setSigns] = useState<RuleRecord[]>([]);
@@ -85,20 +84,17 @@ export function ParkedView({ trip, navigationActive = false, onBack }: Props) {
 
   const cards = useMemo(() => [...guidance.map(guidanceCard), ...signs.map(signCard)], [guidance, signs]);
   const categories = useMemo(() => ['All', ...Array.from(new Set(cards.map((item) => item.category))).sort()], [cards]);
-  const localities = useMemo(() => ['All', ...Array.from(new Set(cards.map((item) => item.locality))).sort()], [cards]);
   const filteredCards = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
     return cards.filter((item) => {
       if (category !== 'All' && item.category !== category) return false;
-      if (locality !== 'All' && item.locality !== locality) return false;
       return !query || `${item.title} ${item.summary} ${item.details ?? ''} ${item.category} ${item.locality}`.toLocaleLowerCase().includes(query);
     });
-  }, [cards, category, locality, search]);
+  }, [cards, category, search]);
 
   useEffect(() => {
     if (!categories.includes(category)) setCategory('All');
-    if (!localities.includes(locality)) setLocality('All');
-  }, [categories, category, localities, locality]);
+  }, [categories, category]);
 
   return (
     <section className="parked-view reviewed-guidance-view" aria-labelledby="reviewed-guidance-title">
@@ -111,7 +107,6 @@ export function ParkedView({ trip, navigationActive = false, onBack }: Props) {
 
       <div className="guidance-browser-controls" aria-label="Reviewed guidance filters">
         <label><span>Country</span><select value={country} onChange={(event) => setCountry(event.target.value as CountryCode)}><option value="JP">Japan</option><option value="PH">Philippines</option></select></label>
-        <label><span>Region or city</span><select value={locality} onChange={(event) => setLocality(event.target.value)}>{localities.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label className="guidance-search"><span>Search</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search local driving guidance…" /></label>
       </div>
 

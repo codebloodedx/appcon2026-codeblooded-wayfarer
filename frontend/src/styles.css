@@ -3164,7 +3164,7 @@ summary { -webkit-tap-highlight-color: transparent; }
 .reviewed-guidance-back { margin-bottom: 1.25rem; color: var(--wf-blue); font-size: .95rem; }
 .guidance-browser-controls {
   display: grid;
-  grid-template-columns: minmax(180px, .7fr) minmax(200px, .9fr) minmax(320px, 1.5fr);
+  grid-template-columns: minmax(180px, .7fr) minmax(320px, 1.5fr);
   gap: .9rem;
   margin-bottom: 1rem;
   padding: 1.1rem;
@@ -3364,7 +3364,7 @@ summary { -webkit-tap-highlight-color: transparent; }
   .briefing-list { grid-template-columns: 1fr; }
   .briefing-list li { min-height: 0; }
   .guidance-browser-controls { grid-template-columns: 1fr 1fr; }
-  .guidance-search { grid-column: 1 / -1; }
+  .guidance-search { grid-column: auto; }
   .guidance-library { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .supported-grid { grid-template-columns: 1fr; }
 }
