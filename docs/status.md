@@ -1,39 +1,29 @@
 # Current status
 
-**Last inspected:** 24 September 2026, Philippine time. **Active sprint:** RoamRight MVP. **Overall health:** At risk. Integration is in progress and the submission is 24 September 2026 at 6:00 PM Philippine time.
+**Last inspected:** 24 September 2026, Philippine time. **Active sprint:** WayFarer MVP. **Overall health:** Integrated locally; final demo gates remain. **Deadline:** 24 September 2026, 6:00 PM Philippine time.
 
 ## Verified facts
 
-- The public repository existed at `codebloodedx/appcon2026-team-01-temp-project-temp`, default branch `main`, initial commit `03c0c3c`, with README, `.gitignore`, and placeholder directories.
-- Issues [#1](https://github.com/codebloodedx/appcon2026-team-01-temp-project-temp/issues/1) through [#5](https://github.com/codebloodedx/appcon2026-team-01-temp-project-temp/issues/5) were revised and assigned to match the consolidated areas in [team roles](team-roles.md).
-- The local scaffold installed 177 npm packages with 0 reported audit vulnerabilities. `npm run check` and `npm run build` passed. Direct API and frontend-proxied `/api/health` returned `status: ok`; the app root returned HTTP 200. These are **local foundation checks**, not live-feature or merged-branch evidence.
-- GitHub ruleset `23887092` is active on `main`: only Ranee can update it through a PR bypass; it requires a PR, one approval and code owner review, dismisses stale approvals, resolves threads, requires the `build` check, and blocks deletion/force pushes. The effective branch rules were queried after setup. Organization/repository admins can still edit the ruleset; John, Gio and Bryan currently have repository admin access, and John is also an organization admin.
-- The [proposal document](https://docs.google.com/document/d/1jxH9OjBbI5yua4vMU1G2QFRlfLCkVng8gfCu-GXFwlk) was read. It describes the live camera/map concept but predates the later exact provider and sign choices.
-- Ranee requested integration of Ash's navigation, restricted-zone, proximity and rider-display suggestions. The proposal and interface contract now describe scoped route guidance and clearly labeled simulations. The features themselves remain **not verified**. Current official Makati hours/boundaries and the claimed universal footwear prohibition have not been established.
-- [Foundation PR #6](https://github.com/codebloodedx/appcon2026-team-01-temp-project-temp/pull/6) was merged at `cd86247`. Its CI `build` passed.
-- [Navigation-scope PR #7](https://github.com/codebloodedx/appcon2026-team-01-temp-project-temp/pull/7) was merged at `03a5991`. Interface contract version 2 is now on `main`.
-- Ranee's `mvp/ranee-guidance-map` branch originally implemented strict rule-backed Gemini recognition/explanation/speech APIs. A live setup check later reached Gemini but received an obsolete-model `404` for `gemini-2.5-flash` and depleted-prepay `402` for the replacement model. Ranee then approved migration to Groq-hosted Qwen for recognition/NLP and browser speech synthesis for approved alerts.
-- The current local branch replaces the Gemini SDK with `groq-sdk`, preserves strict tested-rule/country gating, changes `/api/speak` to return approved text for browser speech, and updates the frontend adapter and contract to version 3. All 5 backend tests, TypeScript checks, backend/frontend production builds and `git diff --check` pass locally.
-- A seven-day Groq key named `RoamRight MVP` is configured only in ignored local `.env` files. A live `qwen/qwen3.8-27b` NLP request returned the required exact response, and the actual `GroqGuidanceModel.recognize` path accepted a generated nonpersonal image and returned only an allowlisted-or-unknown result. This proves provider connectivity and contract handling, not accuracy on the team's physical signs.
-- The Google Maps browser key returned an HTTP 200 script for the allowed localhost referrer without invalid-key, referrer, disabled-API, or billing-disabled errors. A rendered route in the integrated UI remains unverified.
-- Ranee's branch implements a source-gated pre-trip briefing API and browser-speech adapter. It returns at most three tested reminders matched to country and exact locality; candidate or wrong-locality records are excluded. The six backend tests, TypeScript checks, and production builds pass locally. Reviewed briefing records and Gio's acknowledgment UI are not yet present, so the complete pre-trip experience remains unverified.
+- Foundation PR #6, navigation contract PR #7, and the original map/guidance PR #9 are merged on `main`.
+- The local `integration/wayfarer-mvp` branch combines PR #8 traveler UI, PR #10 candidate rule records/assets, PR #11 live camera/capture, and Ranee's Groq/Qwen, briefing, Maps, browser-speech, and integration work. The source PR branches each had a successful GitHub `build` check when fetched.
+- The product name is **WayFarer**. The browser title, UI, README, project context, and API service label use that name.
+- Trip setup now leads to a pre-trip briefing. The browser check loaded three source-reviewed Japan reminders, then required **I understand — begin trip** before rendering the active map/camera screen.
+- The active trip renders the map and live `CameraPanel` together. Camera frames call `/api/recognize`; parked capture/upload uses the same path. Candidate matches are displayed as candidates and remain silent. Only tested records can trigger `/api/speak` or grounded sign Q&A.
+- The parked view contains manual camera capture/upload, reviewed source detail, and a grounded NLP question form. The supported-sign view shows the actual prototype sign assets and candidate/tested state. Device previews remain labeled as interface previews.
+- The backend returns candidate classifications only for allowlisted same-country records. Invented and cross-country IDs remain unknown. Candidate IDs are rejected by `/api/explain` and `/api/speak`.
+- Three Japan pre-trip records are source-reviewed against JAF and marked tested for briefing use: keep left, no turn on red unless a green arrow permits the direction, and seatbelt/driver-attention reminders.
+- `npm install` added 204 packages with 0 reported vulnerabilities. All 7 backend tests, backend/frontend TypeScript checks, production builds, and `git diff --check` pass locally.
+- Live Groq/Qwen provider checks passed with the configured seven-day key: the grounded NLP probe returned the reviewed action, and the vision model identified a rendered Japan stop asset as `jp-stop`. The integrated `/api/recognize` returned `candidate` for that asset, preserving the no-advice gate.
+- Browser verification on `http://localhost:5174` confirmed meaningful setup, briefing, trip, supported-sign, and parked content with no Vite error overlay observed. Another local WayFarer checkout occupied ports 3001/5173, so this checkout was verified safely on backend 3002 and frontend 5174 through a configurable proxy.
 
-## In progress
+## Remaining gates
 
-- Ranee's backend and map/guidance integration package is being prepared for review from `mvp/ranee-guidance-map`.
+- `VITE_GOOGLE_MAPS_API_KEY` is blank in the integration `.env`. The UI correctly shows **Map unavailable: add a restricted Google Maps browser key**. A rendered route, ETA, and next-turn card are not verified in this checkout.
+- All three sign records remain `candidate`. The static provider/API test proves model connectivity and controlled recognition, but it is not the required physical live-camera acceptance test.
+- Browser camera permission remained pending in the automated in-app browser. A person must grant permission in Chrome/Edge, present a physical sign, and record the supported and unknown cases.
+- Because no sign is yet `tested`, the live sign alert and parked sign Q&A remain correctly gated. After acceptance, Ranee may change the successful record to `tested` and rerun speech/Q&A checks.
+- The integration branch is local. It has not been pushed, opened as a PR, merged to `main`, deployed, or submitted.
 
-## Not verified or not started
+## Gate recommendation
 
-- Member implementation/PRs and available hours: **Not verified**.
-- Source-checked sign/restriction/briefing records, real-sign Groq accuracy, rendered Maps route, combined camera/map UI, pre-trip acknowledgment UI, device previews, and real end-to-end demo: **Not verified**.
-- Deployed URL and final submission: **Not verified**.
-
-## Blockers and decisions
-
-| Item | Owner | Impact | Needed next |
-| --- | --- | --- | --- |
-| Admin access beyond Ranee | Ranee / organization owner | Other admins can edit the ruleset despite the active PR gate | Review access with the team; retain documented Ranee-only merge decision |
-| Real supported-sign evidence absent | John and Bryan, then Ranee | Provider connectivity is proven, but recognition accuracy cannot be claimed | Merge a reviewed rule/sign asset and camera package; record one physical supported sign and an unknown case |
-| Sign sources and live camera evidence absent | John and Bryan, then Ranee | Cannot claim supported signs | Source review and stationary recognition test |
-
-**Gate recommendation:** Do not call the MVP ready for submission until the member packages are integrated and the stationary supported/unknown/map/voice/source checks have recorded evidence. See [integration checklist](integration-checklist.md).
+Do not claim final submission readiness yet. Add the restricted Maps key, run one physical sign plus one unknown live-camera case, promote only the successful sign, verify alert speech and parked Q&A, then commit/push the integration branch through the repository's PR review rules.

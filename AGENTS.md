@@ -1,4 +1,4 @@
-# RoamRight project instructions
+# WayFarer project instructions
 
 - Ranee Mikaella Gutierrez is Project Manager and final decision-maker. A link alone is review only; do not infer permission to push, merge, close, publish or deploy.
 - Read `docs/project-context.md`, `docs/interface-contract.md`, `docs/team-roles.md`, and `docs/status.md` before substantive work. Use the repo-local `roamright-project-context` skill for routing and sync.

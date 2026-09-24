@@ -1,9 +1,9 @@
 ---
 name: roamright-project-context
-description: Verified repo-specific routing for RoamRight scope, ownership, interfaces, current status, and context sync. Use when planning, coding, reviewing, testing, or reporting this repository.
+description: Verified repo-specific routing for WayFarer scope, ownership, interfaces, current status, and context sync. Use when planning, coding, reviewing, testing, or reporting this repository.
 ---
 
-# RoamRight project context
+# WayFarer project context
 
 Read the focused reference needed for the task:
 

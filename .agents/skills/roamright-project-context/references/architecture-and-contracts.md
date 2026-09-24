@@ -5,4 +5,4 @@
 - Setup and verification commands: [`docs/how-to-run.md`](../../../../docs/how-to-run.md).
 - Contribution and merge rules: [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md).
 
-The active Ranee branch implements the map adapter, Groq/Qwen recognition and grounded NLP APIs, tested-rule validation, source-gated pre-trip briefing API, browser speech adapters, and focused tests. Camera, traveler UI, reviewed sign/briefing records, and the integrated journey remain separate member dependencies. Validate merged code and live evidence before treating any behavior as submission-ready.
+The local `integration/wayfarer-mvp` branch combines the traveler UI, camera, candidate rule assets, map adapter, Groq/Qwen recognition and grounded NLP APIs, candidate/tested safety gate, source-reviewed pre-trip briefing, browser speech, and focused tests. Physical live-camera acceptance, a configured Maps key, tested-rule speech/Q&A, PR review, and deployment remain separate gates.

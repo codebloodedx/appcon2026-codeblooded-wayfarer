@@ -68,10 +68,10 @@ In the Philippines preview, `avoidRestrictedZones` may display an alternate rout
 
 ## Guidance adapter and API (Ranee)
 
-- `GET /api/health` → `{ "status": "ok", "service": "roamright-api" }` (implemented foundation).
+- `GET /api/health` → `{ "status": "ok", "service": "wayfarer-api" }` (implemented foundation).
 - `GET /api/rules?countryCode=JP` → array of source-reviewed sign records for the country, including candidate/tested status.
 - `GET /api/briefing?countryCode=JP&locality=Tokyo` → a `ready` response with at most three tested, priority-ordered records and the exact approved `speechText`, or `{ "status": "unavailable", ... "items": [], "speechText": null }`. A locality-specific record is returned only for an exact case-insensitive locality match. Candidate records are never returned.
-- `POST /api/recognize` with `{ "countryCode": "JP", "imageDataUrl": "data:image/jpeg;base64,..." }` → `{ "status": "recognized", "signId": "jp-stop", "rule": { ...reviewedRecord } }` or `{ "status": "unknown", "signId": null, "rule": null }`. Send the resolved current country (or visibly labeled selected-country fallback), not an unrelated destination. Only known IDs from that country may be returned. No rule text is invented by the model.
+- `POST /api/recognize` with `{ "countryCode": "JP", "imageDataUrl": "data:image/jpeg;base64,..." }` → `recognized` for a tested record, `candidate` for a source-reviewed record still awaiting live acceptance, or `unknown`. Candidate results may be displayed as controlled recognition evidence but must remain silent and must not expose a driving instruction. Send the resolved current country (or visibly labeled selected-country fallback), not an unrelated destination. Only known IDs from that country may be returned. No rule text is invented by the model.
 - `POST /api/explain` with `{ "countryCode": "JP", "signId": "jp-stop", "question": "..." }` → `{ "answer": "...", "sourceUrl": "..." }`. The answer is constrained to the reviewed record; unsupported questions return an uncertainty response.
 - `POST /api/speak` with `{ "countryCode": "JP", "signId": "jp-stop" }` → `{ "text": "approved short alert", "engine": "browser-speech-synthesis" }`. The backend returns text only for a tested record in the selected country. The frontend passes that exact text to the browser `speechSynthesis` API and reports an unavailable state when the browser does not support it.
 

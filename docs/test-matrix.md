@@ -3,7 +3,7 @@
 **Owner:** John Asher Manit (`@99lash`)
 **Updated:** 2026-09-24
 
-All repository records currently have `candidate` status. In the normal API, `POST /api/recognize` must return `unknown` for them; `POST /api/explain` and `POST /api/speak` must reject their IDs. This is the expected safety gate. A local fixture with a candidate copied to `tested` may exercise Gemini mechanics, but that result is **not** acceptance evidence and must not be committed.
+All sign records currently have `candidate` status. `POST /api/recognize` may return a visibly labeled `candidate` result so the controlled vision path can be tested, but the UI must provide no driving instruction or spoken alert. `POST /api/explain` and `POST /api/speak` must reject candidate IDs. Promotion to `tested` still requires the physical live-camera evidence below; a static asset or provider smoke test is not acceptance evidence.
 
 | ID | Stationary input | Country | Expected after source review and live gate | Evidence to record |
 | --- | --- | --- | --- | --- |

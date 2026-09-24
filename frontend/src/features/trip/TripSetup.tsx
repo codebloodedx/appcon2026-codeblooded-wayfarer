@@ -85,7 +85,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
             <span><strong>Use {destinationCountryName} judging origin</strong><small>Simulated location · {trip.destinationCountry === 'JP' ? 'Tokyo Station' : 'Makati City'}</small></span>
           </label>
 
-          <button className="button button-primary full" type="submit">Open trip view <span aria-hidden="true">→</span></button>
+          <button className="button button-primary full" type="submit">Start trip briefing <span aria-hidden="true">→</span></button>
           <p className="privacy-note">Location and camera permissions are requested only when their integrated controls are available.</p>
         </form>
       </section>

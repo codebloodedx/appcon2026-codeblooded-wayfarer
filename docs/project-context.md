@@ -2,7 +2,7 @@
 
 ## Identity and user problem
 
-**RoamRight** is Team 01's AppCon 2026 MVP for **Cross-Border Driving Rules & Local Manners Assistant**. The intended user is a traveler driving in a country whose signs, rules, and road manners may differ from home. The prototype story is a Philippines-based traveler driving a route within Japan; the user is not driving across the sea between the two countries.
+**WayFarer** is Team 01's AppCon 2026 MVP for **Cross-Border Driving Rules & Local Manners Assistant**. The intended user is a traveler driving in a country whose signs, rules, and road manners may differ from home. The prototype story is a Philippines-based traveler driving a route within Japan; the user is not driving across the sea between the two countries.
 
 The product goal is to reduce unintentional violations and misunderstandings with location-appropriate, brief guidance. Safety takes priority over convenience. Unknown signs and missing/uncertain rule records must not produce invented instructions.
 
@@ -15,7 +15,7 @@ The product goal is to reduce unintentional violations and misunderstandings wit
 ## MVP scope
 
 1. User selects home and destination countries and a destination within the destination country.
-2. When the user selects **Start trip**, RoamRight first shows and speaks up to three source-reviewed, location-matched rules or etiquette reminders. The user acknowledges the briefing before the map and camera session starts. Local restrictions such as number coding are spoken only when their exact locality, conditions, schedule, exceptions, and current source are verified.
+2. When the user selects **Start trip**, WayFarer first shows and speaks up to three source-reviewed, location-matched rules or etiquette reminders. The user acknowledges the briefing before the map and camera session starts. Local restrictions such as number coding are spoken only when their exact locality, conditions, schedule, exceptions, and current source are verified.
 3. An interactive destination route (line, next-turn card, ETA) and live webcam/phone-camera view appear together during the stationary demonstration. A simulated origin is visibly labeled.
 4. Groq-hosted Qwen identifies only a small supported sign set from sampled **live** camera frames. The app checks the result against source-reviewed local rule records before showing or speaking a short alert.
 5. Qwen supplies rule-grounded language assistance. The browser reads the approved short alert with speech synthesis. Longer explanation, etiquette, source, and manual photo capture appear in parked mode.

@@ -1,4 +1,4 @@
-# How to run and check RoamRight
+# How to run and check WayFarer
 
 ## Prerequisites
 

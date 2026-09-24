@@ -74,7 +74,7 @@ function modelReturning(signId: string | null): GuidanceModel {
 
 const image = 'data:image/jpeg;base64,/9j/AA==';
 
-describe('RoamRight guidance API', () => {
+describe('WayFarer guidance API', () => {
   it('returns only tested country and locality-matched pre-trip reminders', async () => {
     const app = createApp({ rules, briefings, model: modelReturning(null) });
     const japan = await request(app).get('/api/briefing?countryCode=JP').expect(200);
@@ -106,14 +106,26 @@ describe('RoamRight guidance API', () => {
     assert.equal(response.body.rule.id, 'jp-stop');
   });
 
-  it('returns unknown when the model emits a candidate or invented ID', async () => {
-    for (const signId of ['jp-crossing', 'invented-sign']) {
-      const response = await request(createApp({ rules, model: modelReturning(signId) }))
-        .post('/api/recognize')
-        .send({ countryCode: 'JP', imageDataUrl: image })
-        .expect(200);
-      assert.deepEqual(response.body, { status: 'unknown', signId: null, rule: null });
-    }
+  it('returns a candidate classification without promoting it to driving guidance', async () => {
+    const response = await request(createApp({ rules, model: modelReturning('jp-crossing') }))
+      .post('/api/recognize')
+      .send({ countryCode: 'JP', imageDataUrl: image })
+      .expect(200);
+    assert.equal(response.body.status, 'candidate');
+    assert.equal(response.body.signId, 'jp-crossing');
+    assert.equal(response.body.rule.status, 'candidate');
+    await request(createApp({ rules, model: modelReturning('jp-crossing') }))
+      .post('/api/speak')
+      .send({ countryCode: 'JP', signId: 'jp-crossing' })
+      .expect(404);
+  });
+
+  it('returns unknown when the model emits an invented ID', async () => {
+    const response = await request(createApp({ rules, model: modelReturning('invented-sign') }))
+      .post('/api/recognize')
+      .send({ countryCode: 'JP', imageDataUrl: image })
+      .expect(200);
+    assert.deepEqual(response.body, { status: 'unknown', signId: null, rule: null });
   });
 
   it('does not use a rule from another country', async () => {

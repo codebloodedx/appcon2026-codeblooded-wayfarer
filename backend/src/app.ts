@@ -17,7 +17,7 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.use(express.json({ limit: '2mb' }));
 
   app.get('/api/health', (_request, response) => {
-    response.json({ status: 'ok', service: 'roamright-api' });
+    response.json({ status: 'ok', service: 'wayfarer-api' });
   });
 
   app.get('/api/rules', async (request, response, next) => {
@@ -56,10 +56,11 @@ export function createApp(dependencies: AppDependencies = {}) {
       if (!isCountryCode(countryCode)) return response.status(400).json({ error: 'countryCode must be JP or PH' });
       const image = parseImageDataUrl(imageDataUrl);
       if (!image) return response.status(400).json({ error: 'A JPEG, PNG, or WebP image up to 1.5 MB is required' });
-      const allowedRules = await rules.testedByCountry(countryCode);
+      const allowedRules = await rules.byCountry(countryCode);
       const signId = await model.recognize(image, countryCode, allowedRules);
       const rule = signId ? allowedRules.find((item) => item.id === signId) : undefined;
       if (!rule) return response.json({ status: 'unknown', signId: null, rule: null });
+      if (rule.status !== 'tested') return response.json({ status: 'candidate', signId: rule.id, rule });
       return response.json({ status: 'recognized', signId: rule.id, rule });
     } catch (error) {
       return next(error);
@@ -114,7 +115,7 @@ export function createApp(dependencies: AppDependencies = {}) {
     if (providerError.status === 429) {
       return response.status(503).json({ error: 'AI recognition is temporarily rate limited. Use the tested-sign demo fallback.' });
     }
-    console.error('RoamRight API error:', error.message);
+    console.error('WayFarer API error:', error.message);
     return response.status(502).json({ error: 'The guidance service is temporarily unavailable' });
   });
 

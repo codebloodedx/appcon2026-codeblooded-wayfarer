@@ -1,11 +1,11 @@
 # Project context routing
 
-- Project: RoamRight, AppCon 2026 Team 01.
+- Project: WayFarer, AppCon 2026 Team 01.
 - Problem: travelers may misapply familiar driving rules or misunderstand signs and manners abroad.
 - Focused MVP: Philippines-home traveler, route within Japan, a source-reviewed spoken pre-trip briefing, live camera and route map, a small tested sign set, Groq/Qwen recognition and NLP, browser speech, and parked detail mode. Scope additions include country detection/fallback and a labeled PH restricted-zone route demonstration; live proximity alerts and physical rider HUD remain future or simulated.
 - Deadline supplied by Ranee: 24 September 2026, 6:00 PM Philippine time.
 - Required and excluded scope, rubric, current source hierarchy: [`docs/project-context.md`](../../../../docs/project-context.md).
 - Assignments and exact editable areas: [`docs/team-roles.md`](../../../../docs/team-roles.md). Skills and hours are unverified in [`docs/skills.md`](../../../../docs/skills.md).
-- Current phase: MVP foundation and parallel work; see [`docs/status.md`](../../../../docs/status.md).
+- Current phase: local integration and final stationary evidence; see [`docs/status.md`](../../../../docs/status.md).
 
-Last bounded audit: foundation PR #6 and navigation-scope PR #7 are merged. Groq/Qwen, browser speech, Maps adapters, and the pre-trip briefing contract/API are local on Ranee's active branch. Do not infer complete UI or demo behavior from local modules, proposal text, or issue text.
+Last bounded audit: PR #8 UI, PR #10 rules/assets, PR #11 camera, and Ranee's AI/map/voice/briefing work are combined locally. Browser setup/briefing/trip/sign/parked views and live provider probes pass; real camera, rendered Maps route, tested sign speech/Q&A, PR merge, and deployment remain unverified.

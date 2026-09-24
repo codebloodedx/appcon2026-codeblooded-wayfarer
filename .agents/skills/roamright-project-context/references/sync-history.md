@@ -41,3 +41,11 @@ After the foundation is merged, record the merged commit and inspect material di
 - Safety boundary: candidate, wrong-country, and wrong-locality records are not returned. Missing data yields an unavailable state instead of model-generated legal guidance.
 - Evidence: six backend tests, backend/frontend TypeScript checks, and production builds pass locally.
 - Still unverified: John's real briefing records, Gio's briefing/acknowledgment interface, browser audio in the integrated journey, and submission evidence.
+
+## WayFarer local integration checkpoint
+
+- Trigger: Ranee confirmed the WayFarer product name and explicitly requested integration of the traveler UI, NLP, computer vision, camera, rules, and pre-trip briefing.
+- Combined locally: PR #8 traveler UI, PR #10 rule candidates/assets, PR #11 camera/capture, and Ranee's Groq/Qwen, Maps, voice, and briefing work on `integration/wayfarer-mvp`.
+- Runtime behavior: setup → three-item sourced briefing → acknowledgment → combined map/camera; live or parked frames call recognition; candidate matches are visible but silent; tested matches can unlock speech and parked grounded Q&A.
+- Evidence: 204 packages with zero reported audit vulnerabilities; seven backend tests, TypeScript checks, production builds, and diff check pass; live NLP and static Japan-stop vision pass; integrated API returns `candidate`; browser setup, briefing, active trip, signs, and parked views render.
+- Remaining: Maps key is blank in this checkout, real browser camera permission/physical sign evidence is absent, no sign is tested, and the branch is not pushed, reviewed, merged, deployed, or submitted.

@@ -373,3 +373,33 @@ p { line-height: 1.58; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+.briefing-page { min-height: 100vh; padding: clamp(1rem, 4vw, 4rem); background: radial-gradient(circle at top left, #e8f4ef 0, transparent 34%), var(--cream); }
+.briefing-card { width: min(980px, 100%); margin: 0 auto; padding: clamp(1.25rem, 4vw, 3rem); border: 1px solid var(--line); border-radius: 1.5rem; background: white; box-shadow: 0 24px 60px rgba(21, 42, 35, .12); }
+.briefing-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 2rem; }
+.briefing-heading h1 { max-width: 720px; margin: .4rem 0 .8rem; }
+.briefing-list { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; }
+.briefing-list li { padding: 1.15rem; border: 1px solid var(--line); border-radius: .9rem; background: #f8faf8; }
+.briefing-list li > div { display: flex; align-items: center; gap: .8rem; }
+.briefing-list li > div > span { display: grid; width: 2.1rem; height: 2.1rem; place-items: center; border-radius: 50%; background: var(--navy); color: white; font-size: .7rem; font-weight: 800; }
+.briefing-list h2, .briefing-list p { margin: 0; }
+.briefing-list p { margin: .7rem 0; color: var(--muted); }
+.briefing-actions { display: flex; justify-content: flex-end; gap: .7rem; margin-top: 1.5rem; }
+.camera-online { color: #a9f4ca; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.assistant-card { grid-column: span 2; }
+.assistant-card form { display: grid; gap: .75rem; }
+.assistant-card textarea { min-height: 110px; resize: vertical; padding: .85rem; border: 1px solid var(--line); border-radius: .65rem; font: inherit; }
+.assistant-card textarea:disabled { background: #eef1ef; color: var(--muted); }
+.assistant-answer { margin-top: 1rem; padding: 1rem; border-left: 4px solid var(--green); border-radius: .4rem; background: #edf7f1; }
+.assistant-answer p { margin: .35rem 0 0; }
+.sign-record-card { position: relative; display: grid; grid-template-columns: 88px 1fr; gap: 1rem; }
+.sign-record-card > img { width: 88px; height: 88px; object-fit: contain; }
+.sign-record-card > .status-badge { position: absolute; top: 1rem; right: 1rem; }
+
+@media (max-width: 780px) {
+  .briefing-heading { flex-direction: column; }
+  .briefing-actions { align-items: stretch; flex-direction: column; }
+  .assistant-card { grid-column: auto; }
+  .sign-record-card { grid-template-columns: 64px 1fr; }
+  .sign-record-card > img { width: 64px; height: 64px; }
+}

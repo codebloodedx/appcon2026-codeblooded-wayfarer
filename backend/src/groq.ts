@@ -53,7 +53,7 @@ export class GroqGuidanceModel implements GuidanceModel {
         {
           role: 'system',
           content: [
-            'You are the visual recognition component of RoamRight.',
+            'You are the visual recognition component of WayFarer.',
             'Identify only a clearly visible road sign from the supplied allowlist.',
             'The selected country is context, not evidence that a sign is present.',
             'When the image is unclear, unsupported, or ambiguous, return unknown.',

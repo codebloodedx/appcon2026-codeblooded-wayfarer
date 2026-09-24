@@ -1,0 +1,38 @@
+[
+  {
+    "id": "jp-keep-left",
+    "countryCode": "JP",
+    "category": "law",
+    "priority": 1,
+    "title": "Keep left",
+    "spokenText": "Drive on the left side of the road and stay attentive to pedestrians and other vehicles.",
+    "details": "Japan Automobile Federation guidance states that drivers and cyclists must keep to the left, while pedestrians should keep to the right side of the road.",
+    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
+  },
+  {
+    "id": "jp-red-signal-turns",
+    "countryCode": "JP",
+    "category": "law",
+    "priority": 2,
+    "title": "Do not turn on red",
+    "spokenText": "At a red signal, do not turn left or right unless a green arrow permits your direction.",
+    "details": "JAF explains that cars generally may not turn left or right on red. A green arrow can permit travel in its indicated direction even while the main signal is red.",
+    "sourceUrl": "https://english.jaf.or.jp/safe-driving/quiz/motorvehicles",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
+  },
+  {
+    "id": "jp-seatbelts-distraction",
+    "countryCode": "JP",
+    "category": "law",
+    "priority": 3,
+    "title": "Seatbelts and attention",
+    "spokenText": "Everyone must wear a seatbelt, and the driver must not use a phone or become distracted by navigation while moving.",
+    "details": "JAF lists seatbelt use for the driver and all passengers and prohibits phone use or distraction by the navigation system while driving.",
+    "sourceUrl": "https://english.jaf.or.jp/driving-in-japan/traffic-rules",
+    "reviewedOn": "2026-09-24",
+    "status": "tested"
+  }
+]

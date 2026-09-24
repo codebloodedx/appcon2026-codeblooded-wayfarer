@@ -11,7 +11,7 @@
 | `jp-railway` | The sign warns of a crossing ahead. At the crossing, stop and check unless traffic lights govern passage. | [JAF motor vehicle training, Crossing a Level Crossing](https://english.jaf.or.jp/safe-driving/quiz/motorvehicles) | The camera sees the advance warning sign, not the crossing or its signals. Do not claim proximity or issue an unconditional stop instruction. |
 | `ph-no-right-turn` | No right turn where this general prohibition sign applies. | [LTO Filipino Driver's Manual, Volume 1, Road Traffic Signs](https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf) | This symbol is distinct from the manual's separate “No Right Turn on Red Signal” sign. |
 
-The rule text in `shared/rules/rules.json` is a paraphrase of these sources. It is not a verbatim quotation of a statute. No fixed distance, penalty, or location-specific exception is inferred from an image. Gemini identifies a candidate sign but is never a rule source.
+The rule text in `shared/rules/rules.json` is a paraphrase of these sources. It is not a verbatim quotation of a statute. No fixed distance, penalty, or location-specific exception is inferred from an image. Groq-hosted Qwen identifies an allowlisted candidate sign but is never a rule source.
 
 ## Sign assets
 

@@ -15,6 +15,7 @@ export type RuleRecord = {
 
 export type RecognitionResult =
   | { status: 'recognized'; signId: string; rule: RuleRecord }
+  | { status: 'candidate'; signId: string; rule: RuleRecord }
   | { status: 'unknown'; signId: null; rule: null };
 
 export type BriefingRecord = {

@@ -22,13 +22,18 @@ export async function getTripBriefing(countryCode: CountryCode, locality?: strin
 export async function playTripBriefing(countryCode: CountryCode, locality?: string): Promise<TripBriefing> {
   const briefing = await getTripBriefing(countryCode, locality);
   if (briefing.status === 'unavailable') return briefing;
+  speakBrowserText(briefing.speechText, 0.92);
+  return briefing;
+}
+
+export function speakBrowserText(text: string, rate = 0.95): SpeechSynthesisUtterance {
   if (!('speechSynthesis' in window)) throw new Error('Spoken guidance is unavailable in this browser');
-  const utterance = new SpeechSynthesisUtterance(briefing.speechText);
+  const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
-  utterance.rate = 0.92;
+  utterance.rate = rate;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
-  return briefing;
+  return utterance;
 }
 
 export async function recognizeSign(countryCode: CountryCode, imageDataUrl: string): Promise<RecognitionResult> {
@@ -58,12 +63,6 @@ export async function playRuleAlert(countryCode: CountryCode, signId: string): P
     body: JSON.stringify({ countryCode, signId }),
   });
   if (!response.ok) throw await parseError(response);
-  if (!('speechSynthesis' in window)) throw new Error('Spoken guidance is unavailable in this browser');
   const body = await response.json() as { text: string; engine: 'browser-speech-synthesis' };
-  const utterance = new SpeechSynthesisUtterance(body.text);
-  utterance.lang = 'en-US';
-  utterance.rate = 0.95;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
-  return utterance;
+  return speakBrowserText(body.text);
 }

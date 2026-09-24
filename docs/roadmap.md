@@ -1,4 +1,4 @@
-# RoamRight delivery roadmap
+# WayFarer delivery roadmap
 
 The submission deadline is **24 September 2026 at 6:00 PM Philippine time**. This is one short MVP sprint with explicit gates rather than several speculative phases.
 
