@@ -1,4 +1,4 @@
-const logoUrl = new URL('./assets/wayfarer-logo.png', import.meta.url).href;
+const logoUrl = new URL('./assets/logo.png', import.meta.url).href;
 
 type BrandLogoProps = {
   className?: string;
