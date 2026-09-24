@@ -13,6 +13,7 @@ type Props = {
   candidateRule: RuleRecord | null;
   recognitionDebug: RecognitionDebug | null;
   guidanceError: string | null;
+  spokenGuidance: boolean;
   onCountryResolved: (country: CountryCode | null, source: 'gps' | 'selected' | 'simulated') => void;
   onRecognize: (imageDataUrl: string) => Promise<void>;
   onUpdateTrip: (trip: TripPlan) => void;
@@ -21,7 +22,7 @@ type Props = {
 };
 const names: Record<CountryCode, string> = { JP: 'Japan', PH: 'Philippines' };
 
-export function TripScreen({ trip, currentCountry, latestRule, candidateRule, recognitionDebug, guidanceError, onCountryResolved, onRecognize, onUpdateTrip, onEditTrip, onNavigationStateChange }: Props) {
+export function TripScreen({ trip, currentCountry, latestRule, candidateRule, recognitionDebug, guidanceError, spokenGuidance, onCountryResolved, onRecognize, onUpdateTrip, onEditTrip, onNavigationStateChange }: Props) {
   const [cameraExpanded, setCameraExpanded] = useState(true);
   const [routeEditorOpen, setRouteEditorOpen] = useState(false);
   const [destinationInput, setDestinationInput] = useState(trip.destination);
@@ -35,7 +36,7 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
   const detectedRule = latestRule ?? candidateRule;
   const showZonePreview = trip.destinationCountry === 'PH';
   const guidanceActive = navigationStatus === 'driving';
-  const announcerEnabled = guidanceActive || Boolean(detectedRule);
+  const announcerEnabled = spokenGuidance && (guidanceActive || Boolean(detectedRule));
   const { announce, status: announcementStatus } = useGuidanceAnnouncer(announcerEnabled);
   const lastAnnouncedRuleId = useRef<string | null>(null);
 
