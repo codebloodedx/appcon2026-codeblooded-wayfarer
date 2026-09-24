@@ -59,6 +59,11 @@ function etaFor(milliseconds: number) {
 function cleanInstruction(instruction: string | null) {
   return instruction?.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() || 'Continue on the highlighted route';
 }
+function routeFitPadding(): google.maps.Padding {
+  return window.matchMedia('(min-width: 1024px)').matches
+    ? { top: 84, right: 56, bottom: 164, left: 56 }
+    : { top: 104, right: 32, bottom: 218, left: 32 };
+}
 export function MapPanel({ countryCode, origin, originCoordinate, destination, destinationCoordinate, originSource, avoidRestrictedZones = false, onCountryResolved, onNavigationStatusChange, onGuidanceEvent, externalDrivingEvent = null }: MapPanelProps) {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -98,6 +103,8 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
   const [vehicleSpeed, setVehicleSpeed] = useState(0);
   const [motionState, setMotionState] = useState<VehicleMotionState>('STOPPED');
   const [signalPhase, setSignalPhase] = useState<SignalPhase>(null);
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [directionsOpen, setDirectionsOpen] = useState(false);
 
   useEffect(() => { statusCallbackRef.current = onNavigationStatusChange; }, [onNavigationStatusChange]);
   useEffect(() => { guidanceCallbackRef.current = onGuidanceEvent; }, [onGuidanceEvent]);
@@ -265,6 +272,8 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
       stopAnimation();
       routeInstanceRef.current += 1;
       resetMotion();
+      setSteps([]);
+      setDirectionsOpen(false);
       setNavigationStatus('loading');
       setMessage('Calculating a real driving route…');
       if (!origin.trim() || !destination.trim()) {
@@ -282,7 +291,7 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
           importLibrary('maps'), importLibrary('routes'), importLibrary('marker'),
         ]);
         if (cancelled || !mapElement.current) return;
-        mapRef.current ??= new Map(mapElement.current, { center: originCoordinate || { lat: countryCode === 'JP' ? 35.6812 : 14.6042, lng: countryCode === 'JP' ? 139.7671 : 120.9947 }, zoom: 13, mapId: 'DEMO_MAP_ID', disableDefaultUI: true, zoomControl: true, gestureHandling: 'greedy' });
+        mapRef.current ??= new Map(mapElement.current, { center: originCoordinate || { lat: countryCode === 'JP' ? 35.6812 : 14.6042, lng: countryCode === 'JP' ? 139.7671 : 120.9947 }, zoom: 13, mapId: 'DEMO_MAP_ID', disableDefaultUI: true, zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER }, gestureHandling: 'greedy' });
         const rerouteOrigin = reroutePoint && ['driving', 'paused'].includes(previousStatus)
           ? reroutePoint
           : originCoordinate || `${origin}, ${countryNames[countryCode]}`;
@@ -321,6 +330,7 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
           return { instruction, endDistance: Math.min(totalDistance, stepDistance), isTurn: /turn|merge|roundabout|ramp|fork|u-turn/i.test(instruction) };
         });
         if (!stepsRef.current.length) stepsRef.current = [{ instruction: 'Follow the highlighted route', endDistance: totalDistance, isTurn: false }];
+        setSteps(stepsRef.current);
         eventPlansRef.current = simulatedEvents[countryCode].map((item, index) => {
           const stopDuration = item.event === 'TRAFFIC_LIGHT' ? 5_000 : item.event === 'RAILROAD_CROSSING' ? 3_000 : item.event === 'PEDESTRIAN_CROSSING' ? 3_000 : 0;
           const targetSpeed = stopDuration ? 0 : item.event === 'INTERSECTION' ? 15 : 20;
@@ -347,7 +357,7 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
         vehicleArrowRef.current = arrow;
         vehicleMarkerRef.current = new AdvancedMarkerElement({ map: mapRef.current, position: routePath[0], title: 'Simulated vehicle', content: markerShell });
         routeBoundsRef.current = route.viewport || null;
-        if (route.viewport) mapRef.current.fitBounds(route.viewport, 54);
+        if (route.viewport) mapRef.current.fitBounds(route.viewport, routeFitPadding());
         currentPointRef.current = routePath[0];
         distanceRef.current = 0;
         const firstStep = stepsRef.current[0];
@@ -399,7 +409,7 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
     stopAnimation();
     resetMotion();
     updateProgress(0, true);
-    if (routeBoundsRef.current) mapRef.current?.fitBounds(routeBoundsRef.current, 54);
+    if (routeBoundsRef.current) mapRef.current?.fitBounds(routeBoundsRef.current, routeFitPadding());
     setNavigationStatus('preview');
   }
 
@@ -431,6 +441,23 @@ export function MapPanel({ countryCode, origin, originCoordinate, destination, d
             </div>
           </div>
         </>
+      )}
+      {steps.length > 0 && status !== 'loading' && status !== 'error' && (
+        <aside className={`navigation-directions ${directionsOpen ? 'open' : 'collapsed'}`}>
+          <button className="navigation-directions-toggle" type="button" onClick={() => setDirectionsOpen((open) => !open)} aria-expanded={directionsOpen}>
+            <span><small>Directions</small><strong>{steps.length} route steps</strong></span>
+            <b>{directionsOpen ? 'Hide' : 'View'}</b>
+          </button>
+          {directionsOpen && (
+            <ol>
+              {steps.map((step, index) => (
+                <li className={step.instruction === summary.nextInstruction ? 'active' : undefined} key={`${step.endDistance}-${index}`}>
+                  <span>{index + 1}</span><p>{step.instruction}</p><small>{formatDistance(step.endDistance)}</small>
+                </li>
+              ))}
+            </ol>
+          )}
+        </aside>
       )}
       {status === 'arrived' && (
         <div className="destination-reached-card"><span aria-hidden="true">✓</span><small>Destination reached</small><strong>Trip complete</strong><p>{formatDistance(summary.totalDistance)} simulated along the Google route.</p><div><button type="button" onClick={stop}>End Trip</button><button type="button" onClick={startDriving}>Restart Simulation</button></div></div>

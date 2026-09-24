@@ -1,59 +1,61 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
-import { BottomSheetDrawer } from './BottomSheetDrawer';
-import { DevicesIcon, MapIcon, ParkedIcon, SignsIcon } from './Icons';
+import { MapIcon, ParkedIcon, SettingsIcon, SignsIcon, TargetIcon } from './Icons';
 
 type AppShellProps = {
   activeView: AppView;
-  cockpit: ReactNode;
-  children?: ReactNode;
+  children: ReactNode;
   onChangeView: (view: AppView) => void;
 };
+
+export const appPaths: Record<AppView, string> = {
+  trip: '/trip',
+  navigation: '/navigation',
+  'reviewed-guidance': '/reviewed-guidance',
+  'sign-recognition': '/sign-recognition',
+  settings: '/settings',
+};
+
+export function appViewFromPath(pathname: string): AppView {
+  return (Object.entries(appPaths) as Array<[AppView, string]>).find(([, path]) => path === pathname)?.[0] ?? 'navigation';
+}
 
 const navItems: Array<{
   id: AppView;
   label: string;
   icon: (size?: number) => ReactNode;
-  parked?: boolean;
 }> = [
-  { id: 'trip', label: 'Map', icon: (size = 18) => <MapIcon size={size} /> },
-  { id: 'parked', label: 'Guidance', icon: (size = 18) => <ParkedIcon size={size} />, parked: true },
-  { id: 'signs', label: 'Signs', icon: (size = 18) => <SignsIcon size={size} />, parked: true },
-  { id: 'devices', label: 'Devices', icon: (size = 18) => <DevicesIcon size={size} />, parked: true },
+  { id: 'trip', label: 'Trip', icon: (size = 18) => <TargetIcon size={size} /> },
+  { id: 'navigation', label: 'Navigation', icon: (size = 18) => <MapIcon size={size} /> },
+  { id: 'reviewed-guidance', label: 'Reviewed Guidance', icon: (size = 18) => <ParkedIcon size={size} /> },
+  { id: 'sign-recognition', label: 'Signs', icon: (size = 18) => <SignsIcon size={size} /> },
+  { id: 'settings', label: 'Settings', icon: (size = 18) => <SettingsIcon size={size} /> },
 ];
 
-export function AppShell({ activeView, cockpit, children, onChangeView }: AppShellProps) {
-  const activeNavItem = navItems.find((item) => item.id === activeView);
+export function AppShell({ activeView, children, onChangeView }: AppShellProps) {
+  function navigate(event: MouseEvent<HTMLAnchorElement>, view: AppView) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    onChangeView(view);
+  }
 
   return (
-    <div className="app-shell google-maps-layout">
-      <main className="gmaps-main-viewport navigation-content">{cockpit}</main>
-
-      <BottomSheetDrawer
-        isOpen={activeView !== 'trip'}
-        onClose={() => onChangeView('trip')}
-        title={activeNavItem?.label ?? ''}
-        icon={activeNavItem?.icon(20)}
-      >
-        {activeView !== 'trip' && children}
-      </BottomSheetDrawer>
-
-      <nav className="gmaps-bottom-nav" aria-label="Main navigation">
+    <div className={`app-shell routed-app-shell page-${activeView}`}>
+      <main className="routed-page">{children}</main>
+      <nav className="gmaps-bottom-nav routed-bottom-nav" aria-label="Main navigation">
         {navItems.map((item) => {
           const isActive = activeView === item.id;
           return (
-            <button
+            <a
               key={item.id}
-              type="button"
               className={`gmaps-nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => onChangeView(item.id)}
+              href={appPaths[item.id]}
+              onClick={(event) => navigate(event, item.id)}
               aria-current={isActive ? 'page' : undefined}
-              title={item.id === 'parked' ? 'Reviewed Guidance' : item.label}
             >
               <span className="gmaps-nav-icon">{item.icon(20)}</span>
               <span className="gmaps-nav-label">{item.label}</span>
-              {item.parked && <span className="parked-pill-dot" title="Use while parked" />}
-            </button>
+            </a>
           );
         })}
       </nav>
