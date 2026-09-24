@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 433" width="100%" height="100%">
+  <!-- Japanese Stop Sign (止まれ / STOP) No. 330: Inverted red triangle -->
+  <polygon points="250,420 15,15 485,15" fill="#D32F2F" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"/>
+  <!-- Japanese Kanji '止まれ' -->
+  <text x="250" y="160" font-family="'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="76" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">止まれ</text>
+  <!-- English text 'STOP' -->
+  <text x="250" y="240" font-family="'Arial Black', 'Helvetica Neue', sans-serif" font-size="56" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">STOP</text>
+</svg>

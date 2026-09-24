@@ -1,0 +1,49 @@
+[
+  {
+    "id": "jp-stop",
+    "countryCode": "JP",
+    "label": "Stop (止まれ)",
+    "shortAlert": "Stop before the stop line, or before the intersection if there is no line.",
+    "explanation": "At a Japanese stop sign, stop before the stop line. If there is no stop line, stop just before the intersection. Check for pedestrians and cross traffic before proceeding.",
+    "conditions": [
+      "Stop before the stop line when one is present.",
+      "If there is no stop line, stop just before the intersection.",
+      "Check that proceeding is safe."
+    ],
+    "exceptions": [],
+    "sourceUrl": "https://english.jaf.or.jp/safe-driving/quiz/motorvehicles",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  },
+  {
+    "id": "jp-railway",
+    "countryCode": "JP",
+    "label": "Railway crossing ahead (踏切あり)",
+    "shortAlert": "Railway crossing ahead. Check the crossing and follow its signals.",
+    "explanation": "This is an advance warning of a level crossing, not a statement that the vehicle is already at the tracks. Before crossing, stop before the crossing or its stop line and check both directions with eyes and ears. If the crossing has traffic lights, proceed in accordance with those lights.",
+    "conditions": [
+      "The sign warns of a level crossing ahead.",
+      "At a crossing without traffic lights, stop before crossing and check that it is safe."
+    ],
+    "exceptions": [
+      "At a crossing equipped with traffic lights, follow the lights."
+    ],
+    "sourceUrl": "https://english.jaf.or.jp/safe-driving/quiz/motorvehicles",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  },
+  {
+    "id": "ph-no-right-turn",
+    "countryCode": "PH",
+    "label": "No right turn",
+    "shortAlert": "No right turn at this sign.",
+    "explanation": "The Philippine LTO driver manual identifies this prohibition sign as NO RIGHT TURN. Vehicles must not turn right where it applies. This is a general turn prohibition; a separate NO RIGHT TURN ON RED SIGNAL sign applies specifically during a red signal.",
+    "conditions": [
+      "Applies where the No Right Turn sign is posted."
+    ],
+    "exceptions": [],
+    "sourceUrl": "https://lto.gov.ph/wp-content/uploads/2023/10/FDM-Vol.-1-2nd-Edition.pdf",
+    "reviewedOn": "2026-09-24",
+    "status": "candidate"
+  }
+]
