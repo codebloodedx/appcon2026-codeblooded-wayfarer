@@ -188,7 +188,13 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
 
         <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
           <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
-            <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
+            <span>
+              <i />
+              <strong>Road Sign Camera</strong>
+              <span className="camera-info-dot" aria-hidden="true">i</span>
+              <span className="camera-info-copy">Camera-off preview: the sample box shows where a supported sign would be marked. Start the camera for live scanning; unclear signs stay silent.</span>
+              <small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small>
+            </span>
             <b>{cameraExpanded ? '▾ Minimize' : '▴ Expand'}</b>
           </button>
           <div className="camera-pip-body">
