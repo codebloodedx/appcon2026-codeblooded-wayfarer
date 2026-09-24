@@ -1,6 +1,6 @@
 import type { MouseEvent, ReactNode } from 'react';
 import type { AppView } from '../features/trip/types';
-import { MapIcon, ParkedIcon, SettingsIcon, SignsIcon, TargetIcon } from './Icons';
+import { MapIcon, ParkedIcon, SettingsIcon, SignsIcon } from './Icons';
 
 type AppShellProps = {
   activeView: AppView;
@@ -25,7 +25,6 @@ const navItems: Array<{
   label: string;
   icon: (size?: number) => ReactNode;
 }> = [
-  { id: 'trip', label: 'Trip', icon: (size = 18) => <TargetIcon size={size} /> },
   { id: 'navigation', label: 'Navigation', icon: (size = 18) => <MapIcon size={size} /> },
   { id: 'reviewed-guidance', label: 'Reviewed Guidance', icon: (size = 18) => <ParkedIcon size={size} /> },
   { id: 'sign-recognition', label: 'Signs', icon: (size = 18) => <SignsIcon size={size} /> },
