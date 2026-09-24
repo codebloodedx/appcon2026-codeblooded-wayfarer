@@ -37,7 +37,19 @@ export function emptyRecognition(): ModelRecognition {
 
 export function parseBoundingBox(value: unknown): [number, number, number, number] | null {
   if (!Array.isArray(value) || value.length !== 4 || !value.every((point) => typeof point === 'number' && Number.isFinite(point))) return null;
-  const scale = value.some((point) => point > 1) && value.every((point) => point >= 0 && point <= 1000) ? 1000 : 1;
-  const points = value.map((point) => score(point / scale));
+  if (value.some((point) => point < 0)) return null;
+  const scale = value.every((point) => point <= 1)
+    ? 1
+    : value.every((point) => point <= 1000)
+      ? 1000
+      : null;
+  if (!scale) return null;
+  const points = value.map((point) => point / scale);
   return points[0] < points[2] && points[1] < points[3] ? points as [number, number, number, number] : null;
+}
+
+/** Convert Gemini's documented [yMin, xMin, yMax, xMax] box to the UI's [xMin, yMin, xMax, yMax]. */
+export function parseGeminiBoundingBox(value: unknown): [number, number, number, number] | null {
+  const box = parseBoundingBox(value);
+  return box ? [box[1], box[0], box[3], box[2]] : null;
 }

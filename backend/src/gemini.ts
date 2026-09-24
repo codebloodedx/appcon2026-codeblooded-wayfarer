@@ -2,7 +2,7 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import type { ParsedImage } from './image.js';
 import {
   emptyRecognition,
-  parseBoundingBox,
+  parseGeminiBoundingBox,
   parseEvidence,
   recognitionThreshold,
   score,
@@ -24,6 +24,54 @@ type RecognitionPayload = {
 };
 
 const unknownAnswer = 'The reviewed source does not answer that question.';
+
+function nullableEnum(values: string[]) {
+  return { anyOf: [{ type: 'string', enum: values }, { type: 'null' }] };
+}
+
+function recognitionSchema(catalog: RuleRecord[]) {
+  return {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      detectedCountry: nullableEnum(['JP', 'PH']),
+      detectedSign: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      modelClass: nullableEnum([...new Set(catalog.map((rule) => rule.modelClass))]),
+      normalizedCategory: nullableEnum([...new Set(catalog.map((rule) => rule.normalizedCategory))]),
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      closestReferenceId: nullableEnum([...new Set(catalog.map((rule) => rule.id))]),
+      visualSimilarity: { type: 'number', minimum: 0, maximum: 1 },
+      semanticSimilarity: { type: 'number', minimum: 0, maximum: 1 },
+      bbox: {
+        anyOf: [
+          {
+            type: 'array',
+            description: 'Tight sign-face box as [yMin, xMin, yMax, xMax], normalized to integer coordinates from 0 to 1000.',
+            items: { type: 'integer', minimum: 0, maximum: 1000 },
+            minItems: 4,
+            maxItems: 4,
+          },
+          { type: 'null' },
+        ],
+      },
+      evidence: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          shape: { type: 'string' },
+          symbol: { type: 'string' },
+          text: { type: 'string' },
+          color: { type: 'string' },
+        },
+        required: ['shape', 'symbol', 'text', 'color'],
+      },
+    },
+    required: [
+      'detectedCountry', 'detectedSign', 'modelClass', 'normalizedCategory', 'confidence',
+      'closestReferenceId', 'visualSimilarity', 'semanticSimilarity', 'bbox', 'evidence',
+    ],
+  };
+}
 
 function requireProject(): string {
   const project = process.env.GOOGLE_CLOUD_PROJECT?.trim();
@@ -106,14 +154,16 @@ export class GeminiGuidanceModel implements GuidanceModel {
           'Return null values when the sign is unclear, unsupported, or ambiguous. Never invent a category or reference ID.',
           'visualSimilarity measures design resemblance; semanticSimilarity measures meaning/category agreement.',
           'Search the whole photo, including signs shown on paper or another screen during a stationary prototype demo.',
-          'Return bbox as [xMin,yMin,xMax,yMax], each normalized from 0 to 1, tightly around only the visible sign face.',
+          'Return bbox as [yMin,xMin,yMax,xMax], using integer coordinates normalized from 0 to 1000, tightly around only the visible sign face.',
           'Do not return the whole image as the bbox unless the sign face truly fills almost the entire image.',
           'Return one flat JSON object only. Do not nest fields inside detectedSign.',
+          'For an unclear or unsupported sign, return null for detectedCountry, detectedSign, modelClass, normalizedCategory, closestReferenceId, and bbox; use zero scores and empty evidence strings.',
           'The flat keys are detectedCountry (JP, PH, or null), detectedSign (a short string or null), modelClass, normalizedCategory, confidence, closestReferenceId, visualSimilarity, semanticSimilarity, bbox, and evidence {shape,symbol,text,color}. Scores are 0 to 1.',
         ].join(' '),
         maxOutputTokens: 800,
         thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
         responseMimeType: 'application/json',
+        responseJsonSchema: recognitionSchema(catalog),
       },
     });
 
@@ -141,7 +191,7 @@ export class GeminiGuidanceModel implements GuidanceModel {
       visualSimilarity: score(parsed.visualSimilarity),
       semanticSimilarity: score(parsed.semanticSimilarity),
       evidence: parseEvidence(parsed.evidence),
-      bbox: parseBoundingBox(parsed.bbox),
+      bbox: parseGeminiBoundingBox(parsed.bbox),
     };
     return result.confidence >= recognitionThreshold && result.normalizedCategory && result.modelClass ? result : unknown;
   }
