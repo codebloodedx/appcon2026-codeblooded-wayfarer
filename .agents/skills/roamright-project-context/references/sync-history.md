@@ -71,6 +71,15 @@ After the foundation is merged, record the merged commit and inspect material di
 - Safety fixes: removed the duplicate older guidance hook, kept country-specific sources, restricted service-worker registration to production, and made navigation documents network-first to prevent stale local UI.
 - Evidence: 26 tests, TypeScript checks, production build, diff check, phone and desktop setup renders, bottom-sheet guidance, and an active Tokyo route at 50 km/h passed locally.
 - State: committed locally on `integration/pr15-ui`; not pushed or merged to `main`. Physical-camera and trained-model evidence remain open.
+
+## 2026-09-24 - Repository-wide PR integration audit
+
+- Already present: merged PRs #6, #7, #8, #9, #10, #11, and #13 are verified ancestors of the integration branch.
+- Added: PR #14's reusable render error boundary and PR #16's one-screen landing plus transparent brand symbol.
+- Retained over PR #16: the newer Trip Setup with From/To Places suggestions, explicit origin state, GPS fallback, judging origin, and route coordinates.
+- Corrected: PR #16's `JSX.Element` compile failure now uses `ReactElement`.
+- Reference only: PR #12 says not to merge. Its accepted map-first, PiP, HUD, bottom-nav, and bottom-sheet patterns are represented by the PR #15 integration.
+- State: all applicable PR work is represented locally on `integration/pr15-ui`; no push or merge to `main` has occurred.
 - Evidence: ten automated tests, TypeScript checks, production build, and diff check pass. Browser checks covered National University Manila to SM Mall of Asia, mid-drive reroute to Rizal Park, and Tokyo Station to Shibuya through arrival and restart.
 - Boundary: Google supplies the route path and current traffic estimate; marker travel and elapsed trip are accelerated stationary simulations. Browser camera permission and physical sign recognition remain manual acceptance gates.
 
