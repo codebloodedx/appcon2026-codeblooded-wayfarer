@@ -52,6 +52,6 @@ The model result is considered classifiable at confidence `0.55` or greater. A r
 
 ## Safety boundary
 
-Recognition evidence and source-reviewed driving guidance remain separate. Candidate classifications can appear in the parked test lab, but cannot call `/api/speak` or `/api/explain`. Only a record promoted to `tested` after live positive and negative evidence can produce spoken guidance.
+Recognition evidence and source-reviewed driving guidance remain separate. Candidate classifications and semantic debug data appear directly under the live camera and in the parked test lab, but cannot call `/api/speak` or `/api/explain`. Only a record promoted to `tested` after live positive and negative evidence can produce spoken guidance.
 
 The expanded catalog is useful for model evaluation, not proof of reliable on-road operation. Whole-frame inspection may miss small signs in cluttered scenes; a production system should add an object detector/crop stage, collect licensed real-world images, calibrate by category, and measure confusion and false-positive rates.

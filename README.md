@@ -18,11 +18,11 @@ On macOS/Linux, use `cp .env.example .env`. Open the local frontend URL printed 
 
 ## Test semantic sign recognition
 
-1. Start the app with `npm run dev`, choose **PC simulation**, complete the pre-trip briefing, then open **Recognition lab**.
-2. Run an individual matrix row. The trace shows detected country/sign, normalized category, meaning, confidence, closest reference, visual and semantic similarity, match type, model evidence, and the equivalent sign in the other country.
-3. Choose an image variation and rerun the row. The lab can alter angle, lighting, color, crop, obstruction, size, and background without sending the fixture filename or expected label to the model.
-4. Use the Japan ↔ Philippines buttons to verify that different designs return `SEMANTIC_MATCH` when their normalized meanings agree.
-5. Upload a JPEG, PNG, WebP, or SVG for an arbitrary parked test. Newly expanded records remain candidates and therefore never trigger spoken driving guidance.
+1. Start the app with `npm run dev`, choose **PC simulation**, complete the pre-trip briefing, and press **Start camera** in the Trip view.
+2. Use the **Live camera test set** below the map/camera. Open a fixture on a second screen or print it, then hold it in front of the live camera while stationary.
+3. The live camera card updates with detected sign, normalized category, country, confidence, semantic similarity, match type, equivalent sign, and the strongest visual/OCR evidence. Frames are sampled every 2.5 seconds.
+4. Edit the trip destination to switch between the Japan and Philippines live test sets. The camera country context and reviewed records change together.
+5. Use the separate **Recognition lab** for controlled image variations and pair comparison. It can alter angle, lighting, color, crop, obstruction, size, and background without sending the fixture filename or expected label to the model.
 
 See [recognition architecture](docs/recognition-architecture.md) for the audit, thresholds, and safety boundary, and [test matrix](docs/test-matrix.md) for the 5 + 5 country-specific cases and 6 equivalent pairs.
 

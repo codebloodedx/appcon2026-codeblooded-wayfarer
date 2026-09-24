@@ -3,7 +3,7 @@ import { AppShell } from './components/AppShell';
 import { SimulationFrame } from './components/SimulationFrame';
 import { wayfarerLogoUrl } from './components/BrandLogo';
 import { getTripBriefing, playRuleAlert, recognizeSign, speakBrowserText } from './features/guidance';
-import type { CountryCode, RuleRecord, TripBriefing } from './features/guidance/types';
+import type { CountryCode, RecognitionDebug, RuleRecord, TripBriefing } from './features/guidance/types';
 import { DevicePreviews } from './features/trip/DevicePreviews';
 import { LandingPage } from './features/trip/LandingPage';
 import { ParkedView } from './features/trip/ParkedView';
@@ -33,6 +33,7 @@ export default function App() {
   const [locationSource, setLocationSource] = useState<'gps' | 'selected' | 'simulated'>('selected');
   const [latestRule, setLatestRule] = useState<RuleRecord | null>(null);
   const [candidateRule, setCandidateRule] = useState<RuleRecord | null>(null);
+  const [recognitionDebug, setRecognitionDebug] = useState<RecognitionDebug | null>(null);
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
   const [audioStatus, setAudioStatus] = useState('Not played');
   const lastSpokenSign = useRef<string | null>(null);
@@ -90,6 +91,7 @@ export default function App() {
     setGuidanceError(null);
     try {
       const result = await recognizeSign(countryCode, imageDataUrl);
+      setRecognitionDebug(result.debug);
       if (result.status === 'recognized') {
         setLatestRule(result.rule);
         setCandidateRule(null);
@@ -118,6 +120,7 @@ export default function App() {
       setAudioStatus('Unknown · silent');
       lastSpokenSign.current = null;
     } catch (error) {
+      setRecognitionDebug(null);
       setGuidanceError(error instanceof Error ? error.message : 'Sign recognition is unavailable.');
       setAudioStatus('Recognition error');
     }
@@ -129,6 +132,7 @@ export default function App() {
     setPendingTrip(null);
     setLatestRule(null);
     setCandidateRule(null);
+    setRecognitionDebug(null);
     setGuidanceError(null);
     setAudioStatus('Not played');
     lastSpokenSign.current = null;
@@ -159,7 +163,7 @@ export default function App() {
   return (
     <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
       <AppShell activeView={view} trip={trip} onChangeView={setView} onEditTrip={editTrip}>
-        {view === 'trip' && <TripScreen trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} audioStatus={audioStatus} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onPark={() => setView('parked')} />}
+        {view === 'trip' && <TripScreen trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} audioStatus={audioStatus} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onPark={() => setView('parked')} />}
         {view === 'parked' && <ParkedView trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} onCapture={(frame) => void handleRecognition(frame, false)} />}
         {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
         {view === 'lab' && <RecognitionLab />}

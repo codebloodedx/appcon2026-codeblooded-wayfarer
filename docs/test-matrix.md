@@ -59,4 +59,4 @@ The lab applies these transformations to a rasterized image before upload. The m
 | Related but different restriction | `RELATED`, no successful semantic match, no audio |
 | Candidate result | Visible candidate data, `/api/speak` and `/api/explain` reject it |
 
-The executable catalog is `shared/rules/recognition-tests.json`. The parked **Recognition lab** screen renders the requested columns: Input, Expected Category, Predicted Category, Country, Confidence, Semantic Match, and Result.
+The executable catalog is `shared/rules/recognition-tests.json`. The active Trip view exposes the current country's fixtures under **Live camera test set** and shows semantic debug output after every sampled live frame. The parked **Recognition lab** remains available for controlled variation and pair tests and renders the requested columns: Input, Expected Category, Predicted Category, Country, Confidence, Semantic Match, and Result.
