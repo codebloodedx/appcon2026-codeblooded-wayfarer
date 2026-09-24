@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppShell } from './components/AppShell';
-import { SimulationFrame } from './components/SimulationFrame';
 import { wayfarerLogoUrl } from './components/BrandLogo';
+import { SimulationFrame } from './components/SimulationFrame';
 import { getTripBriefing, playRuleAlert, recognizeSign, speakBrowserText } from './features/guidance';
 import type { CountryCode, RecognitionDebug, RuleRecord, TripBriefing } from './features/guidance/types';
 import { DevicePreviews } from './features/trip/DevicePreviews';
-import { LandingPage } from './features/trip/LandingPage';
 import { ParkedView } from './features/trip/ParkedView';
 import { PreTripBriefing } from './features/trip/PreTripBriefing';
 import { SupportedSignsView } from './features/trip/SupportedSignsView';
@@ -21,7 +20,7 @@ const DEFAULT_TRIP: TripPlan = {
 };
 
 export default function App() {
-  const [simulationMode, setSimulationMode] = useState<SimulationMode | null>(null);
+  const [simulationMode, setSimulationMode] = useState<SimulationMode>('phone');
   const [trip, setTrip] = useState<TripPlan | null>(null);
   const [pendingTrip, setPendingTrip] = useState<TripPlan | null>(null);
   const [briefing, setBriefing] = useState<TripBriefing | null>(null);
@@ -137,33 +136,81 @@ export default function App() {
     lastSpokenSign.current = null;
   }
 
-  function changeSimulationMode() {
-    window.speechSynthesis?.cancel();
-    setSimulationMode(null);
+  function toggleSimulationMode() {
+    setSimulationMode((prev) => (prev === 'phone' ? 'desktop' : 'phone'));
   }
 
-  if (!simulationMode) return <LandingPage onSelect={setSimulationMode} />;
+  function handleUpdateTrip(updatedTrip: TripPlan) {
+    setTrip(updatedTrip);
+    setCurrentCountry(updatedTrip.destinationCountry);
+    setLocationSource(updatedTrip.useSimulatedOrigin ? 'simulated' : 'selected');
+  }
 
+  // Pre-Trip Safety Briefing Screen
   if (!trip && pendingTrip) {
     return (
-      <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
-        <PreTripBriefing trip={pendingTrip} briefing={briefing} loading={briefingLoading} error={briefingError} onBack={() => { setPendingTrip(null); setBriefing(null); setBriefingError(null); }} onContinue={confirmTrip} />
+      <SimulationFrame mode={simulationMode} onToggleMode={toggleSimulationMode}>
+        <PreTripBriefing
+          trip={pendingTrip}
+          briefing={briefing}
+          loading={briefingLoading}
+          error={briefingError}
+          onBack={() => {
+            setPendingTrip(null);
+            setBriefing(null);
+            setBriefingError(null);
+          }}
+          onContinue={confirmTrip}
+        />
       </SimulationFrame>
     );
   }
+
+  // Initial Direct Landing Page / Trip Setup
   if (!trip) {
     return (
-      <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
+      <SimulationFrame mode={simulationMode} onToggleMode={toggleSimulationMode}>
         <TripSetup initialTrip={DEFAULT_TRIP} onStart={(plan) => void startTrip(plan)} />
       </SimulationFrame>
     );
   }
 
+  // Active Google Maps Driving Cockpit & Overlays
   return (
-    <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
-      <AppShell activeView={view} trip={trip} onChangeView={setView} onEditTrip={editTrip}>
-        {view === 'trip' && <TripScreen trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} audioStatus={audioStatus} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onPark={() => setView('parked')} />}
-        {view === 'parked' && <ParkedView trip={trip} currentCountry={currentCountry} locationSource={locationSource} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} onCapture={(frame) => void handleRecognition(frame, false)} />}
+    <SimulationFrame mode={simulationMode} onToggleMode={toggleSimulationMode}>
+      <AppShell
+        activeView={view}
+        trip={trip}
+        onChangeView={setView}
+        onEditTrip={editTrip}
+        onUpdateTrip={handleUpdateTrip}
+        cockpit={
+          <TripScreen
+            trip={trip}
+            currentCountry={currentCountry}
+            locationSource={locationSource}
+            latestRule={latestRule}
+            candidateRule={candidateRule}
+            recognitionDebug={recognitionDebug}
+            guidanceError={guidanceError}
+            audioStatus={audioStatus}
+            onCountryResolved={onCountryResolved}
+            onRecognize={(frame) => handleRecognition(frame, true)}
+            onPark={() => setView('parked')}
+          />
+        }
+      >
+        {view === 'parked' && (
+          <ParkedView
+            trip={trip}
+            currentCountry={currentCountry}
+            locationSource={locationSource}
+            latestRule={latestRule}
+            candidateRule={candidateRule}
+            guidanceError={guidanceError}
+            onCapture={(frame) => void handleRecognition(frame, false)}
+          />
+        )}
         {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
         {view === 'devices' && <DevicePreviews trip={trip} />}
       </AppShell>

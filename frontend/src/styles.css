@@ -542,3 +542,1436 @@ p { line-height: 1.58; }
   .sign-record-card { grid-template-columns: 64px 1fr; }
   .sign-record-card > img { width: 64px; height: 64px; }
 }
+
+/* ==========================================================================
+   WAYFARER MODERN AUTOMOTIVE UX (100dvh MAP, FLOATING HUD, BOTTOM DRAWERS)
+   ========================================================================== */
+
+/* 1. Google Maps Mobile Shell & Layout */
+.app-shell.google-maps-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #03102b;
+}
+
+.gmaps-main-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Top Floating Search Bar */
+.gmaps-search-bar {
+  position: absolute;
+  top: clamp(0.75rem, 2vh, 1.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 1.5rem));
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.gmaps-search-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(3, 16, 43, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  color: white;
+}
+
+.gmaps-search-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.gmaps-search-logo {
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.gmaps-search-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.gmaps-country-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.country-code-pill {
+  color: #94a3b8;
+}
+
+.country-code-pill.highlight {
+  color: #53ea82;
+}
+
+.route-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.7rem;
+}
+
+.gmaps-search-query {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gmaps-search-query strong {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffffff;
+}
+
+.demo-badge-indicator {
+  color: #53ea82;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.gmaps-search-icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  color: #cbd5e1;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.gmaps-search-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+}
+
+/* Inline Destination Dropdown */
+.gmaps-search-dropdown {
+  margin-top: 0.5rem;
+  padding: 0.85rem;
+  border-radius: 1rem;
+  background: #03102b;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  animation: fadeIn 0.18s ease;
+}
+
+.gmaps-dropdown-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gmaps-dropdown-input-row input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  font-size: 0.82rem;
+}
+
+.gmaps-dropdown-presets {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.gmaps-dropdown-presets small {
+  color: #94a3b8;
+  font-size: 0.68rem;
+}
+
+.gmaps-dropdown-presets button {
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.gmaps-dropdown-presets button.text-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  text-decoration: underline;
+}
+
+/* Fixed Bottom Navigation */
+.gmaps-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(3, 16, 43, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 90;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.gmaps-nav-item {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.gmaps-nav-item:hover, .gmaps-nav-item.active {
+  color: #53ea82;
+}
+
+.gmaps-nav-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.parked-pill-dot {
+  position: absolute;
+  top: 10px;
+  right: 28%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #53ea82;
+}
+
+/* 2. 100dvh Google Map Fullscreen Container */
+.trip-viewport-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.trip-map-fullscreen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.trip-map-fullscreen .map-panel {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-map-fullscreen .map-panel__canvas {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  border-radius: 0;
+}
+
+.trip-map-fullscreen .map-panel__header {
+  position: absolute;
+  bottom: 84px;
+  left: 1rem;
+  z-index: 10;
+  background: rgba(3, 16, 43, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  border-radius: 0.8rem;
+  padding: 0.5rem 0.85rem;
+  color: white;
+  max-width: calc(100% - 2rem);
+}
+
+.trip-map-fullscreen .map-panel__header strong {
+  font-size: 0.75rem;
+  color: #53ea82;
+}
+
+.trip-map-fullscreen .map-panel__header p {
+  font-size: 0.68rem;
+  color: #cbd5e1;
+  margin: 0.15rem 0 0;
+}
+
+.trip-map-fullscreen .map-panel__route {
+  position: absolute;
+  top: clamp(68px, 10vh, 82px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(3, 16, 43, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  display: flex;
+  gap: 0.9rem;
+  font-size: 0.72rem;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.trip-map-fullscreen .map-panel__route strong {
+  color: #53ea82;
+  margin-right: 0.25rem;
+}
+
+/* 3. Floating Eye-Level HUD Sign Alert */
+.floating-hud-overlay {
+  position: absolute;
+  top: clamp(86px, 13vh, 104px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 1.5rem));
+  z-index: 80;
+  pointer-events: auto;
+}
+
+.hud-sign-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(3, 16, 43, 0.92);
+  border: 2px solid #ef4444;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.25);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+.hud-sign-card.candidate {
+  border-color: #f59e0b;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.25);
+}
+
+.hud-sign-card:hover {
+  transform: translateY(-2px);
+}
+
+.hud-sign-symbol {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.hud-sign-symbol img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.fallback-sign-text {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+.hud-sign-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.hud-voice-equalizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #53ea82;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.hud-sign-title {
+  font-size: 1rem;
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.hud-sign-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.hud-tap-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  color: #94a3b8;
+  font-size: 0.65rem;
+}
+
+.hud-idle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(3, 16, 43, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  color: #cbd5e1;
+  font-size: 0.7rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  margin: 0 auto;
+}
+
+.hud-radar-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #53ea82;
+  box-shadow: 0 0 0 3px rgba(83, 234, 130, 0.25);
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(83, 234, 130, 0.6); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(83, 234, 130, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(83, 234, 130, 0); }
+}
+
+/* 4. Collapsible Floating Camera PiP Strip */
+.floating-camera-pip {
+  position: absolute;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 1.5rem));
+  z-index: 85;
+  border-radius: 1.2rem;
+  background: rgba(3, 16, 43, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-camera-pip.collapsed .camera-pip-body {
+  display: none;
+}
+
+.camera-pip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+}
+
+.camera-pip-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.pip-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #53ea82;
+}
+
+.pip-toggle-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.camera-pip-body {
+  padding: 0.5rem 1rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.pip-semantic-trace {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+.trace-item small {
+  color: #94a3b8;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.trace-item strong {
+  display: block;
+  font-size: 0.72rem;
+  color: #53ea82;
+  margin-top: 0.1rem;
+}
+
+.pip-fixtures-section {
+  margin-top: 0.75rem;
+}
+
+.fixtures-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #94a3b8;
+  margin-bottom: 0.4rem;
+}
+
+.pip-fixtures-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+}
+
+.fixture-thumbnail {
+  flex: 0 0 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: #cbd5e1;
+  font-size: 0.6rem;
+  text-align: center;
+}
+
+.fixture-thumbnail img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  object-fit: contain;
+}
+
+/* 5. Reusable Bottom-Sheet Drawer Overlay */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(3, 16, 43, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.bottom-sheet-drawer {
+  width: min(640px, 100%);
+  max-height: 86dvh;
+  background: #ffffff;
+  color: #071a3d;
+  border-radius: 1.5rem 1.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawer-drag-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #cbd5e1;
+  margin: 10px auto 4px;
+  flex: 0 0 auto;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem 0.85rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawer-title-group h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #071a3d;
+}
+
+.drawer-icon-mark {
+  color: #0868ff;
+  display: flex;
+  align-items: center;
+}
+
+.drawer-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.drawer-content {
+  overflow-y: auto;
+  padding: 1.25rem;
+  flex: 1;
+}
+
+/* 6. Trip Setup Refinements & Sakay.ph Styling */
+.journey-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.country-chip {
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.country-chip.highlight {
+  background: #53ea82;
+  color: #03102b;
+}
+
+.demo-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(237, 161, 38, 0.12);
+  border: 1px solid rgba(237, 161, 38, 0.3);
+  color: #fef3c7;
+  font-size: 0.72rem;
+}
+
+.setup-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.demo-pill-indicator {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(83, 234, 130, 0.15);
+  border: 1px solid #53ea82;
+  color: #53ea82;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.field-group {
+  margin-bottom: 0.85rem;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quick-presets {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.preset-btn {
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preset-btn:hover {
+  background: #0868ff;
+  color: white;
+  border-color: #0868ff;
+}
+
+.demo-toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin: 1rem 0;
+}
+
+.demo-toggle-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.demo-toggle-title strong {
+  font-size: 0.82rem;
+}
+
+.active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #20dc63;
+}
+
+.demo-toggle-copy p {
+  margin: 0.2rem 0 0;
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.setup-guide-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.guide-card {
+  padding: 0.85rem;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.guide-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0868ff;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.guide-body strong {
+  font-size: 0.78rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.guide-body p {
+  margin: 0;
+  font-size: 0.68rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.transparency-badges {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.transparency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* 7. Parked View 3-Tab Styles */
+.parked-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.parked-tabs-nav {
+  display: flex;
+  gap: 0.4rem;
+  background: #f1f5f9;
+  padding: 0.3rem;
+  border-radius: 0.75rem;
+}
+
+.parked-tab-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.55rem;
+  border: none;
+  background: none;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.parked-tab-btn.active {
+  background: #ffffff;
+  color: #0868ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.inspector-hero-card {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.hero-sign-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 6px;
+}
+
+.hero-sign-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.empty-sign-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: #94a3b8;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+.hero-sign-info {
+  flex: 1;
+}
+
+.hero-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.source-note {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+.hero-sign-info h3 {
+  margin: 0.2rem 0;
+  font-size: 1.15rem;
+}
+
+.hero-sign-info p {
+  margin: 0.35rem 0;
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.legal-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #0868ff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.parked-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.action-card {
+  padding: 1.1rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.action-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+  color: #0868ff;
+}
+
+.action-card-header h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #071a3d;
+}
+
+.nlp-form textarea {
+  width: 100%;
+  padding: 0.65rem;
+  border-radius: 0.6rem;
+  border: 1px solid #cbd5e1;
+  font-family: inherit;
+  font-size: 0.78rem;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+}
+
+.nlp-answer-card {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  background: #edf7f1;
+  border-left: 3px solid #20dc63;
+}
+
+.answer-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #0448c7;
+  font-size: 0.7rem;
+}
+
+.nlp-answer-card p {
+  margin: 0.3rem 0 0;
+  font-size: 0.75rem;
+  color: #071a3d;
+}
+
+.manners-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.manner-card {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.manner-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0868ff;
+  line-height: 1;
+}
+
+.manner-body h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+}
+
+.manner-body p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.checklist-container h3 {
+  margin-bottom: 0.35rem;
+}
+
+.checklist-items {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+}
+
+.checklist-item input {
+  display: none;
+}
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  color: #0868ff;
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.checklist-item input:checked + .check-box {
+  background: #0868ff;
+  border-color: #0868ff;
+  color: white;
+}
+
+.check-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.check-text strong {
+  font-size: 0.82rem;
+  color: #071a3d;
+}
+
+.check-text small {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+/* 8. Supported Signs Catalog Styles */
+.signs-catalog-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalog-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.catalog-country-tabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.catalog-tab {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+}
+
+.catalog-tab.active {
+  background: #0868ff;
+  color: white;
+  border-color: #0868ff;
+}
+
+.catalog-status-pills {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.status-filter-pill {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  font-size: 0.68rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.status-filter-pill.active {
+  background: #071a3d;
+  color: white;
+  border-color: #071a3d;
+}
+
+.catalog-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.catalog-search-wrap input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.78rem;
+  color: #071a3d;
+}
+
+.catalog-search-wrap input:focus {
+  outline: none;
+}
+
+.signs-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.catalog-sign-card {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.catalog-sign-asset {
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  flex: 0 0 auto;
+}
+
+.catalog-sign-asset img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.catalog-sign-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.catalog-sign-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.sign-category-tag {
+  font-size: 0.6rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.catalog-sign-info h4 {
+  margin: 0.2rem 0;
+  font-size: 0.82rem;
+}
+
+.sign-meaning {
+  margin: 0.15rem 0 0.35rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.sign-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.source-cite-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #0868ff;
+  font-size: 0.65rem;
+  text-decoration: none;
+}
+
+.reviewed-date {
+  color: #94a3b8;
+  font-size: 0.62rem;
+}
+
+.safety-policy-banner {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  margin-top: 1rem;
+}
+
+.policy-text-col strong {
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
+}
+
+.policy-text-col p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+/* 9. Device Previews Styles */
+.device-previews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.device-switcher-nav {
+  display: flex;
+  gap: 0.4rem;
+  background: #f1f5f9;
+  padding: 0.3rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+
+.device-switch-btn {
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.55rem;
+  border: none;
+  background: none;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.device-switch-btn.active {
+  background: #ffffff;
+  color: #0868ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.device-explanation {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-top: 0.85rem;
+}
+
+.device-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+.simulation-toggle-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.simulation-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* 10. Mobile Responsiveness (< 768px & Standalone PWA) */
+@media (max-width: 768px) {
+  .simulation-phone {
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: hidden !important;
+  }
+
+  .simulation-phone .simulation-toolbar {
+    display: none !important;
+  }
+
+  .simulation-phone .simulation-device {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-width: 100% !important;
+    min-height: 100dvh !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .simulation-phone-hardware {
+    display: none !important;
+  }
+
+  .simulation-phone .simulation-viewport {
+    height: 100dvh !important;
+    padding-top: 0 !important;
+  }
+
+  .parked-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manners-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signs-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-guide-strip {
+    grid-template-columns: 1fr;
+  }
+}
