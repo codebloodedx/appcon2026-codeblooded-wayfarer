@@ -1,4 +1,4 @@
-const logoUrl = new URL('./assets/wayfarer-logo.jpeg', import.meta.url).href;
+const logoUrl = new URL('./assets/logo.png', import.meta.url).href;
 const iconUrl = new URL('./assets/wayfarer-icon-rounded.png', import.meta.url).href;
 
 type BrandLogoProps = {
@@ -8,7 +8,7 @@ type BrandLogoProps = {
 export function BrandLogo({ className = '' }: BrandLogoProps) {
   return (
     <span className={`brand-mark ${className}`.trim()} aria-hidden="true">
-      <img src={logoUrl} alt="WayFarer" />
+      <img src={logoUrl} alt="" />
     </span>
   );
 }
