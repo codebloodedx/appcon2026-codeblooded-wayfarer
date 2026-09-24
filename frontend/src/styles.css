@@ -1967,27 +1967,53 @@ p { line-height: 1.58; }
 }
 
 /* Scoped button contrast fixes for Camera PiP */
-.floating-camera-pip .rr-camera__btn {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+.floating-camera-pip .rr-camera__btn,
+.camera-pip .rr-camera__btn {
+  background: #ffffff !important;
+  color: var(--lp-ink, #0a2a66) !important;
+  border: 1.5px solid var(--lp-sky-line, #bcd7fa) !important;
   border-radius: 9999px !important;
-  font-size: 0.75rem !important;
+  font-size: 0.78rem !important;
   font-weight: 700 !important;
-  padding: 0.45rem 1rem !important;
+  padding: 0.5rem 1.15rem !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
 }
 
-.floating-camera-pip .rr-camera__btn:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  color: #ffffff !important;
+.floating-camera-pip .rr-camera__btn:hover:not(:disabled),
+.camera-pip .rr-camera__btn:hover:not(:disabled) {
+  background: var(--lp-sky, #e6f1ff) !important;
+  border-color: var(--lp-blue, #0072e8) !important;
+  color: var(--lp-blue-deep, #0039a6) !important;
 }
 
-.floating-camera-pip .rr-camera__btn:active {
+.floating-camera-pip .rr-camera__btn:active:not(:disabled),
+.camera-pip .rr-camera__btn:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.floating-camera-pip .rr-camera__btn--primary,
+.camera-pip .rr-camera__btn--primary {
+  background: var(--lp-blue, #0072e8) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--lp-blue-deep, #0039a6) !important;
+  box-shadow: 0 4px 14px rgba(0, 114, 232, 0.32) !important;
+}
+
+.floating-camera-pip .rr-camera__btn--primary:hover:not(:disabled),
+.camera-pip .rr-camera__btn--primary:hover:not(:disabled) {
+  background: var(--lp-blue-deep, #0039a6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(0, 57, 166, 0.4) !important;
+}
+
+.floating-camera-pip .rr-camera__btn:disabled,
+.camera-pip .rr-camera__btn:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }
 
 .action-card .rr-camera__btn {
