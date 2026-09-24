@@ -1,4 +1,5 @@
 import { StatusBadge } from '../../components/StatusBadge';
+import { ArrowRightIcon, AudioWaveIcon, CountryBadge, ExternalLinkIcon, ShieldCheckIcon } from '../../components/Icons';
 import { speakBrowserText } from '../guidance';
 import type { BriefingRecord, TripBriefing } from '../guidance/types';
 import type { TripPlan } from './types';
@@ -32,9 +33,9 @@ export function PreTripBriefing({ trip, briefing, loading, error, onBack, onBrow
             <h1 id="briefing-title">{country} <span className="briefing-country-code">{trip.destinationCountry}</span></h1>
             <p>Important {crossBorder ? 'differences' : 'local rules'} before you drive.</p>
             <div className={`briefing-route-context ${crossBorder ? 'cross-border' : ''}`}>
-              <span><i>{trip.homeCountry}</i> {countryNames[trip.homeCountry]}</span>
-              <b aria-hidden="true">→</b>
-              <span><i>{trip.destinationCountry}</i> {country}</span>
+              <span className="route-context-item"><CountryBadge code={trip.homeCountry} size="sm" /> {countryNames[trip.homeCountry]}</span>
+              <ArrowRightIcon size={14} className="briefing-arrow" aria-hidden="true" />
+              <span className="route-context-item"><CountryBadge code={trip.destinationCountry} size="sm" /> {country}</span>
               <small>{crossBorder ? 'Cross-border comparison' : 'Same-country guidance'}</small>
             </div>
           </div>
@@ -50,27 +51,33 @@ export function PreTripBriefing({ trip, briefing, loading, error, onBack, onBrow
           {briefing.items.map((item) => {
             const priority = priorityName(item.priority);
             return <li key={item.id} className={`briefing-priority-${priority.toLowerCase()}`}>
-              <span className="briefing-rule-icon" aria-hidden="true">{item.icon ?? '◆'}</span>
+              <span className="briefing-rule-icon" aria-hidden="true"><ShieldCheckIcon size={20} /></span>
               <div className="briefing-rule-copy">
                 <div><span className="briefing-priority">{priority}</span><h2>{item.title}</h2></div>
                 <p>{item.details}</p>
                 {item.whyItMatters && <small><strong>Why this matters:</strong> {item.whyItMatters}</small>}
                 {item.exceptions && <small><strong>Exception:</strong> {item.exceptions}</small>}
               </div>
-              <a href={item.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Verified source for ${item.title}`}>Source ↗</a>
+              <a href={item.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Verified source for ${item.title}`} className="briefing-source-link">
+                <span>Source</span>
+                <ExternalLinkIcon size={12} />
+              </a>
             </li>;
           })}
         </ol>}
 
         {ready && <aside className="briefing-more">
           <div><strong>Want to review more local driving rules?</strong><p>More local rules and reviewed guidance are available in Reviewed Guidance.</p></div>
-          <button className="button button-secondary" type="button" onClick={onBrowseGuidance}>Browse Reviewed Guidance</button>
+          <button className="button button-secondary briefing-btn-browse" type="button" onClick={onBrowseGuidance}>Browse Reviewed Guidance</button>
         </aside>}
 
         <div className="briefing-actions">
-          <button className="button button-secondary" type="button" onClick={onBack}>Back</button>
-          {ready && <button className="button button-secondary" type="button" onClick={() => speakBrowserText(briefing.speechText, 0.92)}>Replay briefing</button>}
-          <button className="button button-primary" type="button" disabled={loading} onClick={onContinue}>Review complete · Start driving</button>
+          <button className="button button-secondary briefing-btn-back" type="button" onClick={onBack}>Back</button>
+          {ready && <button className="button button-secondary briefing-btn-replay" type="button" onClick={() => speakBrowserText(briefing.speechText, 0.92)}><AudioWaveIcon size={16} /><span>Replay briefing</span></button>}
+          <button className="button button-primary briefing-btn-start" type="button" disabled={loading} onClick={onContinue}>
+            <span>Review complete · Start driving</span>
+            <ArrowRightIcon size={16} />
+          </button>
         </div>
         <p className="privacy-note">The camera and map remain inactive until you continue. During the trip, WayFarer reuses these verified rules for timely guidance.</p>
       </section>

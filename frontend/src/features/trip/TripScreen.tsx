@@ -5,6 +5,19 @@ import type { CountryCode, DrivingGuidanceRule, GuidanceEvent, RecognitionDebug,
 import { MapPanel, PlaceSearchInput } from '../map';
 import type { NavigationStatus, RouteGuidanceEvent } from '../map';
 import type { TripPlan } from './types';
+import {
+  ArrowRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CloseIcon,
+  EditIcon,
+  ExternalLinkIcon,
+  PedestrianIcon,
+  RailroadIcon,
+  StopSignIcon,
+  TrafficLightIcon,
+  TurnIcon,
+} from '../../components/Icons';
 
 type Props = {
   trip: TripPlan;
@@ -144,19 +157,37 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
       </div>
 
       <header className="navigation-search-bar gmaps-search-bar">
-        <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
-        <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
-          <span><small>From</small><strong>{trip.origin}</strong></span>
-          <i aria-hidden="true">→</i>
-          <span><small>To</small><strong>{trip.destination}</strong></span>
+        <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">
+          <ChevronDownIcon size={16} />
         </button>
-        <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>
+        <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
+          <span className="route-stop">
+            <small>From</small>
+            <strong>{trip.origin}</strong>
+          </span>
+          <ArrowRightIcon size={14} className="route-arrow" aria-hidden="true" />
+          <span className="route-stop">
+            <small>To</small>
+            <strong>{trip.destination}</strong>
+          </span>
+        </button>
+        <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">
+          <EditIcon size={16} />
+        </button>
         {routeEditorOpen && (
           <form className="route-editor-popover" onSubmit={updateDestination}>
-            <div><strong>Change destination</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
+            <div className="route-editor-header">
+              <strong>Change destination</strong>
+              <button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">
+                <CloseIcon size={16} />
+              </button>
+            </div>
             <p>WayFarer will pause and calculate from the simulated vehicle’s current position.</p>
             <PlaceSearchInput id="active-destination" label="To" value={destinationInput} countryCode={trip.destinationCountry} placeholder="Enter a new destination" onChange={(value) => { setDestinationInput(value); setDestinationCoordinate(undefined); }} onSelect={(place) => { setDestinationInput(place.label); setDestinationCoordinate(place.coordinate); }} />
-            <button className="button button-primary full" type="submit">Update Route <span>→</span></button>
+            <button className="button button-primary full" type="submit">
+              <span>Update Route</span>
+              <ArrowRightIcon size={16} />
+            </button>
             <button className="route-new-trip" type="button" onClick={onEditTrip}>Change origin or driving country</button>
           </form>
         )}
@@ -166,14 +197,31 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
         <aside className="navigation-sign-alert candidate" aria-live="polite">
           <img src={candidateRule.assetPath} alt="" />
           <div><span>Prototype sign detection</span><strong>{candidateRule.label}</strong><small>{names[candidateRule.countryCode]} · Brief meaning spoken while driving{recognitionDebug?.equivalentSign ? ` · Equivalent ${names[recognitionDebug.equivalentSign.countryCode]} meaning: ${recognitionDebug.equivalentSign.meaning}` : ''}</small></div>
-          <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">×</button>
+          <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">
+            <CloseIcon size={16} />
+          </button>
         </aside>
       )}
       {(navigationStatus === 'driving' || navigationStatus === 'paused') && currentGuidance ? (
         <aside className={`current-guidance-card priority-${currentGuidance.priority.toLowerCase()}`} aria-live="polite">
-          <span className="current-guidance-icon" aria-hidden="true">{currentGuidance.event === 'TRAFFIC_LIGHT' ? '●' : currentGuidance.event === 'RAILROAD_CROSSING' ? '╳' : currentGuidance.event === 'PEDESTRIAN_CROSSING' ? '↟' : currentGuidance.event === 'STOP_SIGN' ? '!' : '↱'}</span>
+          <span className="current-guidance-icon" aria-hidden="true">
+            {currentGuidance.event === 'TRAFFIC_LIGHT' ? (
+              <TrafficLightIcon size={18} />
+            ) : currentGuidance.event === 'RAILROAD_CROSSING' ? (
+              <RailroadIcon size={18} />
+            ) : currentGuidance.event === 'PEDESTRIAN_CROSSING' ? (
+              <PedestrianIcon size={18} />
+            ) : currentGuidance.event === 'STOP_SIGN' ? (
+              <StopSignIcon size={18} />
+            ) : (
+              <TurnIcon size={18} />
+            )}
+          </span>
           <div><small>Current guidance · {currentGuidance.title}</small><strong>{currentGuidance.message}</strong><span>{names[currentGuidance.countryCode]} rule · {currentGuidance.triggerMode === 'simulation' ? 'Simulated route event' : 'Camera detection'} · {announcementStatus}</span></div>
-          <a href={currentGuidance.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source for ${currentGuidance.title}`}>Source</a>
+          <a href={currentGuidance.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source for ${currentGuidance.title}`} className="guidance-source-link">
+            <span>Source</span>
+            <ExternalLinkIcon size={12} />
+          </a>
         </aside>
       ) : !candidateRule && <div className="navigation-monitor-pill"><span /><strong>{guidanceError ? 'Sign recognition unavailable' : navigationStatus === 'preview' ? 'Guidance starts with Start Driving' : 'Road sign monitoring ready'}</strong><small>{guidanceError ? 'Map simulation remains available' : 'Verified prompts only · unknown signs stay silent'}</small></div>}
 
@@ -182,7 +230,19 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
       <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
         <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
           <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
-          <b>{cameraExpanded ? '▾ Minimize' : '▴ Camera Feed'}</b>
+          <b className="camera-pip-toggle-indicator">
+            {cameraExpanded ? (
+              <>
+                <ChevronDownIcon size={14} />
+                <span>Minimize</span>
+              </>
+            ) : (
+              <>
+                <ChevronUpIcon size={14} />
+                <span>Camera Feed</span>
+              </>
+            )}
+          </b>
         </button>
         <div className="camera-pip-body">
           <CameraPanel active parked={false} onSample={onRecognize} onCapture={() => undefined} detection={cameraDetection} recognitionStatus={recognitionStatus} />
