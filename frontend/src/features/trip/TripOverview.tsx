@@ -1,4 +1,5 @@
 import type { TripPlan } from './types';
+import { ArrowRightIcon, CountryBadge } from '../../components/Icons';
 
 type Props = {
   trip: TripPlan;
@@ -15,14 +16,23 @@ export function TripOverview({ trip, onOpenNavigation, onEditTrip }: Props) {
         <div><p className="eyebrow">Current journey</p><h1 id="trip-page-title">Trip</h1><p>Your route stays available while you browse other WayFarer pages.</p></div>
       </div>
       <article className="trip-overview-card">
-        <div className="trip-overview-country"><span>{trip.homeCountry}</span><small>Home · {countryNames[trip.homeCountry]}</small></div>
+        <div className="trip-overview-country">
+          <CountryBadge code={trip.homeCountry} size="md" />
+          <small>Home · {countryNames[trip.homeCountry]}</small>
+        </div>
         <div className="trip-overview-route">
           <span><small>From</small><strong>{trip.origin}</strong></span>
-          <i aria-hidden="true">→</i>
+          <ArrowRightIcon size={16} aria-hidden="true" />
           <span><small>To</small><strong>{trip.destination}</strong></span>
         </div>
-        <div className="trip-overview-meta"><span>{countryNames[trip.destinationCountry]} driving guidance</span><span>{trip.originSource === 'simulated' ? 'Simulated origin' : trip.originSource === 'gps' ? 'GPS origin' : 'Selected origin'}</span></div>
-        <div className="trip-overview-actions"><button className="button button-primary" type="button" onClick={onOpenNavigation}>Open Navigation</button><button className="button button-secondary" type="button" onClick={onEditTrip}>Plan a different trip</button></div>
+        <div className="trip-overview-meta">
+          <span>{countryNames[trip.destinationCountry]} driving guidance</span>
+          <span>{trip.originSource === 'simulated' ? 'Simulated origin' : trip.originSource === 'gps' ? 'GPS origin' : 'Selected origin'}</span>
+        </div>
+        <div className="trip-overview-actions">
+          <button className="button button-primary" type="button" onClick={onOpenNavigation}>Open Navigation</button>
+          <button className="button button-secondary" type="button" onClick={onEditTrip}>Plan a different trip</button>
+        </div>
       </article>
     </section>
   );

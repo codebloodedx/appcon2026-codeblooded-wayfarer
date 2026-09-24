@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
+import { ExternalLinkIcon } from '../../components/Icons';
 import { listRules } from '../guidance';
 import type { CountryCode, RuleRecord } from '../guidance/types';
 
@@ -27,7 +28,7 @@ export function SupportedSignsView({ countryCode }: { countryCode: CountryCode }
       {!loading && !error && rules.length > 0 && <div className="supported-grid">
         {rules.map((rule) => <article className="detail-card sign-record-card" key={rule.id}>
           <img src={rule.assetPath} alt={`${rule.label} reference sign`} />
-          <div><p className="panel-kicker">{country} · {rule.countrySpecific ? 'Country-specific' : rule.normalizedCategory.replaceAll('_', ' ')} · {rule.status === 'tested' ? 'Tested' : 'Candidate'}</p><h2>{rule.label}</h2><p>{rule.meaning}</p><a href={rule.sourceUrl} target="_blank" rel="noreferrer">Reviewed source</a><p className="muted">Reviewed {rule.reviewedOn}</p></div>
+          <div><p className="panel-kicker">{country} · {rule.countrySpecific ? 'Country-specific' : rule.normalizedCategory.replaceAll('_', ' ')} · {rule.status === 'tested' ? 'Tested' : 'Candidate'}</p><h2>{rule.label}</h2><p>{rule.meaning}</p><a href={rule.sourceUrl} target="_blank" rel="noreferrer" className="guidance-source-link"><span>Reviewed source</span> <ExternalLinkIcon size={12} /></a><p className="muted">Reviewed {rule.reviewedOn}</p></div>
           <StatusBadge tone={rule.status === 'tested' ? 'success' : 'warning'}>{rule.status}</StatusBadge>
         </article>)}
       </div>}

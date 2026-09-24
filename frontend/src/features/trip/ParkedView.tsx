@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
+import { ArrowLeftIcon, ExternalLinkIcon } from '../../components/Icons';
 import { CameraPanel } from '../camera';
 import { listDrivingGuidance, listRules } from '../guidance';
 import type { CountryCode, DrivingGuidanceRule, GuidanceEvent, RuleRecord } from '../guidance/types';
@@ -108,7 +109,12 @@ export function ParkedView({ trip, latestRule, candidateRule, guidanceError, nav
 
   return (
     <section className="parked-view reviewed-guidance-view" aria-labelledby="reviewed-guidance-title">
-      {onBack && <button className="reviewed-guidance-back" type="button" onClick={onBack}>← Back to briefing</button>}
+      {onBack && (
+        <button className="reviewed-guidance-back" type="button" onClick={onBack}>
+          <ArrowLeftIcon size={14} />
+          <span>Back to briefing</span>
+        </button>
+      )}
       <div className="page-heading">
         <div><p className="eyebrow">Review while stationary</p><h1 id="reviewed-guidance-title">Reviewed Guidance</h1><p>Browse verified local driving rules and guidance before or after a trip.</p></div>
         <StatusBadge tone="success">Parked review</StatusBadge>
@@ -132,7 +138,10 @@ export function ParkedView({ trip, latestRule, candidateRule, guidanceError, nav
           <div><span>{item.category}</span><b className={`guidance-priority priority-${item.priority.toLocaleLowerCase()}`}>{item.priority}</b></div>
           <h2>{item.title}</h2><p>{item.summary}</p><small>{names[item.countryCode]} · {item.locality}</small>
           {item.details && <details><summary>View details</summary><p>{item.details}</p></details>}
-          <a href={item.sourceUrl} target="_blank" rel="noreferrer">Reviewed source ↗</a>
+          <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="guidance-source-link">
+            <span>Reviewed source</span>
+            <ExternalLinkIcon size={12} />
+          </a>
         </article>)}
         {filteredCards.length === 0 && <p className="guidance-library-state">No reviewed guidance matches these filters.</p>}
       </div>}

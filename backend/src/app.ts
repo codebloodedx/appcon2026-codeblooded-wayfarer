@@ -156,7 +156,7 @@ function providerRetryAfter(error: Error): number | null {
 
 // This is what Vercel's serverless runtime looks for — it errored because
 // only `app` was exported by name, with no `export default`.
-const app = createApp();
+export const app = createApp();
 export default app;
 
 // Only start a listener when running locally (Vercel calls the export directly).

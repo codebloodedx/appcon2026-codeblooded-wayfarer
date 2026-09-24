@@ -1,5 +1,6 @@
 import { StatusBadge } from '../../components/StatusBadge';
 import { BrandLogo } from '../../components/BrandLogo';
+import { CountryBadge } from '../../components/Icons';
 import type { TripPlan } from './types';
 
 type DevicePreviewsProps = { trip: TripPlan };
@@ -24,7 +25,7 @@ export function DevicePreviews({ trip }: DevicePreviewsProps) {
       <div className="device-grid">
         <article className="device-card">
           <div className="device-card-heading"><div><span className="device-number">01</span><h2>Phone</h2></div><StatusBadge>Interface preview</StatusBadge></div>
-          <div className="phone-frame"><div className="phone-island" /><div className="device-top"><span>WayFarer</span><small>{trip.destinationCountry === 'JP' ? '🇯🇵 Japan' : '🇵🇭 Philippines'}</small></div><PreviewContent /><div className="phone-action">Reviewed Guidance</div></div>
+          <div className="phone-frame"><div className="phone-island" /><div className="device-top"><span>WayFarer</span><small><CountryBadge code={trip.destinationCountry} size="sm" /> {trip.destinationCountry === 'JP' ? 'Japan' : 'Philippines'}</small></div><PreviewContent /><div className="phone-action">Reviewed Guidance</div></div>
           <p>Primary handheld layout with large targets and a stacked map/camera summary.</p>
         </article>
 

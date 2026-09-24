@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { BrandLogo } from '../../components/BrandLogo';
+import { ArrowRightIcon, CountryBadge, TargetIcon } from '../../components/Icons';
 import { PlaceSearchInput } from '../map';
 import type { CountryCode, TripPlan } from './types';
 
 type TripSetupProps = { initialTrip: TripPlan; onStart: (trip: TripPlan) => void };
-const countries: Array<{ code: CountryCode; name: string; flag: string }> = [
-  { code: 'PH', name: 'Philippines', flag: '🇵🇭' },
-  { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+const countries: Array<{ code: CountryCode; name: string }> = [
+  { code: 'PH', name: 'Philippines' },
+  { code: 'JP', name: 'Japan' },
 ];
 const demoOrigins: Record<CountryCode, { label: string; coordinate: { lat: number; lng: number } }> = {
   JP: { label: 'Tokyo Station', coordinate: { lat: 35.6812, lng: 139.7671 } },
@@ -82,24 +83,76 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
     <main className="setup-page">
       <section className="setup-intro" aria-labelledby="setup-title">
         <a className="brand setup-brand" href="#setup-title"><BrandLogo /><span><strong>WayFarer</strong><small>Know the road. Respect the place.</small></span></a>
-        <div className="setup-copy"><div className="setup-title-row"><div><p className="eyebrow">Cross-border driving companion</p><h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1><p>Search a real route, preview it, then run a stationary navigation simulation with live sign recognition.</p></div></div><div className="journey-visual" aria-label="Journey from the Philippines to Japan"><div><span>🇵🇭</span><strong>Home</strong><small>Philippines</small></div><div className="journey-line"><span aria-hidden="true">✦</span></div><div><span>🇯🇵</span><strong>Destination</strong><small>Japan</small></div></div><p className="setup-note">Navigation movement is simulated along a route returned by Google Maps. It is not safety-critical navigation.</p></div>
+        <div className="setup-copy">
+          <div className="setup-title-row">
+            <div>
+              <p className="eyebrow">Cross-border driving companion</p>
+              <h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1>
+              <p>Search a real route, preview it, then run a stationary navigation simulation with live sign recognition.</p>
+            </div>
+          </div>
+          <div className="journey-visual" aria-label="Journey from the Philippines to Japan">
+            <div className="journey-checkpoint">
+              <CountryBadge code="PH" size="md" />
+              <strong>Home</strong>
+              <small>Philippines</small>
+            </div>
+            <div className="journey-line">
+              <ArrowRightIcon size={14} className="journey-arrow-icon" aria-hidden="true" />
+            </div>
+            <div className="journey-checkpoint">
+              <CountryBadge code="JP" size="md" />
+              <strong>Destination</strong>
+              <small>Japan</small>
+            </div>
+          </div>
+          <p className="setup-note">Navigation movement is simulated along a route returned by Google Maps. It is not safety-critical navigation.</p>
+        </div>
       </section>
 
       <section className="setup-panel" aria-label="Plan a trip">
         <form className="setup-card" onSubmit={submit}>
           <div className="step-label"><span>01</span> Plan your route</div>
-          <h2>Where are you driving?</h2><p className="muted">Choose a starting point and destination within one supported country.</p>
+          <h2>Where are you driving?</h2>
+          <p className="muted">Choose a starting point and destination within one supported country.</p>
+
           <label className="field-label" htmlFor="home-country">Home country</label>
-          <div className="select-wrap"><span aria-hidden="true">{countries.find((country) => country.code === trip.homeCountry)?.flag}</span><select id="home-country" value={trip.homeCountry} onChange={(event) => setTrip({ ...trip, homeCountry: event.target.value as CountryCode })}>{countries.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}</select></div>
+          <div className="select-wrap">
+            <span aria-hidden="true"><CountryBadge code={trip.homeCountry} size="sm" /></span>
+            <select id="home-country" value={trip.homeCountry} onChange={(event) => setTrip({ ...trip, homeCountry: event.target.value as CountryCode })}>
+              {countries.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}
+            </select>
+          </div>
+
           <label className="field-label" htmlFor="destination-country">Driving country</label>
-          <div className="select-wrap"><span aria-hidden="true">{countries.find((country) => country.code === trip.destinationCountry)?.flag}</span><select id="destination-country" value={trip.destinationCountry} onChange={(event) => { const code = event.target.value as CountryCode; const demo = demoOrigins[code]; setTrip({ ...trip, destinationCountry: code, origin: trip.useSimulatedOrigin ? demo.label : '', originCoordinate: trip.useSimulatedOrigin ? demo.coordinate : undefined, originSource: trip.useSimulatedOrigin ? 'simulated' : 'selected', destination: '', destinationCoordinate: undefined }); setError(''); }}>{countries.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}</select></div>
+          <div className="select-wrap">
+            <span aria-hidden="true"><CountryBadge code={trip.destinationCountry} size="sm" /></span>
+            <select id="destination-country" value={trip.destinationCountry} onChange={(event) => { const code = event.target.value as CountryCode; const demo = demoOrigins[code]; setTrip({ ...trip, destinationCountry: code, origin: trip.useSimulatedOrigin ? demo.label : '', originCoordinate: trip.useSimulatedOrigin ? demo.coordinate : undefined, originSource: trip.useSimulatedOrigin ? 'simulated' : 'selected', destination: '', destinationCoordinate: undefined }); setError(''); }}>
+              {countries.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}
+            </select>
+          </div>
 
           <PlaceSearchInput id="origin" label="From" value={trip.origin} countryCode={trip.destinationCountry} placeholder={trip.destinationCountry === 'PH' ? 'National University Manila' : 'Tokyo Station'} disabled={trip.useSimulatedOrigin || locationState === 'gps'} onChange={(origin) => { setTrip({ ...trip, origin, originCoordinate: undefined, originSource: 'selected', useSimulatedOrigin: false }); setLocationState('idle'); setError(''); }} onSelect={(place) => { setTrip({ ...trip, origin: place.label, originCoordinate: place.coordinate, originSource: 'selected', useSimulatedOrigin: false }); setLocationState('idle'); }} />
-          <button className="location-button" type="button" onClick={useMyLocation} disabled={locationState === 'loading'}><span aria-hidden="true">◎</span><span><strong>{locationState === 'loading' ? 'Locating…' : locationState === 'gps' ? 'GPS location selected' : 'Use my location'}</strong><small>{locationState === 'gps' ? 'Actual browser position resolved' : 'Requires browser permission'}</small></span></button>
+          <button className="location-button" type="button" onClick={useMyLocation} disabled={locationState === 'loading'}>
+            <span className="location-button-icon" aria-hidden="true"><TargetIcon size={18} /></span>
+            <span>
+              <strong>{locationState === 'loading' ? 'Locating…' : locationState === 'gps' ? 'GPS location selected' : 'Use my location'}</strong>
+              <small>{locationState === 'gps' ? 'Actual browser position resolved' : 'Requires browser permission'}</small>
+            </span>
+          </button>
           <PlaceSearchInput id="destination" label="To" value={trip.destination} countryCode={trip.destinationCountry} placeholder={trip.destinationCountry === 'PH' ? 'SM Mall of Asia' : 'Shibuya, Tokyo'} onChange={(destination) => { setTrip({ ...trip, destination, destinationCoordinate: undefined }); setError(''); }} onSelect={(place) => setTrip({ ...trip, destination: place.label, destinationCoordinate: place.coordinate })} />
           {error && <p className="field-error" role="alert">{error}</p>}
-          <label className="toggle-row"><input type="checkbox" checked={trip.useSimulatedOrigin} onChange={(event) => setDemoOrigin(event.target.checked)} /><span><strong>Use {destinationCountryName} judging origin</strong><small>Simulated location · {demoOrigins[trip.destinationCountry].label}</small></span></label>
-          <button className="button button-primary full" type="submit">Review trip briefing <span aria-hidden="true">→</span></button>
+          <label className="toggle-row">
+            <input type="checkbox" checked={trip.useSimulatedOrigin} onChange={(event) => setDemoOrigin(event.target.checked)} />
+            <span>
+              <strong>Use {destinationCountryName} judging origin</strong>
+              <small>Simulated location · {demoOrigins[trip.destinationCountry].label}</small>
+            </span>
+          </label>
+          <button className="button button-primary full" type="submit">
+            <span>Review trip briefing</span>
+            <ArrowRightIcon size={16} />
+          </button>
           <p className="privacy-note">Place suggestions fall back to typed-address routing if Places autocomplete is unavailable.</p>
         </form>
       </section>
