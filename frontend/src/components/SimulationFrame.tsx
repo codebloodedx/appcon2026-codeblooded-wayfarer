@@ -1,26 +1,40 @@
 import type { ReactNode } from 'react';
 import type { SimulationMode } from '../features/trip/types';
+import { DevicesIcon } from './Icons';
 
 type SimulationFrameProps = {
   mode: SimulationMode;
   children: ReactNode;
-  onChangeMode: () => void;
+  onChangeMode?: () => void;
 };
 
 export function SimulationFrame({ mode, children, onChangeMode }: SimulationFrameProps) {
-  const label = mode === 'phone' ? 'Phone simulation' : 'PC simulation';
+  const isPhone = mode === 'phone';
 
   return (
     <div className={`simulation-stage simulation-${mode}`}>
-      <div className="simulation-toolbar">
-        <div>
+      <div className="simulation-toolbar" role="toolbar" aria-label="Display mode switcher">
+        <div className="simulation-toolbar-left">
           <span className="simulation-live-dot" aria-hidden="true" />
-          <span><small>Interface simulation</small><strong>{label}</strong></span>
+          <span>
+            <small>Display Preview</small>
+            <strong>{isPhone ? 'Smartphone In-Car Frame' : 'Full-Width Cockpit'}</strong>
+          </span>
         </div>
-        <button type="button" onClick={onChangeMode}>Change view</button>
+        {onChangeMode && (
+          <button
+            type="button"
+            className="simulation-toggle-btn"
+            onClick={onChangeMode}
+            title={isPhone ? 'Switch to wide cockpit view' : 'Switch to smartphone frame'}
+          >
+            <DevicesIcon size={14} />
+            <span>{isPhone ? 'Wide PC View' : 'Phone Frame'}</span>
+          </button>
+        )}
       </div>
       <div className="simulation-device">
-        {mode === 'phone' && (
+        {isPhone && (
           <div className="simulation-phone-hardware" aria-hidden="true">
             <span className="phone-button phone-mute" />
             <span className="phone-button phone-volume-up" />

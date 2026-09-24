@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { BrandLogo, wayfarerLogoUrl } from '../../components/BrandLogo';
+import { BrandLogo } from '../../components/BrandLogo';
 import { PlaceSearchInput } from '../map';
 import type { CountryCode, TripPlan } from './types';
 
@@ -82,7 +82,7 @@ export function TripSetup({ initialTrip, onStart }: TripSetupProps) {
     <main className="setup-page">
       <section className="setup-intro" aria-labelledby="setup-title">
         <a className="brand setup-brand" href="#setup-title"><BrandLogo /><span><strong>WayFarer</strong><small>Know the road. Respect the place.</small></span></a>
-        <div className="setup-copy"><div className="setup-title-row"><div><p className="eyebrow">Cross-border driving companion</p><h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1><p>Search a real route, preview it, then run a stationary navigation simulation with live sign recognition.</p></div><img className="setup-logo-art" src={wayfarerLogoUrl} alt="WayFarer mountain road logo" /></div><div className="journey-visual" aria-label="Journey from the Philippines to Japan"><div><span>🇵🇭</span><strong>Home</strong><small>Philippines</small></div><div className="journey-line"><span aria-hidden="true">✦</span></div><div><span>🇯🇵</span><strong>Destination</strong><small>Japan</small></div></div><p className="setup-note">Navigation movement is simulated along a route returned by Google Maps. It is not safety-critical navigation.</p></div>
+        <div className="setup-copy"><div className="setup-title-row"><div><p className="eyebrow">Cross-border driving companion</p><h1 id="setup-title">Arrive curious.<br /><span>Drive informed.</span></h1><p>Search a real route, preview it, then run a stationary navigation simulation with live sign recognition.</p></div></div><div className="journey-visual" aria-label="Journey from the Philippines to Japan"><div><span>🇵🇭</span><strong>Home</strong><small>Philippines</small></div><div className="journey-line"><span aria-hidden="true">✦</span></div><div><span>🇯🇵</span><strong>Destination</strong><small>Japan</small></div></div><p className="setup-note">Navigation movement is simulated along a route returned by Google Maps. It is not safety-critical navigation.</p></div>
       </section>
 
       <section className="setup-panel" aria-label="Plan a trip">

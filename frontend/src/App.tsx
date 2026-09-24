@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { SimulationFrame } from './components/SimulationFrame';
-import { wayfarerLogoUrl } from './components/BrandLogo';
+import { wayfarerIconUrl } from './components/BrandLogo';
 import { getTripBriefing, recognizeSign, speakBrowserText } from './features/guidance';
 import type { CountryCode, RecognitionDebug, RuleRecord, TripBriefing } from './features/guidance/types';
 import { DevicePreviews } from './features/trip/DevicePreviews';
@@ -45,7 +45,7 @@ export default function App() {
     const favicon = existingIcon ?? document.createElement('link');
     favicon.rel = 'icon';
     favicon.type = 'image/png';
-    favicon.href = wayfarerLogoUrl;
+    favicon.href = wayfarerIconUrl;
     if (!existingIcon) document.head.appendChild(favicon);
   }, []);
 
@@ -54,10 +54,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!pendingTrip) return;
-    window.scrollTo({ top: 0, behavior: 'auto' });
-    document.querySelector<HTMLElement>('.simulation-viewport')?.scrollTo({ top: 0, behavior: 'auto' });
-  }, [pendingTrip, reviewingPendingGuidance]);
+    if (!pendingTrip && !trip) return;
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        document.querySelector<HTMLElement>('.simulation-stage')?.scrollTo({ top: 0, behavior: 'auto' });
+        document.querySelector<HTMLElement>('.simulation-viewport')?.scrollTo({ top: 0, behavior: 'auto' });
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pendingTrip, reviewingPendingGuidance, trip]);
 
   async function startTrip(plan: TripPlan) {
     setPendingTrip(plan);
@@ -155,9 +161,14 @@ export default function App() {
 
   return (
     <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
-      <AppShell activeView={view} onChangeView={setView}>
-        <TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />
-        {view !== 'trip' && <section className="navigation-drawer" aria-label={`${view} drawer`}><div className="navigation-drawer-handle" /><button className="navigation-drawer-close" type="button" onClick={() => setView('trip')} aria-label="Close drawer">×</button>{view === 'parked' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}{view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}{view === 'devices' && <DevicePreviews trip={trip} />}</section>}
+      <AppShell
+        activeView={view}
+        onChangeView={setView}
+        cockpit={<TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />}
+      >
+        {view === 'parked' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}
+        {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
+        {view === 'devices' && <DevicePreviews trip={trip} />}
       </AppShell>
     </SimulationFrame>
   );

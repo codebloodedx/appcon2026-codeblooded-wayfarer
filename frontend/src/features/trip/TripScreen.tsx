@@ -126,22 +126,24 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
   }
 
   return (
-    <section className="navigation-cockpit" aria-label="WayFarer navigation simulation">
-      <MapPanel
-        countryCode={trip.destinationCountry}
-        origin={trip.origin}
-        originCoordinate={trip.originCoordinate}
-        originSource={trip.originSource}
-        destination={trip.destination}
-        destinationCoordinate={trip.destinationCoordinate}
-        avoidRestrictedZones={showZonePreview && avoidZones}
-        onCountryResolved={onCountryResolved}
-        onNavigationStatusChange={handleNavigationStatus}
-        onGuidanceEvent={handleRouteGuidance}
-        externalDrivingEvent={externalDrivingEvent}
-      />
+    <section className="navigation-cockpit trip-viewport-container" aria-label="WayFarer navigation simulation">
+      <div className="trip-map-fullscreen">
+        <MapPanel
+          countryCode={trip.destinationCountry}
+          origin={trip.origin}
+          originCoordinate={trip.originCoordinate}
+          originSource={trip.originSource}
+          destination={trip.destination}
+          destinationCoordinate={trip.destinationCoordinate}
+          avoidRestrictedZones={showZonePreview && avoidZones}
+          onCountryResolved={onCountryResolved}
+          onNavigationStatusChange={handleNavigationStatus}
+          onGuidanceEvent={handleRouteGuidance}
+          externalDrivingEvent={externalDrivingEvent}
+        />
+      </div>
 
-      <header className="navigation-search-bar">
+      <header className="navigation-search-bar gmaps-search-bar">
         <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
         <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
           <span><small>From</small><strong>{trip.origin}</strong></span>
@@ -177,8 +179,8 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
 
       {showZonePreview && <label className="navigation-zone-control"><span><strong>Avoid restricted zone</strong><small>Simulation preview</small></span><input type="checkbox" checked={avoidZones} onChange={(event) => setAvoidZones(event.target.checked)} /></label>}
 
-      <aside className={`camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
-        <button className="camera-pip-toggle" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
+      <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
+        <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
           <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
           <b>{cameraExpanded ? '▾ Minimize' : '▴ Camera Feed'}</b>
         </button>
