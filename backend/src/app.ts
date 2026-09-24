@@ -154,7 +154,16 @@ function providerRetryAfter(error: Error): number | null {
   return Number.isFinite(seconds) && seconds > 0 ? Math.min(3600, Math.ceil(seconds)) : null;
 }
 
+// This is what Vercel's serverless runtime looks for — it errored because
+// only `app` was exported by name, with no `export default`.
 export const app = createApp();
+export default app;
+
+// Only start a listener when running locally (Vercel calls the export directly).
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => console.log(`WayFarer API listening on port ${port}`));
+}
 
 function resolveRecognition(countryCode: 'JP' | 'PH', catalog: RuleRecord[], prediction: ModelRecognition) {
   const closest = prediction.closestReferenceId ? catalog.find((item) => item.id === prediction.closestReferenceId) : undefined;

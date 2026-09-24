@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AppShell } from './components/AppShell';
+import { AppShell, appPaths, appViewFromPath } from './components/AppShell';
 import { SimulationFrame } from './components/SimulationFrame';
 import { wayfarerIconUrl } from './components/BrandLogo';
 import { getTripBriefing, recognizeSign, speakBrowserText } from './features/guidance';
 import type { CountryCode, RecognitionDebug, RuleRecord, TripBriefing } from './features/guidance/types';
-import { DevicePreviews } from './features/trip/DevicePreviews';
 import { LandingPage } from './features/trip/LandingPage';
 import { ParkedView } from './features/trip/ParkedView';
 import { PreTripBriefing } from './features/trip/PreTripBriefing';
+import { SettingsView } from './features/trip/SettingsView';
 import { SupportedSignsView } from './features/trip/SupportedSignsView';
+import { TripOverview } from './features/trip/TripOverview';
 import { TripScreen } from './features/trip/TripScreen';
 import { TripSetup } from './features/trip/TripSetup';
 import type { NavigationStatus } from './features/map';
@@ -31,7 +32,8 @@ export default function App() {
   const [briefingLoading, setBriefingLoading] = useState(false);
   const [briefingError, setBriefingError] = useState<string | null>(null);
   const [reviewingPendingGuidance, setReviewingPendingGuidance] = useState(false);
-  const [view, setView] = useState<AppView>('trip');
+  const [view, setView] = useState<AppView>(() => appViewFromPath(window.location.pathname));
+  const [spokenGuidance, setSpokenGuidance] = useState(() => window.localStorage.getItem('wayfarer-spoken-guidance') !== 'off');
   const [currentCountry, setCurrentCountry] = useState<CountryCode | null>(null);
   const [latestRule, setLatestRule] = useState<RuleRecord | null>(null);
   const [candidateRule, setCandidateRule] = useState<RuleRecord | null>(null);
@@ -47,6 +49,24 @@ export default function App() {
     favicon.type = 'image/png';
     favicon.href = wayfarerIconUrl;
     if (!existingIcon) document.head.appendChild(favicon);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => setView(appViewFromPath(window.location.pathname));
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('wayfarer-spoken-guidance', spokenGuidance ? 'on' : 'off');
+    if (!spokenGuidance) window.speechSynthesis?.cancel();
+  }, [spokenGuidance]);
+
+  const navigateView = useCallback((nextView: AppView, replace = false) => {
+    setView(nextView);
+    const path = appPaths[nextView];
+    if (window.location.pathname === path) return;
+    window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
   }, []);
 
   const onCountryResolved = useCallback((country: CountryCode | null, _source: 'gps' | 'selected' | 'simulated') => {
@@ -75,7 +95,7 @@ export default function App() {
     try {
       const result = await getTripBriefing(plan.destinationCountry, locality, plan.homeCountry);
       setBriefing(result);
-      if (result.status === 'ready') {
+      if (result.status === 'ready' && spokenGuidance) {
         try {
           speakBrowserText(result.speechText, 0.92);
         } catch (error) {
@@ -95,7 +115,7 @@ export default function App() {
     setCurrentCountry(pendingTrip.destinationCountry);
     setPendingTrip(null);
     setReviewingPendingGuidance(false);
-    setView('trip');
+    navigateView('navigation');
   }
 
   const handleRecognition = useCallback(async (imageDataUrl: string, speak: boolean, countryOverride?: CountryCode) => {
@@ -133,14 +153,21 @@ export default function App() {
     setCandidateRule(null);
     setRecognitionDebug(null);
     setGuidanceError(null);
+    navigateView('trip');
   }
 
   function changeSimulationMode() {
     window.speechSynthesis?.cancel();
     setSimulationMode(null);
+    window.history.replaceState({}, '', '/');
   }
 
-  if (!simulationMode) return <LandingPage onSelect={setSimulationMode} />;
+  function selectSimulationMode(mode: SimulationMode) {
+    setSimulationMode(mode);
+    navigateView(trip ? view : 'trip', true);
+  }
+
+  if (!simulationMode) return <LandingPage onSelect={selectSimulationMode} />;
 
   if (!trip && pendingTrip) {
     return (
@@ -161,14 +188,14 @@ export default function App() {
 
   return (
     <SimulationFrame mode={simulationMode} onChangeMode={changeSimulationMode}>
-      <AppShell
-        activeView={view}
-        onChangeView={setView}
-        cockpit={<TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />}
-      >
-        {view === 'parked' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}
-        {view === 'signs' && <SupportedSignsView countryCode={trip.destinationCountry} />}
-        {view === 'devices' && <DevicePreviews trip={trip} />}
+      <AppShell activeView={view} onChangeView={navigateView}>
+        <div className={`routed-view route-navigation ${view === 'navigation' ? 'active' : ''}`} aria-hidden={view !== 'navigation'}>
+          <TripScreen trip={trip} currentCountry={currentCountry} latestRule={latestRule} candidateRule={candidateRule} recognitionDebug={recognitionDebug} guidanceError={guidanceError} spokenGuidance={spokenGuidance} simulationMode={simulationMode} onCountryResolved={onCountryResolved} onRecognize={(frame) => handleRecognition(frame, true)} onUpdateTrip={setTrip} onEditTrip={editTrip} onNavigationStateChange={setNavigationStatus} />
+        </div>
+        {view === 'trip' && <TripOverview trip={trip} onOpenNavigation={() => navigateView('navigation')} onEditTrip={editTrip} />}
+        {view === 'reviewed-guidance' && <ParkedView trip={trip} latestRule={latestRule} candidateRule={candidateRule} guidanceError={guidanceError} navigationActive={navigationStatus === 'driving' || navigationStatus === 'paused'} onCapture={(frame) => handleRecognition(frame, false)} />}
+        {view === 'sign-recognition' && <SupportedSignsView countryCode={trip.destinationCountry} />}
+        {view === 'settings' && <SettingsView spokenGuidance={spokenGuidance} onSpokenGuidanceChange={setSpokenGuidance} />}
       </AppShell>
     </SimulationFrame>
   );

@@ -1,5 +1,5 @@
 export type CountryCode = 'PH' | 'JP';
-export type AppView = 'trip' | 'parked' | 'signs' | 'devices';
+export type AppView = 'trip' | 'navigation' | 'reviewed-guidance' | 'sign-recognition' | 'settings';
 export type SimulationMode = 'phone' | 'desktop';
 
 export type TripPlan = {
