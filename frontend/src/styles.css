@@ -2582,6 +2582,14 @@ p { line-height: 1.58; }
     backdrop-filter: none;
   }
 
+  .simulation-desktop .camera-pip-header {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .simulation-desktop .camera-pip-header b { display: none; }
+  .simulation-desktop .floating-camera-pip.collapsed .camera-pip-body { display: block; }
+
   .simulation-desktop .camera-pip-header { background: white; color: #071a3d; }
   .simulation-desktop .camera-pip-toggle i { background: #20dc63; box-shadow: 0 0 0 4px rgba(32, 220, 99, .13); }
   .simulation-desktop .camera-pip-toggle small { color: #64708a; }
