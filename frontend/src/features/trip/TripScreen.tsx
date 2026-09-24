@@ -143,58 +143,69 @@ export function TripScreen({ trip, currentCountry, latestRule, candidateRule, re
         />
       </div>
 
-      <header className="navigation-search-bar gmaps-search-bar">
-        <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
-        <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
-          <span><small>From</small><strong>{trip.origin}</strong></span>
-          <i aria-hidden="true">→</i>
-          <span><small>To</small><strong>{trip.destination}</strong></span>
-        </button>
-        <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>
-        {routeEditorOpen && (
-          <form className="route-editor-popover" onSubmit={updateDestination}>
-            <div><strong>Change destination</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
-            <p>WayFarer will pause and calculate from the simulated vehicle’s current position.</p>
-            <PlaceSearchInput id="active-destination" label="To" value={destinationInput} countryCode={trip.destinationCountry} placeholder="Enter a new destination" onChange={(value) => { setDestinationInput(value); setDestinationCoordinate(undefined); }} onSelect={(place) => { setDestinationInput(place.label); setDestinationCoordinate(place.coordinate); }} />
-            <button className="button button-primary full" type="submit">Update Route <span>→</span></button>
-            <button className="route-new-trip" type="button" onClick={onEditTrip}>Change origin or driving country</button>
-          </form>
-        )}
-      </header>
-
-      {!alertDismissed && candidateRule && (
-        <aside className="navigation-sign-alert candidate" aria-live="polite">
-          <img src={candidateRule.assetPath} alt="" />
-          <div><span>Prototype sign detection</span><strong>{candidateRule.label}</strong><small>{names[candidateRule.countryCode]} · Brief meaning spoken while driving{recognitionDebug?.equivalentSign ? ` · Equivalent ${names[recognitionDebug.equivalentSign.countryCode]} meaning: ${recognitionDebug.equivalentSign.meaning}` : ''}</small></div>
-          <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">×</button>
-        </aside>
-      )}
-      {(navigationStatus === 'driving' || navigationStatus === 'paused') && currentGuidance ? (
-        <aside className={`current-guidance-card priority-${currentGuidance.priority.toLowerCase()}`} aria-live="polite">
-          <span className="current-guidance-icon" aria-hidden="true">{currentGuidance.event === 'TRAFFIC_LIGHT' ? '●' : currentGuidance.event === 'RAILROAD_CROSSING' ? '╳' : currentGuidance.event === 'PEDESTRIAN_CROSSING' ? '↟' : currentGuidance.event === 'STOP_SIGN' ? '!' : '↱'}</span>
-          <div><small>Current guidance · {currentGuidance.title}</small><strong>{currentGuidance.message}</strong><span>{names[currentGuidance.countryCode]} rule · {currentGuidance.triggerMode === 'simulation' ? 'Simulated route event' : 'Camera detection'} · {announcementStatus}</span></div>
-          <a href={currentGuidance.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source for ${currentGuidance.title}`}>Source</a>
-        </aside>
-      ) : !candidateRule && <div className="navigation-monitor-pill"><span /><strong>{guidanceError ? 'Sign recognition unavailable' : navigationStatus === 'preview' ? 'Guidance starts with Start Driving' : 'Road sign monitoring ready'}</strong><small>{guidanceError ? 'Map simulation remains available' : 'Verified prompts only · unknown signs stay silent'}</small></div>}
-
-      {showZonePreview && <label className="navigation-zone-control"><span><strong>Avoid restricted zone</strong><small>Simulation preview</small></span><input type="checkbox" checked={avoidZones} onChange={(event) => setAvoidZones(event.target.checked)} /></label>}
-
-      <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
-        <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
-          <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
-          <b>{cameraExpanded ? '▾ Minimize' : '▴ Camera Feed'}</b>
-        </button>
-        <div className="camera-pip-body">
-          <CameraPanel active parked={false} onSample={onRecognize} onCapture={() => undefined} detection={cameraDetection} recognitionStatus={recognitionStatus} />
-          {detectedRule && (
-            <div className="camera-spoken-result" aria-live="polite">
-              <span><small>{names[detectedRule.countryCode]} sign</small><strong>{detectedRule.label}</strong></span>
-              <p>{detectedRule.shortAlert}</p>
-              <b>{announcementStatus}</b>
-            </div>
-          )}
-          {guidanceError && <p className="camera-service-error" role="alert">Recognition is temporarily unavailable. The camera remains active and will retry.</p>}
+      <aside className="desktop-driving-sidebar" aria-label="Driving assistant">
+        <div className="desktop-cockpit-heading">
+          <span className="desktop-cockpit-mark" aria-hidden="true">W</span>
+          <span><strong>WayFarer</strong><small>Driving in {names[currentCountry ?? trip.destinationCountry]}</small></span>
         </div>
+
+        <header className="navigation-search-bar gmaps-search-bar">
+          <button className="navigation-back" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Edit route">⌄</button>
+          <button className="navigation-route-summary" type="button" onClick={() => setRouteEditorOpen(true)}>
+            <span><small>From</small><strong>{trip.origin}</strong></span>
+            <i aria-hidden="true">↓</i>
+            <span><small>To</small><strong>{trip.destination}</strong></span>
+          </button>
+          <button className="navigation-edit" type="button" onClick={() => setRouteEditorOpen((open) => !open)} aria-label="Change destination">✎</button>
+          {routeEditorOpen && (
+            <form className="route-editor-popover" onSubmit={updateDestination}>
+              <div><strong>Change destination</strong><button type="button" onClick={() => setRouteEditorOpen(false)} aria-label="Close route editor">×</button></div>
+              <p>WayFarer will pause and calculate from the simulated vehicle’s current position.</p>
+              <PlaceSearchInput id="active-destination" label="To" value={destinationInput} countryCode={trip.destinationCountry} placeholder="Enter a new destination" onChange={(value) => { setDestinationInput(value); setDestinationCoordinate(undefined); }} onSelect={(place) => { setDestinationInput(place.label); setDestinationCoordinate(place.coordinate); }} />
+              <button className="button button-primary full" type="submit">Update Route <span>→</span></button>
+              <button className="route-new-trip" type="button" onClick={onEditTrip}>Change origin or driving country</button>
+            </form>
+          )}
+        </header>
+
+        <section className="desktop-guidance-section" aria-labelledby="current-guidance-label">
+          <div className="desktop-section-heading"><span id="current-guidance-label">Current guidance</span><b>{navigationStatus === 'driving' ? 'Live' : navigationStatus}</b></div>
+          {(navigationStatus === 'driving' || navigationStatus === 'paused') && currentGuidance ? (
+            <aside className={`current-guidance-card priority-${currentGuidance.priority.toLowerCase()}`} aria-live="polite">
+              <span className="current-guidance-icon" aria-hidden="true">{currentGuidance.event === 'TRAFFIC_LIGHT' ? '●' : currentGuidance.event === 'RAILROAD_CROSSING' ? '╳' : currentGuidance.event === 'PEDESTRIAN_CROSSING' ? '↟' : currentGuidance.event === 'STOP_SIGN' ? '!' : '↱'}</span>
+              <div><small>{currentGuidance.priority} · {currentGuidance.title}</small><strong>{currentGuidance.message}</strong><span>{names[currentGuidance.countryCode]} rule · {currentGuidance.triggerMode === 'simulation' ? 'Simulated route event' : 'Camera detection'} · {announcementStatus}</span></div>
+              <a href={currentGuidance.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source for ${currentGuidance.title}`}>Source</a>
+            </aside>
+          ) : (
+            <div className="navigation-monitor-pill"><span /><strong>{guidanceError ? 'Sign recognition unavailable' : navigationStatus === 'preview' ? 'Guidance starts with Start Driving' : navigationStatus === 'driving' || navigationStatus === 'paused' ? 'Continue on the current road.' : 'Preparing route guidance'}</strong><small>{guidanceError ? 'Map simulation remains available' : 'Verified prompts only · unknown signs stay silent'}</small></div>
+          )}
+        </section>
+
+        {showZonePreview && <label className="navigation-zone-control"><span><strong>Avoid restricted zone</strong><small>Simulation preview</small></span><input type="checkbox" checked={avoidZones} onChange={(event) => setAvoidZones(event.target.checked)} /></label>}
+
+        <aside className={`camera-pip floating-camera-pip ${cameraExpanded ? 'expanded' : 'collapsed'}`}>
+          <button className="camera-pip-toggle camera-pip-header" type="button" onClick={() => setCameraExpanded((expanded) => !expanded)} aria-expanded={cameraExpanded}>
+            <span><i /> <strong>Road Sign Camera</strong><small>{guidanceError ? 'Unavailable' : detectedRule?.label ?? 'Tracking ready'}</small></span>
+            <b>{cameraExpanded ? '▾ Minimize' : '▴ Expand'}</b>
+          </button>
+          <div className="camera-pip-body">
+            <CameraPanel active parked={false} onSample={onRecognize} onCapture={() => undefined} detection={cameraDetection} recognitionStatus={recognitionStatus} />
+            {guidanceError && <p className="camera-service-error" role="alert">Recognition is temporarily unavailable. The camera remains active and will retry.</p>}
+          </div>
+        </aside>
+
+        {!alertDismissed && detectedRule && (
+          <aside className={`navigation-sign-alert ${latestRule ? 'verified' : 'candidate'}`} aria-live="polite">
+            <img src={detectedRule.assetPath} alt="" />
+            <div>
+              <span>Detected sign · {Math.round((recognitionDebug?.confidence ?? 0) * 100)}%</span>
+              <strong>{detectedRule.label}</strong>
+              <small>{names[detectedRule.countryCode]}{recognitionDebug?.equivalentSign ? ` · Equivalent ${names[recognitionDebug.equivalentSign.countryCode]}: ${recognitionDebug.equivalentSign.meaning}` : ''}</small>
+              <p>{detectedRule.shortAlert}</p>
+            </div>
+            <button type="button" onClick={() => setAlertDismissed(true)} aria-label="Dismiss sign alert">×</button>
+          </aside>
+        )}
       </aside>
     </section>
   );

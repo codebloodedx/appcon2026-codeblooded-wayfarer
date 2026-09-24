@@ -2418,6 +2418,308 @@ p { line-height: 1.58; }
   color: #0448c7;
 }
 
+/* Desktop driving cockpit: presentation-only split over the shared navigation state. */
+.desktop-driving-sidebar { display: contents; }
+.desktop-cockpit-heading, .desktop-section-heading { display: none; }
+.navigation-sign-alert p { grid-column: 1 / -1; margin: .25rem 0 0; color: #e8f2ff; font-size: .62rem; line-height: 1.35; }
+.navigation-directions { display: none; }
+
+@media (min-width: 1024px) {
+  .simulation-desktop .simulation-viewport {
+    height: calc(100dvh - 58px);
+    min-height: 620px;
+    overflow: hidden;
+  }
+
+  .simulation-desktop .app-shell.google-maps-layout,
+  .simulation-desktop .gmaps-main-viewport,
+  .simulation-desktop .trip-viewport-container {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .simulation-desktop .trip-viewport-container {
+    display: grid;
+    grid-template-columns: minmax(350px, 38%) minmax(0, 62%);
+    background: #e6f1ff;
+  }
+
+  .simulation-desktop .trip-map-fullscreen {
+    position: relative;
+    inset: auto;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+    overflow: hidden;
+    border-left: 1px solid #bcd7fa;
+    background: #dfe7ef;
+  }
+
+  .simulation-desktop .desktop-driving-sidebar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    min-width: 0;
+    height: 100%;
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    gap: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0 0 68px;
+    background: linear-gradient(180deg, #f8fbff, #eaf3ff);
+    color: #071a3d;
+    scrollbar-color: rgba(0, 114, 232, .28) transparent;
+  }
+
+  .simulation-desktop .desktop-cockpit-heading {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: 1rem 1.15rem .85rem;
+    border-bottom: 1px solid #d7e6fb;
+    background: #0072e8;
+    color: white;
+  }
+
+  .simulation-desktop .desktop-cockpit-mark {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 2px solid white;
+    border-radius: .65rem;
+    font: 900 1.1rem/1 'Nunito', sans-serif;
+    box-shadow: 0 4px 0 #0039a6;
+  }
+
+  .simulation-desktop .desktop-cockpit-heading > span:last-child { display: grid; }
+  .simulation-desktop .desktop-cockpit-heading strong { font-size: .92rem; }
+  .simulation-desktop .desktop-cockpit-heading small { color: #dcecff; font-size: .64rem; }
+
+  .simulation-desktop .navigation-search-bar {
+    position: relative;
+    z-index: 12;
+    top: auto;
+    right: auto;
+    left: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.15rem;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 1rem 1.15rem;
+    border: 0;
+    border-bottom: 1px solid #d7e6fb;
+    border-radius: 0;
+    background: white;
+    color: #071a3d;
+    box-shadow: none;
+    transform: none;
+    backdrop-filter: none;
+  }
+
+  .simulation-desktop .navigation-search-bar > button { color: #071a3d; }
+  .simulation-desktop .navigation-back { display: none; }
+  .simulation-desktop .navigation-edit { width: 2.15rem; height: 2.15rem; border-radius: 50%; background: #e6f1ff; color: #0072e8; }
+  .simulation-desktop .navigation-route-summary { grid-template-columns: minmax(0, 1fr); gap: .25rem; text-align: left; }
+  .simulation-desktop .navigation-route-summary span:last-child { text-align: left; }
+  .simulation-desktop .navigation-route-summary i { color: #0072e8; font-style: normal; line-height: .8; }
+  .simulation-desktop .navigation-route-summary small { color: #64708a; }
+  .simulation-desktop .navigation-route-summary strong { color: #071a3d; font-size: .78rem; }
+  .simulation-desktop .route-editor-popover { top: calc(100% - .35rem); right: 1rem; left: 1rem; width: auto; color: white; }
+
+  .simulation-desktop .desktop-guidance-section {
+    padding: .9rem 1.15rem 1rem;
+    border-bottom: 1px solid #d7e6fb;
+    background: #f8fbff;
+  }
+
+  .simulation-desktop .desktop-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .55rem;
+    color: #0072e8;
+    font-size: .62rem;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .simulation-desktop .desktop-section-heading b { padding: .18rem .4rem; border-radius: 999px; background: #e6f1ff; color: #46628f; font-size: .52rem; }
+
+  .simulation-desktop .current-guidance-card,
+  .simulation-desktop .navigation-monitor-pill {
+    position: static;
+    width: 100%;
+    max-width: none;
+    min-height: 70px;
+    padding: .7rem;
+    border: 1px solid #c9ddfa;
+    border-left: 4px solid #0072e8;
+    border-radius: .85rem;
+    background: white;
+    color: #071a3d;
+    box-shadow: 0 7px 20px rgba(0, 57, 166, .08);
+    transform: none;
+  }
+
+  .simulation-desktop .current-guidance-card.priority-critical { border-color: #efb2ac; border-left-color: #d9443b; }
+  .simulation-desktop .current-guidance-card.priority-high { border-color: #ecd49c; border-left-color: #eda126; }
+  .simulation-desktop .current-guidance-icon { background: #e6f1ff; color: #0072e8; }
+  .simulation-desktop .priority-critical .current-guidance-icon { background: #ffebe8; color: #b54239; }
+  .simulation-desktop .current-guidance-card div small { color: #0072e8; }
+  .simulation-desktop .current-guidance-card div strong { color: #071a3d; font-size: .8rem; }
+  .simulation-desktop .current-guidance-card div span { color: #64708a; }
+  .simulation-desktop .current-guidance-card > a { background: #e6f1ff; color: #0058c7; }
+  .simulation-desktop .navigation-monitor-pill { display: grid; grid-template-columns: auto 1fr; }
+  .simulation-desktop .navigation-monitor-pill strong { color: #071a3d; }
+  .simulation-desktop .navigation-monitor-pill small { color: #64708a; }
+  .simulation-desktop .navigation-monitor-pill > span { background: #20dc63; }
+
+  .simulation-desktop .navigation-zone-control {
+    position: static;
+    justify-content: space-between;
+    margin: .8rem 1.15rem 0;
+    padding: .6rem .75rem;
+    border: 1px solid #d7e6fb;
+    background: white;
+    box-shadow: none;
+  }
+
+  .simulation-desktop .camera-pip.floating-camera-pip {
+    position: static;
+    z-index: auto;
+    width: auto;
+    max-height: none;
+    margin: .8rem 1.15rem 0;
+    border: 1px solid #bcd7fa;
+    border-radius: 1rem;
+    background: white;
+    color: #071a3d;
+    box-shadow: 0 8px 24px rgba(0, 57, 166, .1);
+    transform: none;
+    backdrop-filter: none;
+  }
+
+  .simulation-desktop .camera-pip-header { background: white; color: #071a3d; }
+  .simulation-desktop .camera-pip-toggle i { background: #20dc63; box-shadow: 0 0 0 4px rgba(32, 220, 99, .13); }
+  .simulation-desktop .camera-pip-toggle small { color: #64708a; }
+  .simulation-desktop .camera-pip-toggle b { background: #e6f1ff; color: #0058c7; }
+  .simulation-desktop .camera-pip-body { padding: .7rem; border-color: #d7e6fb; background: #f8fbff; }
+  .simulation-desktop .camera-pip .rr-camera__stage { min-height: 0; aspect-ratio: 16 / 9; }
+  .simulation-desktop .floating-camera-pip .rr-camera__btn { background: #0072e8 !important; border-color: #0072e8 !important; color: white !important; text-shadow: none; }
+
+  .simulation-desktop .navigation-sign-alert {
+    position: static;
+    display: grid;
+    width: auto;
+    margin: .8rem 1.15rem 1rem;
+    padding: .75rem;
+    border: 1px solid #bcd7fa;
+    border-left: 4px solid #0072e8;
+    border-radius: .9rem;
+    background: white;
+    color: #071a3d;
+    box-shadow: 0 8px 24px rgba(0, 57, 166, .08);
+    transform: none;
+  }
+
+  .simulation-desktop .navigation-sign-alert.candidate { border-color: #ecd49c; border-left-color: #eda126; }
+  .simulation-desktop .navigation-sign-alert.verified { border-color: #aee8c0; border-left-color: #20b95a; }
+  .simulation-desktop .navigation-sign-alert div span { color: #0072e8; }
+  .simulation-desktop .navigation-sign-alert.candidate div span { color: #9a6811; }
+  .simulation-desktop .navigation-sign-alert strong { color: #071a3d; }
+  .simulation-desktop .navigation-sign-alert small { color: #64708a; white-space: normal; }
+  .simulation-desktop .navigation-sign-alert p { color: #33476b; }
+  .simulation-desktop .navigation-sign-alert > button { background: #e6f1ff; color: #46628f; }
+
+  .simulation-desktop .gmaps-bottom-nav {
+    right: auto;
+    width: 38%;
+    height: 64px;
+    padding: 0;
+    border-top: 1px solid #cfe0f7;
+    border-right: 1px solid #bcd7fa;
+    background: rgba(255,255,255,.97);
+    box-shadow: 0 -8px 24px rgba(0,57,166,.08);
+    backdrop-filter: blur(14px);
+  }
+
+  .simulation-desktop .gmaps-nav-item { color: #64708a; }
+  .simulation-desktop .gmaps-nav-item:hover,
+  .simulation-desktop .gmaps-nav-item.active { color: #0072e8; }
+  .simulation-desktop .parked-pill-dot { background: #20dc63; }
+
+  .simulation-desktop .route-preview-card,
+  .simulation-desktop .navigation-progress-card {
+    right: 1.25rem;
+    bottom: 2.75rem;
+    left: auto;
+    width: min(26rem, calc(100% - 2.5rem));
+    border: 1px solid #bcd7fa;
+    border-radius: 1rem;
+    background: rgba(255,255,255,.97);
+    color: #071a3d;
+    box-shadow: 0 16px 40px rgba(3,16,43,.18);
+    backdrop-filter: blur(12px);
+  }
+
+  .simulation-desktop .route-preview-card small { color: #0072e8; }
+  .simulation-desktop .route-preview-card div span { color: #64708a; }
+  .simulation-desktop .route-preview-card button { background: #0072e8; box-shadow: 0 4px 0 #0039a6; }
+  .simulation-desktop .navigation-progress-card { display: grid; }
+
+  .simulation-desktop .navigation-maneuver {
+    top: 3.75rem;
+    left: 1.25rem;
+    width: min(27rem, calc(100% - 2.5rem));
+    border: 1px solid rgba(255,255,255,.85);
+    background: rgba(0,57,166,.94);
+  }
+
+  .simulation-desktop .map-attribution-status { top: 1rem; right: 1rem; left: auto; max-width: calc(100% - 2rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transform: none; }
+  .simulation-desktop .navigation-simulation-note { display: none; }
+
+  .simulation-desktop .navigation-directions {
+    position: absolute;
+    z-index: 13;
+    bottom: 2.75rem;
+    left: 1.25rem;
+    display: block;
+    width: min(19rem, calc(100% - 29rem));
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #bcd7fa;
+    border-radius: 1rem;
+    background: rgba(255,255,255,.97);
+    color: #071a3d;
+    box-shadow: 0 14px 34px rgba(3,16,43,.15);
+    backdrop-filter: blur(12px);
+  }
+
+  .simulation-desktop .navigation-directions-toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: .7rem .8rem; border: 0; background: white; color: #071a3d; cursor: pointer; text-align: left; }
+  .simulation-desktop .navigation-directions-toggle span { display: grid; }
+  .simulation-desktop .navigation-directions-toggle small { color: #0072e8; font-size: .54rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+  .simulation-desktop .navigation-directions-toggle strong { font-size: .72rem; }
+  .simulation-desktop .navigation-directions-toggle b { color: #0072e8; font-size: .62rem; }
+  .simulation-desktop .navigation-directions ol { max-height: 38vh; margin: 0; overflow-y: auto; padding: 0 .75rem .75rem; list-style: none; }
+  .simulation-desktop .navigation-directions li { display: grid; grid-template-columns: 1.35rem 1fr auto; align-items: start; gap: .45rem; padding: .55rem 0; border-top: 1px solid #e2ebf7; }
+  .simulation-desktop .navigation-directions li > span { display: grid; width: 1.25rem; height: 1.25rem; place-items: center; border-radius: 50%; background: #e6f1ff; color: #0072e8; font-size: .58rem; font-weight: 900; }
+  .simulation-desktop .navigation-directions li.active > span { background: #0072e8; color: white; }
+  .simulation-desktop .navigation-directions li p { margin: 0; color: #33476b; font-size: .65rem; line-height: 1.35; }
+  .simulation-desktop .navigation-directions li small { color: #7b8ca8; font-size: .55rem; white-space: nowrap; }
+
+  .simulation-desktop .destination-reached-card { background: white; color: #071a3d; }
+  .simulation-desktop .destination-reached-card p { color: #64708a; }
+}
+
 /* 10. Mobile Responsiveness (< 768px & Standalone PWA) */
 @media (max-width: 768px) {
   html,
