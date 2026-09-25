@@ -142,6 +142,13 @@ export function createApp(dependencies: AppDependencies = {}) {
     }
     if (providerError.status === 429) {
       const retryAfterSeconds = providerRetryAfter(error) ?? 60;
+      console.warn(JSON.stringify({
+        level: 'warn',
+        event: 'gemini_rate_limited',
+        providerStatus: 429,
+        retryAfterSeconds,
+        detail: safeProviderDiagnostic(error),
+      }));
       response.setHeader('Retry-After', String(retryAfterSeconds));
       return response.status(503).json({
         error: `Live recognition is rate limited. Retrying in ${retryAfterSeconds} seconds.`,
@@ -161,6 +168,14 @@ function providerRetryAfter(error: Error): number | null {
   const raw = headers?.get?.('retry-after');
   const seconds = raw ? Number(raw) : Number.NaN;
   return Number.isFinite(seconds) && seconds > 0 ? Math.min(3600, Math.ceil(seconds)) : null;
+}
+
+function safeProviderDiagnostic(error: Error): string {
+  return error.message
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[REDACTED_API_KEY]')
+    .replace(/AQ\.[0-9A-Za-z_-]{20,}/g, '[REDACTED_API_KEY]')
+    .replace(/([?&](?:key|api[_-]?key)=)[^&\s]+/gi, '$1[REDACTED]')
+    .slice(0, 2_000);
 }
 
 const app = createApp();

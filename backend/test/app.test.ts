@@ -225,20 +225,31 @@ describe('WayFarer guidance API', () => {
   });
 
   it('returns a retry window when live recognition is rate limited', async () => {
+    const fakeKey = `AQ.${'A'.repeat(32)}`;
     const rateLimitedModel: GuidanceModel = {
       async recognize() {
-        throw Object.assign(new Error('provider limit'), { status: 429, headers: { get: () => '45' } });
+        throw Object.assign(new Error(`provider limit for ${fakeKey}`), { status: 429, headers: { get: () => '45' } });
       },
       async explain() { return 'unused'; },
     };
-    const response = await request(createApp({ rules, model: rateLimitedModel }))
-      .post('/api/recognize').send({ countryCode: 'JP', imageDataUrl: image }).expect(503);
-    assert.equal(response.headers['retry-after'], '45');
-    assert.deepEqual(response.body, {
-      error: 'Live recognition is rate limited. Retrying in 45 seconds.',
-      code: 'RATE_LIMITED',
-      retryAfterSeconds: 45,
-    });
+    const warnings: string[] = [];
+    const originalWarn = console.warn;
+    console.warn = (...values: unknown[]) => warnings.push(values.map(String).join(' '));
+    try {
+      const response = await request(createApp({ rules, model: rateLimitedModel }))
+        .post('/api/recognize').send({ countryCode: 'JP', imageDataUrl: image }).expect(503);
+      assert.equal(response.headers['retry-after'], '45');
+      assert.deepEqual(response.body, {
+        error: 'Live recognition is rate limited. Retrying in 45 seconds.',
+        code: 'RATE_LIMITED',
+        retryAfterSeconds: 45,
+      });
+    } finally {
+      console.warn = originalWarn;
+    }
+    assert.match(warnings.join('\n'), /gemini_rate_limited/);
+    assert.match(warnings.join('\n'), /REDACTED_API_KEY/);
+    assert.doesNotMatch(warnings.join('\n'), new RegExp(fakeKey.replace('.', '\\.')));
   });
 
   it('reports depleted Gemini credits without exposing provider details', async () => {
